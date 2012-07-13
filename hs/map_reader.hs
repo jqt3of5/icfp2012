@@ -1,4 +1,5 @@
 import Data.Array;
+import Data.List;
 import System.IO;
 
 data Cell = Robot
@@ -8,6 +9,7 @@ data Cell = Robot
           | Lift
           | Dirt
           | Space
+          deriving (Eq)
 
 instance Show Cell where
   show Robot  = "R"
@@ -41,6 +43,10 @@ readMap m = listArray ((1,1), (w,h)) $ map readCell (concat $ reverse l)
     l = lines m
     h = length l
     w = length $ l !! 0
+
+numLambdas m = length $ filter (== Lambda) $ elems m
+
+findCell m obj = maybe (0,0) fst $ find (\(i, e) -> e == obj) $ assocs m
 
 getFile = do
   h <- openFile "test.map" ReadMode
