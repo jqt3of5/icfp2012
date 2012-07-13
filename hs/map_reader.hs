@@ -44,9 +44,9 @@ readMap m = listArray ((1,1), (w,h)) $ map readCell (concat $ reverse l)
     h = length l
     w = length $ l !! 0
 
-numLambdas m = length $ filter (== Lambda) $ elems m
+numCells obj m = length $ filter (== obj) $ elems m
 
-findCell m obj = maybe (0,0) fst $ find (\(i, e) -> e == obj) $ assocs m
+findCell obj m = maybe (0,0) fst $ find (\(i, e) -> e == obj) $ assocs m
 
 getFile = do
   h <- openFile "test.map" ReadMode
