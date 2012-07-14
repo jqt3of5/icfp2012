@@ -17,7 +17,7 @@ public class AStar {
   Board board;
   Point destination;
 
-  public void findPath(Board board, Point destination) {
+  public List<Robot.Move> findPath(Board board, Point destination) {
     this.board = board;
     this.destination = destination;
     candidates.add(board.getBoardState());
@@ -36,7 +36,7 @@ public class AStar {
     BoardState bestState = candidates.get(0);
     for (BoardState state : candidates) {
       if (state.compareTo(bestState) < 0)
-	bestState = state;
+        bestState = state;
     }
     return bestState;
   }
@@ -46,5 +46,11 @@ public class AStar {
    */
   public interface CostFunction {
     public double compute(Board board, Point start, Point end);
+  }
+
+  public static class TrivialCost implements CostFunction {
+    public double compute(Board board, Point start, Point end) {
+      return 1.0;
+    }
   }
 }
