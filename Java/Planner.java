@@ -14,7 +14,7 @@ abstract class AStarPlanner extends Planner {
   AStar pathfinder;
   public AStarPlanner(String mapStr) {
     super(mapStr);
-    pathfinder = new AStar(new AStar.TrivialCost(), new AStar.TrivialCost());
+    pathfinder = new AStar(new CostFunctions.TrivialCost(), new CostFunctions.TrivialCost());
   }
 }
 

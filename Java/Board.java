@@ -3,17 +3,41 @@ import java.util.*;
 
 public class Board {
   public enum CellTypes {
-    Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty
+    Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty, Tramp, Target
   };
   public enum GameState {
     Win, Lose, Abort, Continue
   };
+  
+  public class Target
+  {
+    Target(Point pos, char l)
+    {
+      position = pos;
+      label = l;
+    }
+    Point position;
+    char label;
+  }
+  public class Trampoline
+  {
+    Trampoline(Point pos, char l)
+    {
+      position = pos;
+      label = l;
+    }
+    Point position;
+    char label;
+  }
+  
   public Robot robot;
   public int waterLevel;
   public int waterRate;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public CellTypes layout[][];
+  public ArrayList<Trampoline> trampolines;
+  public ArrayList<Target> targets;
   public int layoutWidth;
   public int layoutHeight;
   public int ticks;
@@ -40,7 +64,8 @@ public class Board {
     waterLevel = 0;
     waterRate = 0;
     lambdaPos = new ArrayList<Point>();
-   
+    trampolines = new ArrayList<Trampoline>();
+    targets = new ArrayList<Target>();
 
     int y = 0;
     for (String line : lines) {
@@ -73,6 +98,31 @@ public class Board {
         case 'O':
           layout[y][x] = CellTypes.Open;
           break;
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+          layout[y][x] = CellTypes.Tramp;
+          trampolines.add(new Trampoline(new Point(x,y), line.charAt(x)));
+        break;
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          layout[y][x] = CellTypes.Target;
+          targets.add(new Target(new Point(x,y), (char) (line.charAt(x)-'0' + 'A')));
+        break;
+        
         }
       }
       y++;
@@ -105,18 +155,57 @@ public class Board {
       break;
     }
 
+    //if we get to the exit and it is open, we win
     if (layout[yp][xp] == CellTypes.Open) {
       return GameState.Win;
     }
-    if (layout[yp][xp] == CellTypes.Rock || layout[yp][xp] == CellTypes.Wall
+    //cannot go through a wall, or a closed lift
+    if (layout[yp][xp] == CellTypes.Wall
         || layout[yp][xp] == CellTypes.Closed) {
       return GameState.Continue;
     }
+    //we stumbled on a lambda! pick it up
     if (layout[yp][xp] == CellTypes.Lambda) {
      robot.gainLambda();
        lambdaPos.remove(new Point(xp, yp)); // careful order!
     }
-
+    //if we can move the rock left/right or we just tried to run into it
+    if (move == Robot.Move.Left && layout[yp][xp] == CellTypes.Rock && layout[yp][xp-1] == CellTypes.Empty)
+    {
+     layout[yp][xp-1] = CellTypes.Rock;
+    }
+    else if (move == Robot.Move.Right && layout[yp][xp] == CellTypes.Rock && layout[yp][xp+1] == CellTypes.Empty)
+    {
+      layout[yp][xp+1] = CellTypes.Rock; 
+    }
+    else if (layout[yp][xp] == CellTypes.Rock)
+    {
+      //cant move this rock
+      return GameState.Continue;
+    }
+    
+    if (layout[yp][xp] == CellTypes.Tramp)//poor performance
+    {
+      for (Trampoline tramp : trampolines)
+      {
+        if (tramp.position == new Point(xp,yp))
+        {
+          for (Target targ : targets)
+          {
+            if (targ.label == tramp.label)
+            {
+              yp = targ.position.y;
+              xp = targ.position.x;
+              layout[tramp.position.x][tramp.position.y]= CellTypes.Empty; 
+              trampolines.remove(tramp);
+              targets.remove(targ);
+              break;
+            }
+          }
+        }
+      }
+    }
+    //update our position
     layout[y][x] = CellTypes.Empty;
     layout[yp][xp] = CellTypes.Robot;
     robot.setPosition(xp, yp);
@@ -140,10 +229,12 @@ public class Board {
     if (ticks % waterRate == waterRate - 1) {
       waterLevel += 1;
     }
-    robot.stayInWater();//at what point do we want this called?
+    
     
     if(robot.getWaterTime() == robot.getWaterThreshold())
       return GameState.Lose; //is a drowning lose or abort?
+    
+    robot.stayInWater();//at what point do we want this called?
     
     for (int y = 0; y < layoutHeight; ++y) {
       for (int x = 0; x < layoutWidth; ++x) {
