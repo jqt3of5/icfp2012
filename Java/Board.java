@@ -27,7 +27,14 @@ public class Board {
     lambdaPos = new ArrayList<Point>();
   }
 
-  public static Board read(String map, int width, int height) {
+  public Board(String map) {
+    String[] lines = map.split("\\r\\n|\\r|\\n");
+    int width = 0, height = lines.size;
+    for (String line : lines) {
+      if (line.length > width) {
+        width = line.length;
+      }
+    }
     Board newMap = new Board(width, height);
     int index = 0;
     for (int i = 0; i < height; ++i) {
