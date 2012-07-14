@@ -1,4 +1,5 @@
 public class Robot{
+  enum Emotions{DestroyAllHumans, Sober, Normal};
   private Point position;
   private int lambdaCount;
   private int score;
@@ -30,7 +31,12 @@ public class Robot{
       position.increX();
       score--;
   }
-  
+  public void setPosition(int x, int y)
+  {
+    position.setX(x);
+    position.setY(y);
+    score--;
+  }
   public void stay() {
       score--;
   }

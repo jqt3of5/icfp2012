@@ -1,4 +1,4 @@
-import java.awt.Point;
+//import java.awt.Point;
 import java.util.ArrayList;
 
 public class Board {
@@ -9,8 +9,8 @@ public class Board {
   public Robot robot;
   public int waterLevel;
   public int waterRate;
-  public int totalPoints;
-  public int totalLambdas;
+  //public int totalPoints;
+  //public int totalLambdas;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public CellTypes layout[][];
@@ -21,7 +21,6 @@ public class Board {
   public Board(int width, int height) {
     ticks = 0;
     layout = new CellTypes[height][width];
-    totalPoints = 0;
     waterLevel = 0;
     waterRate = 0;
     lambdaPos = new ArrayList<Point>();
@@ -36,36 +35,43 @@ public class Board {
       }
     }
 
-    Board newMap = new Board(width, height);
+    ticks = 0;
+    layout = new CellTypes[height][width];
+    waterLevel = 0;
+    waterRate = 0;
+    lambdaPos = new ArrayList<Point>();
+   
 
     int y = 0;
     for (String line : lines) {
       for (int x = 0; x < line.length(); ++x) {
         switch (line.charAt(x)) {
         case '*':
-          newMap.layout[y][x] = CellTypes.Rock;
+          layout[y][x] = CellTypes.Rock;
           break;
         case '#':
-          newMap.layout[y][x] = CellTypes.Wall;
+          layout[y][x] = CellTypes.Wall;
           break;
         case 'R':
-          newMap.layout[y][x] = CellTypes.Robot;
+          layout[y][x] = CellTypes.Robot;
+          robot = new Robot(x,y);
           break;
         case '.':
-          newMap.layout[y][x] = CellTypes.Earth;
+          layout[y][x] = CellTypes.Earth;
           break;
         case '\\':
-          newMap.layout[y][x] = CellTypes.Lambda;
-          newMap.lambdaPos.add(new Point(x, y)); // careful the order
+          layout[y][x] = CellTypes.Lambda;
+          lambdaPos.add(new Point(x, y)); // careful the order
           break;
         case 'L':
-          newMap.layout[y][x] = CellTypes.Closed;
+          layout[y][x] = CellTypes.Closed;
+          liftLocation = new Point(x,y);
           break;
         case ' ':
-          newMap.layout[y][x] = CellTypes.Empty;
+          layout[y][x] = CellTypes.Empty;
           break;
         case 'O':
-          newMap.layout[y][x] = CellTypes.Open;
+          layout[y][x] = CellTypes.Open;
           break;
         }
       }
@@ -82,28 +88,20 @@ public class Board {
 
     switch (move) {
     case 'L':
-      if (x - 1 > 0) {
         xp = x - 1;
         yp = y;
-      }
       break;
-    case 'R':
-      if (x + 1 < layoutWidth) {
+    case 'R': 
         xp = x + 1;
-        yp = y;
-      }
+        yp = y; 
       break;
     case 'U':
-      if (y + 1 < layoutHeight) {
         xp = x;
         yp = y + 1;
-      }
       break;
     case 'D':
-      if (y - 1 > 0) {
         xp = x;
         yp = y - 1;
-      }
       break;
     }
 
@@ -115,16 +113,13 @@ public class Board {
       return;
     }
     if (layout[yp][xp] == CellTypes.Lambda) {
-      totalPoints += 25;
-      totalLambdas += 1;
-      lambdaPos.remove(new Point(xp, yp)); // careful order!
+     robot.gainLambda();
+       lambdaPos.remove(new Point(xp, yp)); // careful order!
     }
 
     layout[y][x] = CellTypes.Empty;
     layout[yp][xp] = CellTypes.Robot;
-    robot.getPosition().setX(xp);
-    robot.getPosition().setY(yp);
-    totalPoints -= 1;
+    robot.setPosition(xp, yp);
   }
 
   public void move(String move) // same question as above
@@ -140,44 +135,45 @@ public class Board {
     if (ticks % waterRate == waterRate - 1) {
       waterLevel += 1;
     }
-    for (int i = 0; i < layoutHeight; ++i) {
-      for (int j = 0; j < layoutWidth; ++j) {
+    
+    for (int y = 0; y < layoutHeight; ++y) {
+      for (int x = 0; x < layoutWidth; ++x) {
         
-        if (layout[i][j] == CellTypes.Closed && lambdaPos.size() == 0) {
-          layout[i][j] = CellTypes.Open;
+        if (layout[y][x] == CellTypes.Closed && lambdaPos.size() == 0) {
+          layout[y][x] = CellTypes.Open;
         }
         
-        if (layout[i][j] == CellTypes.Rock) {
-          if (i-1 > 0 && layout[i-1][j] == CellTypes.Empty)
+        if (layout[y][x] == CellTypes.Rock) {
+          if (y-1 > 0 && layout[y-1][x] == CellTypes.Empty)
           {
-            layout[i][j] = CellTypes.Empty;
-            layout[i-1][j] = CellTypes.Empty;
+            layout[y][x] = CellTypes.Empty;
+            layout[y-1][x] = CellTypes.Empty;
             
           }
-          if (i-1 > 0 && j+1 < layoutWidth-1 && 
-              layout[i-1][j] == CellTypes.Rock && 
-              layout[i][j+1] == CellTypes.Empty && 
-              layout[i-1][j+1] == CellTypes.Empty )
+          if (y-1 > 0 && x+1 < layoutWidth-1 && 
+              layout[y-1][x] == CellTypes.Rock && 
+              layout[y][x+1] == CellTypes.Empty && 
+              layout[y-1][x+1] == CellTypes.Empty )
           {
-            layout[i][j] = CellTypes.Empty;
-            layout[i-1][j+1] = CellTypes.Rock;
+            layout[y][x] = CellTypes.Empty;
+            layout[y-1][x+1] = CellTypes.Rock;
           }
-          if (i-1 > 0 && j+1 < layoutWidth-1 && j-1 > 0 &&
-              layout[i-1][j] == CellTypes.Rock && 
-              (layout[i][j+1] != CellTypes.Empty || layout[i-1][j+1] != CellTypes.Empty) && 
-              layout [i][j-1] == CellTypes.Empty &&
-              layout[i-1][j-1] == CellTypes.Empty)
+          if (y-1 > 0 && x+1 < layoutWidth-1 && x-1 > 0 &&
+              layout[y-1][x] == CellTypes.Rock && 
+              (layout[y][x+1] != CellTypes.Empty || layout[y-1][x+1] != CellTypes.Empty) && 
+              layout [y][x-1] == CellTypes.Empty &&
+              layout[y-1][x-1] == CellTypes.Empty)
           {
-            layout[i][j] = CellTypes.Empty;
-            layout[i-1][j-1] = CellTypes.Rock;
+            layout[y][x] = CellTypes.Empty;
+            layout[y-1][x-1] = CellTypes.Rock;
           }
-          if (i-1 > 0 && j+1 < layoutWidth-1 &&
-              layout[i-1][j] == CellTypes.Lambda &&
-              layout[i][j+1] == CellTypes.Empty &&
-              layout[i-1][j+1] == CellTypes.Empty)
+          if (y-1 > 0 && x+1 < layoutWidth-1 &&
+              layout[y-1][x] == CellTypes.Lambda &&
+              layout[y][x+1] == CellTypes.Empty &&
+              layout[y-1][x+1] == CellTypes.Empty)
           {
-            layout[i][j] = CellTypes.Empty;
-            layout[i-1][j+1] = CellTypes.Rock;
+            layout[y][x] = CellTypes.Empty;
+            layout[y-1][x+1] = CellTypes.Rock;
           }
         }
       }
@@ -188,9 +184,9 @@ public class Board {
 
   }
 
-  public void tick() {
+  public void tick(char nextMove) { // will be changed to an enum
 
-    // move(robot.getNextMove());
+    move(nextMove);
     update();
     checkConditions();
     ticks += 1;
