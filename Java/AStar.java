@@ -13,7 +13,7 @@ public class AStar {
   }
 
 
-  List<BoardState> candidates = new ArrayList<BoardState>();
+  PriorityQueue<BoardState> candidates = new PriorityQueue<BoardState>();
   Board board;
   Point destination;
 
@@ -26,19 +26,10 @@ public class AStar {
       // TODO: fill in with something better
 
       // A* main
-      BoardState nextMove = computeBestNextMove();
+      BoardState nextMove = candidates.poll();
       board.update(nextMove);
       candidates.addAll(board.getAvailableMoves());
     }
-  }
-
-  protected BoardState computeBestNextMove() {
-    BoardState bestState = candidates.get(0);
-    for (BoardState state : candidates) {
-      if (state.compareTo(bestState) < 0)
-	bestState = state;
-    }
-    return bestState;
   }
 
   /**
