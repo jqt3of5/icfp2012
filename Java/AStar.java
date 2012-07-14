@@ -5,7 +5,7 @@ import java.io.*;
 
 public class AStar {
 
-  public CostFuction g, h;
+  public CostFunction g, h;
 
   public AStar(CostFunction g, CostFunction h) {
     this.g = g;
@@ -20,7 +20,7 @@ public class AStar {
   public void findPath(Board board, Point destination) {
     this.board = board;
     this.destination = destination;
-    candidates.add(b.getBoardState());
+    candidates.add(board.getBoardState());
     while (true) {
       // Termination condition
       // TODO: fill in with something better
@@ -32,10 +32,19 @@ public class AStar {
     }
   }
 
+  protected BoardState computeBestNextMove() {
+    BoardState bestState = candidates.get(0);
+    for (BoardState state : candidates) {
+      if (state.compareTo(bestState) < 0)
+	bestState = state;
+    }
+    return bestState;
+  }
+
   /**
    * Interface for defining a cost function, e.g., g and h.
    */
   public interface CostFunction {
-    public int compute(Board board, Point start, Point end);
+    public double compute(Board board, Point start, Point end);
   }
 }

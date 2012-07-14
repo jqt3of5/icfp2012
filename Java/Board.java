@@ -5,12 +5,12 @@ public class Board {
   public enum CellTypes {
     Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty
   };
-
+  public enum GameState {
+    Win, Lose, Abort, Continue
+  };
   public Robot robot;
   public int waterLevel;
   public int waterRate;
-  //public int totalPoints;
-  //public int totalLambdas;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public CellTypes layout[][];
@@ -79,7 +79,7 @@ public class Board {
     }
   }
 
-  public void move(char move) // should change internal state, or create a new
+  public GameState move(char move) // should change internal state, or create a new
                               // one?
   {
     int x = robot.getPosition().getX();
@@ -106,11 +106,11 @@ public class Board {
     }
 
     if (layout[yp][xp] == CellTypes.Open) {
-      System.out.println("You won!");
+      return GameState.Win;
     }
     if (layout[yp][xp] == CellTypes.Rock || layout[yp][xp] == CellTypes.Wall
         || layout[yp][xp] == CellTypes.Closed) {
-      return;
+      return GameState.Continue;
     }
     if (layout[yp][xp] == CellTypes.Lambda) {
      robot.gainLambda();
@@ -120,21 +120,30 @@ public class Board {
     layout[y][x] = CellTypes.Empty;
     layout[yp][xp] = CellTypes.Robot;
     robot.setPosition(xp, yp);
+    return GameState.Continue;
   }
 
-  public void move(String move) // same question as above
+  public GameState move(String move) // same question as above
   {
     for (char m : move.toCharArray()) {
-      move(m);
+      GameState state = move(m);
+      if (state != GameState.Continue) {
+        return state;
+      }
     }
+    return GameState.Continue;
   }
 
-  public void update() // again
+  public GameState update() // again
   {
 
     if (ticks % waterRate == waterRate - 1) {
       waterLevel += 1;
     }
+    robot.stayInWater();//at what point do we want this called?
+    
+    if(robot.getWaterTime() == robot.getWaterThreshold())
+      return GameState.Lose; //is a drowning lose or abort?
     
     for (int y = 0; y < layoutHeight; ++y) {
       for (int x = 0; x < layoutWidth; ++x) {
@@ -144,19 +153,20 @@ public class Board {
         }
         
         if (layout[y][x] == CellTypes.Rock) {
+          
+          int xp = 0, yp = 0;
           if (y-1 > 0 && layout[y-1][x] == CellTypes.Empty)
           {
-            layout[y][x] = CellTypes.Empty;
-            layout[y-1][x] = CellTypes.Empty;
-            
+            xp = x;
+            yp = y-1;
           }
           if (y-1 > 0 && x+1 < layoutWidth-1 && 
               layout[y-1][x] == CellTypes.Rock && 
               layout[y][x+1] == CellTypes.Empty && 
               layout[y-1][x+1] == CellTypes.Empty )
           {
-            layout[y][x] = CellTypes.Empty;
-            layout[y-1][x+1] = CellTypes.Rock;
+            xp = x+1;
+            yp = y-1;
           }
           if (y-1 > 0 && x+1 < layoutWidth-1 && x-1 > 0 &&
               layout[y-1][x] == CellTypes.Rock && 
@@ -164,32 +174,46 @@ public class Board {
               layout [y][x-1] == CellTypes.Empty &&
               layout[y-1][x-1] == CellTypes.Empty)
           {
-            layout[y][x] = CellTypes.Empty;
-            layout[y-1][x-1] = CellTypes.Rock;
+            xp = x-1;
+            yp = y-1;
           }
           if (y-1 > 0 && x+1 < layoutWidth-1 &&
               layout[y-1][x] == CellTypes.Lambda &&
               layout[y][x+1] == CellTypes.Empty &&
               layout[y-1][x+1] == CellTypes.Empty)
           {
-            layout[y][x] = CellTypes.Empty;
-            layout[y-1][x+1] = CellTypes.Rock;
+            xp = x+1;
+            yp = y-1;
           }
+          
+          layout[y][x] = CellTypes.Empty;
+          layout[yp][xp] = CellTypes.Rock;
+          if (layout[yp-1][xp] == CellTypes.Robot)
+          {
+            return GameState.Lose;
+          }
+          
         }
       }
     }
+    return GameState.Continue;
   }
 
-  public void checkConditions() {
-
-  }
-
-  public void tick(char nextMove) { // will be changed to an enum
-
-    move(nextMove);
-    update();
-    checkConditions();
+  
+  public GameState tick(char nextMove) { // will be changed to an enum
+    GameState state;
+    if (nextMove == 'A')
+      return GameState.Abort;
+    state = move(nextMove);
+    if (state != GameState.Continue)
+      return state;
+    
+    state = update();
+    if (state != GameState.Continue)
+      return state;
     ticks += 1;
+   
+    return GameState.Continue;
   }
 
 }
