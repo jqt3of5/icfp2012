@@ -1,4 +1,4 @@
-import java.util.Random;
+import java.util.*;
 
 abstract class Planner {
   protected Board curBoard;
@@ -52,8 +52,10 @@ class AnnealingPlanner extends Planner {
   Board pickNeighbor() {
     int i = rand.nextInt(curBoard.lambdaPos.size());
 
-    pathfinder.findPath(curBoard, curBoard.lambdaPos[i]);
-
+    List<Robot.Move> path = pathfinder.findPath(curBoard, curBoard.lambdaPos[i]);
+    Board newBoard = Board(curBoard);
+    newBoard.move(path);
+    return newBoard;
   }
 
   double evaluate(double curEnergy, double newEnergy, double temperature) {
