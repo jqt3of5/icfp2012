@@ -1,5 +1,9 @@
 public class Robot{
   enum Emotions{DestroyAllHumans, Sober, Normal};
+  public enum Move {
+    Left, Right, Up, Down, Wait, Abort
+  }
+
   private Point position;
   private int lambdaCount;
   private int score;

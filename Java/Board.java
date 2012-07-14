@@ -1,5 +1,5 @@
 //import java.awt.Point;
-import java.util.ArrayList;
+import java.util.*;
 
 public class Board {
   public enum CellTypes {
@@ -79,7 +79,7 @@ public class Board {
     }
   }
 
-  public GameState move(char move) // should change internal state, or create a new
+  public GameState move(Robot.Move move) // should change internal state, or create a new
                               // one?
   {
     int x = robot.getPosition().getX();
@@ -87,19 +87,19 @@ public class Board {
     int xp = 0, yp = 0;
 
     switch (move) {
-    case 'L':
+    case Left:
         xp = x - 1;
         yp = y;
       break;
-    case 'R': 
+    case Right: 
         xp = x + 1;
         yp = y; 
       break;
-    case 'U':
+    case Up:
         xp = x;
         yp = y + 1;
       break;
-    case 'D':
+    case Down:
         xp = x;
         yp = y - 1;
       break;
@@ -136,9 +136,9 @@ public class Board {
     return GameState.Continue;
   }
 
-  public GameState move(String move) // same question as above
+  public GameState move(List<Robot.Move> moves) // same question as above
   {
-    for (char m : move.toCharArray()) {
+    for (Robot.Move m : moves) {
       GameState state = move(m);
       if (state != GameState.Continue) {
         return state;
@@ -215,9 +215,9 @@ public class Board {
   }
 
   
-  public GameState tick(char nextMove) { // will be changed to an enum
+  public GameState tick(Robot.Move nextMove) {
     GameState state;
-    if (nextMove == 'A')
+    if (nextMove == Robot.Move.Abort)
       return GameState.Abort;
     state = move(nextMove);
     if (state != GameState.Continue)
