@@ -1,5 +1,9 @@
-class Planner {
-  public String plan(String mapStr) {
-    Board initialBoard = new Board(mapStr);
+abstract class Planner {
+  protected Board curBoard;
+
+  public Planner(String mapStr) {
+    curBoard = new Board(mapStr);
   }
+
+  public abstract String plan();
 }
