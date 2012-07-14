@@ -59,7 +59,7 @@ public class AStar {
   }
 
   public interface TerminationCondition {
-    public boolean isTure(PriorityQueue<BoardState> candidates, Board board,
+    public boolean isTrue(PriorityQueue<BoardState> candidates, Board board,
                           BoardState lastMove);
   }
 }
