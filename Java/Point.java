@@ -1,33 +1,33 @@
 public class Point{
   private int x;
   private int y;
-
+    
   public Point(int a, int b) {
     x = a;
     y = b;
   }
-
-  private int getX() {
+    
+  public int getX() {
     return x;
   }
-
-  private int getY() {
+    
+  public int getY() {
     return y;
   }
-
-  private void increX() {
+    
+  public void increX() {
     x = x + 1;
   }
-
-  private void decreX() {
+    
+  public void decreX() {
     x = x - 1;
   }
-
-  private void increY() {
+    
+  public void increY() {
     y = y + 1;
   }
-
-  private void decreY() {
+    
+  public void decreY() {
     y = y - 1;
   }
 }
