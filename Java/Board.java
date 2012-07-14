@@ -409,7 +409,55 @@ public class Board implements Cloneable {
     return GameState.Continue;
   }
 
-  
+  public void displayBoard()
+  {
+    for (int y = 0; y < layoutHeight; ++y)
+    {
+      for(int x = 0; x < layoutWidth; ++x)
+      {
+        switch(layout.get(x,y))
+        {
+          case Robot:
+            System.out.print('R');
+            break;
+          case Rock:
+            System.out.print('*');
+            break;
+          case Empty:
+            System.out.print(' ');
+            break;
+          case Earth:
+            System.out.print('.');
+            break;
+          case Lambda:
+            System.out.print('\\');
+            break;
+          case Closed:
+            System.out.print('L');
+            break;
+          case Open:
+            System.out.print('O');
+            break;
+          case Beard:
+            System.out.print('W');
+            break;
+          case Razor:
+            System.out.print('!');
+            break;
+          case Wall:
+            System.out.print('#');
+            break;
+          case Tramp:
+            System.out.print('A');
+            break;
+          case Target:
+            System.out.print('1');
+            break;
+        }
+      }
+      System.out.print("\n");
+    }
+  }
   public GameState tick(Robot.Move nextMove) {
     GameState state;
     if (nextMove == Robot.Move.Abort)
