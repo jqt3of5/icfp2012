@@ -16,10 +16,10 @@ public class AStar {
     // init PriorityQueue
     candidates = new PriorityQueue<BoardState>(
       INITIAL_PQ_CAPACITY, new Comparator<BoardState>() {
-	public int compare(BoardState s, BoardState t) {
-	  if (s.score == t.score) return 0;
-	  else return (s.score < t.score) ? -1 : 1;
-	}
+        public int compare(BoardState s, BoardState t) {
+          if (s.score == t.score) return 0;
+          else return (s.score < t.score) ? -1 : 1;
+        }
       });
   }
 
@@ -39,11 +39,11 @@ public class AStar {
       BoardState nextMove = candidates.poll();
       board.update(nextMove);
       for (BoardState candMove : board.getAvailableMoves()) {
-	candMove.parentState = nextMove;
-	candMove.score =
-	  g.compute(board, board.getRobotPosition(), candMove.position) +
-	  h.compute(board, candMove.position, destination);
-	candidates.add(candMove);
+        candMove.parentState = nextMove;
+        candMove.score =
+          g.compute(board, board.getRobotPosition(), candMove.position) +
+          h.compute(board, candMove.position, destination);
+        candidates.add(candMove);
       }
 
       // Termination condition
@@ -60,6 +60,6 @@ public class AStar {
 
   public interface TerminationCondition {
     public boolean isTure(PriorityQueue<BoardState> candidates, Board board,
-			  BoardState lastMove);
+                          BoardState lastMove);
   }
 }
