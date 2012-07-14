@@ -18,7 +18,7 @@ abstract class AStarPlanner extends Planner {
   }
 }
 
-class AnnealingPlanner extends Planner {
+class AnnealingPlanner extends AStarPlanner {
   Random rand = new Random();
   static final int MAX_TIME = 1000;
 
@@ -52,8 +52,8 @@ class AnnealingPlanner extends Planner {
   Board pickNeighbor() {
     int i = rand.nextInt(curBoard.lambdaPos.size());
 
-    List<Robot.Move> path = pathfinder.findPath(curBoard, curBoard.lambdaPos[i]);
-    Board newBoard = Board(curBoard);
+    List<Robot.Move> path = pathfinder.findPath(curBoard, curBoard.lambdaPos.get(i));
+    Board newBoard = curBoard.clone();
     newBoard.move(path);
     return newBoard;
   }

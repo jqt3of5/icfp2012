@@ -1,7 +1,7 @@
 //import java.awt.Point;
 import java.util.*;
 
-public class Board {
+public class Board implements Cloneable {
   public enum CellTypes {
     Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty, Tramp, Target
   };
@@ -44,6 +44,8 @@ public class Board {
 
   public Board(int width, int height) {
     ticks = 0;
+    layoutWidth = width;
+    layoutHeight = height;
     layout = new CellTypes[height][width];
     waterLevel = 0;
     waterRate = 0;
@@ -52,15 +54,16 @@ public class Board {
 
   public Board(String map) {
     String[] lines = map.split("\\r\\n|\\r|\\n");
-    int width = 0, height = lines.length;
+    layoutWidth = 0;
+    layoutHeight = lines.length;
     for (String line : lines) {
-      if (line.length() > width) {
-        width = line.length();
+      if (line.length() > layoutWidth) {
+        layoutWidth = line.length();
       }
     }
 
     ticks = 0;
-    layout = new CellTypes[height][width];
+    layout = new CellTypes[layoutHeight][layoutWidth];
     waterLevel = 0;
     waterRate = 0;
     lambdaPos = new ArrayList<Point>();
@@ -128,6 +131,25 @@ public class Board {
       y++;
     }
   }
+
+  public Board(Board oldBoard) {
+    robot = new Robot(oldBoard.robot);
+    waterLevel = oldBoard.waterLevel;
+    waterRate = oldBoard.waterRate;
+    lambdaPos = new ArrayList<Point>(oldBoard.lambdaPos);
+    liftLocation = oldBoard.liftLocation;
+    layoutWidth = oldBoard.layoutWidth;
+    layoutHeight = oldBoard.layoutHeight;
+
+    // might want to use java's array copy
+    for (int y = 0; y < layoutHeight; y++) {
+      for (int x = 0; x < layoutWidth; x++) {
+        layout[y][x] = oldBoard.layout[y][x];
+      }
+    }
+    ticks = oldBoard.ticks;
+  }
+
 
   public GameState move(Robot.Move move) // should change internal state, or create a new
                               // one?
