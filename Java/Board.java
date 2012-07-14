@@ -305,7 +305,7 @@ public class Board implements Cloneable {
     return GameState.Continue;
   }
 
-  public GameState move(List<Robot.Move> moves) // same question as above, dont use
+  private GameState move(List<Robot.Move> moves) // same question as above, dont use
   {
     for (Robot.Move m : moves) {
       GameState state = move(m);
@@ -430,7 +430,7 @@ public class Board implements Cloneable {
             System.out.print('.');
             break;
           case Lambda:
-            System.out.print('\\');
+            System.out.print('/');
             break;
           case Closed:
             System.out.print('L');
