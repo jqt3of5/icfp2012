@@ -68,4 +68,9 @@ public class Robot{
     return waterTime;
 
   }
+  public Point getPosition()
+  {
+    return position;
+  }
+
 }

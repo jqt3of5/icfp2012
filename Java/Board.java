@@ -67,8 +67,8 @@ public class Board {
   public void move(char move) // should change internal state, or create a new
                               // one?
   {
-    int x = robot.getPos().x;
-    int y = robot.getPos().y;
+    int x = robot.getPosition().x;
+    int y = robot.getPosition().y;
     int xp = 0, yp = 0;
 
     switch (move) {
@@ -113,8 +113,8 @@ public class Board {
 
     layout[y][x] = CellTypes.Empty;
     layout[yp][xp] = CellTypes.Robot;
-    robot.getPos().x = xp;
-    robot.getPos().y = yp;
+    robot.getPosition().x = xp;
+    robot.getPosition().y = yp;
     totalPoints -= 1;
   }
 
@@ -133,11 +133,43 @@ public class Board {
     }
     for (int i = 0; i < layoutHeight; ++i) {
       for (int j = 0; j < layoutWidth; ++j) {
+        
         if (layout[i][j] == CellTypes.Closed && lambdaPos.size() == 0) {
           layout[i][j] = CellTypes.Open;
         }
+        
         if (layout[i][j] == CellTypes.Rock) {
-
+          if (i-1 > 0 && layout[i-1][j] == CellTypes.Empty)
+          {
+            layout[i][j] = CellTypes.Empty;
+            layout[i-1][j] = CellTypes.Empty;
+            
+          }
+          if (i-1 > 0 && j+1 < layoutWidth-1 && 
+              layout[i-1][j] == CellTypes.Rock && 
+              layout[i][j+1] == CellTypes.Empty && 
+              layout[i-1][j+1] == CellTypes.Empty )
+          {
+            layout[i][j] = CellTypes.Empty;
+            layout[i-1][j+1] = CellTypes.Rock;
+          }
+          if (i-1 > 0 && j+1 < layoutWidth-1 && j-1 > 0 &&
+              layout[i-1][j] == CellTypes.Rock && 
+              (layout[i][j+1] != CellTypes.Empty || layout[i-1][j+1] != CellTypes.Empty) && 
+              layout [i][j-1] == CellTypes.Empty &&
+              layout[i-1][j-1] == CellTypes.Empty)
+          {
+            layout[i][j] = CellTypes.Empty;
+            layout[i-1][j-1] = CellTypes.Rock;
+          }
+          if (i-1 > 0 && j+1 < layoutWidth-1 &&
+              layout[i-1][j] == CellTypes.Lambda &&
+              layout[i][j+1] == CellTypes.Empty &&
+              layout[i-1][j+1] == CellTypes.Empty)
+          {
+            layout[i][j] = CellTypes.Empty;
+            layout[i-1][j+1] = CellTypes.Rock;
+          }
         }
       }
     }
