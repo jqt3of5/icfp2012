@@ -108,7 +108,8 @@ public class Board {
     if (layout[yp][xp] == CellTypes.Open) {
       return GameState.Win;
     }
-    if (layout[yp][xp] == CellTypes.Rock || layout[yp][xp] == CellTypes.Wall
+    
+    if (layout[yp][xp] == CellTypes.Wall
         || layout[yp][xp] == CellTypes.Closed) {
       return GameState.Continue;
     }
@@ -117,6 +118,18 @@ public class Board {
        lambdaPos.remove(new Point(xp, yp)); // careful order!
     }
 
+    if (move == 'L' && layout[yp][xp] == CellTypes.Rock && layout[yp][xp-1] == CellTypes.Empty)
+    {
+     layout[yp][xp-1] = CellTypes.Rock;
+    }
+    else if (move == 'R' && layout[yp][xp] == CellTypes.Rock && layout[yp][xp+1] == CellTypes.Empty)
+    {
+      layout[yp][xp+1] = CellTypes.Rock; 
+    }
+    else if (layout[yp][xp] == CellTypes.Rock)
+    {
+      return GameState.Continue;
+    }
     layout[y][x] = CellTypes.Empty;
     layout[yp][xp] = CellTypes.Robot;
     robot.setPosition(xp, yp);
@@ -140,10 +153,12 @@ public class Board {
     if (ticks % waterRate == waterRate - 1) {
       waterLevel += 1;
     }
-    robot.stayInWater();//at what point do we want this called?
+    
     
     if(robot.getWaterTime() == robot.getWaterThreshold())
       return GameState.Lose; //is a drowning lose or abort?
+    
+    robot.stayInWater();//at what point do we want this called?
     
     for (int y = 0; y < layoutHeight; ++y) {
       for (int x = 0; x < layoutWidth; ++x) {
