@@ -21,7 +21,7 @@ public class Board {
 	public Board(int width, int height) {
 		ticks = 0;
 		layout = new CellTypes[height][width];
-		robot = new Robot();
+		//robot = new Robot(roboX,roboY);
 		totalPoints = 0;
 		waterLevel = 0;
 		waterRate = 0;
@@ -42,6 +42,7 @@ public class Board {
 					break;
 				case 'R':
 					newMap.layout[i][j] = CellTypes.Robot;
+					newMap.robot = new Robot(j,i);
 					break;
 				case '.':
 					newMap.layout[i][j] = CellTypes.Earth;
