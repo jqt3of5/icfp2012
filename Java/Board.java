@@ -35,7 +35,7 @@ public class Board implements Cloneable {
   public int waterRate;
   public int growthRate;
   public int razorCount;
-  
+  public int razorValue;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public CellTypes layout[][];
@@ -104,7 +104,7 @@ public class Board implements Cloneable {
     waterRate = 0;
     growthRate = 25;
     razorCount = 0;
-    
+    razorValue = 1;
     
     int y = 0;
     for (String line : lines) {
@@ -225,11 +225,28 @@ public class Board implements Cloneable {
     case Abort:
       return GameState.Abort;
     case Shave:
-      
+      for (int i = y-1; i < 3; ++i)
+        for (int j = x-1; j < 3; ++j)
+        {
+          if (layout[i][j] == CellTypes.Beard)
+          {
+            //temp beards are because we want to differentiate bettween new beards, and old. 
+            //else, out of control growth. 
+            layout[i][j] = CellTypes.Empty;
+            beards.remove(new Point(j,i));
+          }
+        }
+      razorCount--;
       return GameState.Continue;
       
     }
 
+    
+    if (layout[yp][xp] == CellTypes.Razor)
+    {
+      razorCount += razorValue;
+      
+    }
     //if we get to the exit and it is open, we win
     if (layout[yp][xp] == CellTypes.Open) {
       return GameState.Win;
