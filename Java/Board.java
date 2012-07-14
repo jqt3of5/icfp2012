@@ -2,74 +2,73 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class Board {
-	public enum CellTypes {
-		Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty
-	};
+    public enum CellTypes {
+        Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty
+    };
 
-	public Robot robot;
-	public int waterLevel;
-	public int waterRate;
-	public int totalPoints;
-	public int totalLambdas;
-	public ArrayList<Point> lambdaPos;
-	public Point liftLocation;
-	public CellTypes layout[][];
-	public int layoutWidth;
-	public int layoutHeight;
-	public int ticks;
+    public Robot robot;
+    public int waterLevel;
+    public int waterRate;
+    public int totalPoints;
+    public int totalLambdas;
+    public ArrayList<Point> lambdaPos;
+    public Point liftLocation;
+    public CellTypes layout[][];
+    public int layoutWidth;
+    public int layoutHeight;
+    public int ticks;
 
-	public Board(int width, int height) {
-		ticks = 0;
-		layout = new CellTypes[height][width];
-		//robot = new Robot(roboX,roboY);
-		totalPoints = 0;
-		waterLevel = 0;
-		waterRate = 0;
-		lambdaPos = new ArrayList<Point>();
-	}
+    public Board(int width, int height) {
+        ticks = 0;
+        layout = new CellTypes[height][width];
+        // robot = new Robot(roboX,roboY);
+        totalPoints = 0;
+        waterLevel = 0;
+        waterRate = 0;
+        lambdaPos = new ArrayList<Point>();
+    }
 
-	public static Board read(String map, int width, int height) {
-		Board newMap = new Board(width, height);
-		int index = 0;
-		for (int i = 0; i < height; ++i) {
-			for (int j = 0; j < width; ++j, ++index) {
-				switch (map.toCharArray()[index]) {
-				case '*':
-					newMap.layout[i][j] = CellTypes.Rock;
-					break;
-				case '#':
-					newMap.layout[i][j] = CellTypes.Wall;
-					break;
-				case 'R':
-					newMap.layout[i][j] = CellTypes.Robot;
-					newMap.robot = new Robot(j,i);
-					break;
-				case '.':
-					newMap.layout[i][j] = CellTypes.Earth;
-					break;
-				case '\\':
-					newMap.layout[i][j] = CellTypes.Lambda;
-					newMap.lambdaPos.add(new Point(j, i)); // careful the order
-					break;
-				case 'L':
-					newMap.layout[i][j] = CellTypes.Closed;
-					break;
-				case ' ':
-					newMap.layout[i][j] = CellTypes.Empty;
-					break;
-				case 'O':
-					newMap.layout[i][j] = CellTypes.Open;
-					break;
-				}
-			}
-		}
-		return newMap;
-	}
+    public static Board read(String map, int width, int height) {
+        Board newMap = new Board(width, height);
+        int index = 0;
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j, ++index) {
+                switch (map.toCharArray()[index]) {
+                case '*':
+                    newMap.layout[i][j] = CellTypes.Rock;
+                    break;
+                case '#':
+                    newMap.layout[i][j] = CellTypes.Wall;
+                    break;
+                case 'R':
+                    newMap.layout[i][j] = CellTypes.Robot;
+                    newMap.robot = new Robot(j, i);
+                    break;
+                case '.':
+                    newMap.layout[i][j] = CellTypes.Earth;
+                    break;
+                case '\\':
+                    newMap.layout[i][j] = CellTypes.Lambda;
+                    newMap.lambdaPos.add(new Point(j, i)); // careful the order
+                    break;
+                case 'L':
+                    newMap.layout[i][j] = CellTypes.Closed;
+                    break;
+                case ' ':
+                    newMap.layout[i][j] = CellTypes.Empty;
+                    break;
+                case 'O':
+                    newMap.layout[i][j] = CellTypes.Open;
+                    break;
+                }
+            }
+        }
+        return newMap;
+    }
 
-	public void move(char move) // should change internal state, or create a new
-								// one?
+    public void move(char move) // should change internal state, or create a new						// one?
 	{
-		int x = robot.getPos().x;
+		int x = robot.;
 		int y = robot.getPos().y;
 		int xp = 0, yp = 0;
 
@@ -121,41 +120,40 @@ public class Board {
 		totalPoints -= 1;
 	}
 
-	public void move(String move) // same question as above
-	{
-		for (char m : move.toCharArray()) {
-			move(m);
-		}
-	}
+    public void move(String move) // same question as above
+    {
+        for (char m : move.toCharArray()) {
+            move(m);
+        }
+    }
 
-	public void update() // again
-	{
-		if (ticks%waterRate == waterRate-1)
-		{
-			waterLevel += 1;
-		}
-		for (int i = 0; i < layoutHeight; ++i) {
-			for (int j = 0; j < layoutWidth; ++j) {
-				if (layout[i][j] == CellTypes.Closed && lambdaPos.size() == 0) {
-					layout[i][j] = CellTypes.Open;
-				}
-				if (layout[i][j] == CellTypes.Rock) {
+    public void update() // again
+    {
+        if (ticks % waterRate == waterRate - 1) {
+            waterLevel += 1;
+        }
+        for (int i = 0; i < layoutHeight; ++i) {
+            for (int j = 0; j < layoutWidth; ++j) {
+                if (layout[i][j] == CellTypes.Closed && lambdaPos.size() == 0) {
+                    layout[i][j] = CellTypes.Open;
+                }
+                if (layout[i][j] == CellTypes.Rock) {
 
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
-	public void checkConditions() {
+    public void checkConditions() {
 
-	}
+    }
 
-	public void tick() {
-		
-		move(robot.getNextMove());
-		update();
-		checkConditions();
-		ticks += 1;
-	}
+    public void tick() {
+
+        move(robot.getNextMove());
+        update();
+        checkConditions();
+        ticks += 1;
+    }
 
 }
