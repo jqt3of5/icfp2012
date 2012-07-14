@@ -29,46 +29,48 @@ public class Board {
 
   public Board(String map) {
     String[] lines = map.split("\\r\\n|\\r|\\n");
-    int width = 0, height = lines.size;
+    int width = 0, height = lines.length;
     for (String line : lines) {
-      if (line.length > width) {
-        width = line.length;
+      if (line.length() > width) {
+        width = line.length();
       }
     }
+
     Board newMap = new Board(width, height);
-    int index = 0;
-    for (int i = 0; i < height; ++i) {
-      for (int j = 0; j < width; ++j, ++index) {
-        switch (map.toCharArray()[index]) {
+
+    int y = 0;
+    for (String line : lines) {
+      for (int x = 0; x < line.length(); ++x) {
+        switch (line.charAt(x)) {
         case '*':
-          newMap.layout[i][j] = CellTypes.Rock;
+          newMap.layout[y][x] = CellTypes.Rock;
           break;
         case '#':
-          newMap.layout[i][j] = CellTypes.Wall;
+          newMap.layout[y][x] = CellTypes.Wall;
           break;
         case 'R':
-          newMap.layout[i][j] = CellTypes.Robot;
+          newMap.layout[y][x] = CellTypes.Robot;
           break;
         case '.':
-          newMap.layout[i][j] = CellTypes.Earth;
+          newMap.layout[y][x] = CellTypes.Earth;
           break;
         case '\\':
-          newMap.layout[i][j] = CellTypes.Lambda;
-          newMap.lambdaPos.add(new Point(j, i)); // careful the order
+          newMap.layout[y][x] = CellTypes.Lambda;
+          newMap.lambdaPos.add(new Point(x, y)); // careful the order
           break;
         case 'L':
-          newMap.layout[i][j] = CellTypes.Closed;
+          newMap.layout[y][x] = CellTypes.Closed;
           break;
         case ' ':
-          newMap.layout[i][j] = CellTypes.Empty;
+          newMap.layout[y][x] = CellTypes.Empty;
           break;
         case 'O':
-          newMap.layout[i][j] = CellTypes.Open;
+          newMap.layout[y][x] = CellTypes.Open;
           break;
         }
       }
+      y++;
     }
-    return newMap;
   }
 
   public void move(char move) // should change internal state, or create a new
