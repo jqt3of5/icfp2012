@@ -35,7 +35,6 @@ public class Board implements Cloneable {
   public int waterRate;
   public int growthRate;
   public int razorCount;
-  public int razorValue;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public CellTypes layout[][];
@@ -104,8 +103,7 @@ public class Board implements Cloneable {
     waterRate = 0;
     growthRate = 25;
     razorCount = 0;
-    razorValue = 1;
-    
+       
     int y = 0;
     for (String line : lines) {
       for (int x = 0; x < line.length(); ++x) {
@@ -225,6 +223,8 @@ public class Board implements Cloneable {
     case Abort:
       return GameState.Abort;
     case Shave:
+      if (razorCount < 1)
+        return GameState.Continue;
       for (int i = y-1; i < 3; ++i)
         for (int j = x-1; j < 3; ++j)
         {
@@ -244,8 +244,7 @@ public class Board implements Cloneable {
     
     if (layout[yp][xp] == CellTypes.Razor)
     {
-      razorCount += razorValue;
-      
+      razorCount += 1;
     }
     //if we get to the exit and it is open, we win
     if (layout[yp][xp] == CellTypes.Open) {
