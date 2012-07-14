@@ -16,30 +16,38 @@ public class Robot{
     waterTime = 0;
     waterThreshold = 10;
   }
+
+  public Robot(Robot oldRobot) {
+    position = new Point(oldRobot.position.x, oldRobot.position.y);
+    lambdaCount = oldRobot.lambdaCount;
+    score = oldRobot.score;
+    waterTime = oldRobot.waterTime;
+    waterThreshold = oldRobot.waterThreshold;
+  }
     
   public void moveUp() {
-    position.increY();
+    position.y++;
     score--;
   }
     
   public void moveDown() {
-    position.decreY();
+    position.y--;
     score--;
   }
     
   public void moveLeft() {
-      position.decreX();
+      position.x--;
       score--;
   }
   
   public void moveRight() {
-      position.increX();
+      position.x++;
       score--;
   }
   public void setPosition(int x, int y)
   {
-    position.setX(x);
-    position.setY(y);
+    position.x = x;
+    position.y = y;
     score--;
   }
   public void stay() {
