@@ -38,7 +38,7 @@ readCell c | c == 'R' = Robot
            | c == ' ' = Space
 
 readMap :: String -> Map
-readMap m = listArray ((1,1), (w,h)) $ map readCell (concat $ reverse l)
+readMap m = listArray ((1,1), (w,h)) $ map readCell (concat $ reverse l) 
   where
     l = lines m
     h = length l
