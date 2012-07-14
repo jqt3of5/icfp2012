@@ -67,8 +67,8 @@ public class Board {
   public void move(char move) // should change internal state, or create a new
                               // one?
   {
-    int x = robot.getPosition().x;
-    int y = robot.getPosition().y;
+    int x = robot.getPosition().getX();
+    int y = robot.getPosition().getY();
     int xp = 0, yp = 0;
 
     switch (move) {
@@ -113,8 +113,8 @@ public class Board {
 
     layout[y][x] = CellTypes.Empty;
     layout[yp][xp] = CellTypes.Robot;
-    robot.getPosition().x = xp;
-    robot.getPosition().y = yp;
+    robot.getPosition().setX(xp);
+    robot.getPosition().setY(yp);
     totalPoints -= 1;
   }
 
