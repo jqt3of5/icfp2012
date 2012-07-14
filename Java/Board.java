@@ -54,18 +54,36 @@ public class Board implements Cloneable {
 
   public Board(String map) {
     String[] lines = map.split("\\r\\n|\\r|\\n");
+
+    // Parse map
     layoutWidth = 0;
-    layoutHeight = lines.length;
-    for (String line : lines) {
-      if (line.length() > layoutWidth) {
-        layoutWidth = line.length();
+    int i;
+    for (i = 0; i < lines.length; i++) {
+      if (lines[i] == "")
+        break;
+
+      if (lines[i].length() > layoutWidth) {
+        layoutWidth = lines[i].length();
       }
+    }
+    layoutHeight = i;
+
+    // Parse metadata
+    waterLevel = 0;
+    waterRate = 0;
+    for (; i < lines.length; i++) {
+      String[] words = lines[i].split(" ");
+      String type = words[0];
+      if (type == "Water")
+        waterLevel = Integer.parseInt(words[1]);
+      else if (type == "Flooding")
+        waterRate = Integer.parseInt(words[1]);
+      else if (type == "Waterproof")
+        robot.setWaterThreshold(Integer.parseInt(words[1]));
     }
 
     ticks = 0;
     layout = new CellTypes[layoutHeight][layoutWidth];
-    waterLevel = 0;
-    waterRate = 0;
     lambdaPos = new ArrayList<Point>();
     trampolines = new ArrayList<Trampoline>();
     targets = new ArrayList<Target>();

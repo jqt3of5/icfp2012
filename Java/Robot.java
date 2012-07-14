@@ -82,6 +82,10 @@ public class Robot{
   {
     return waterThreshold;
   }
+  public void setWaterThreshold(int threshold)
+  {
+    waterThreshold = threshold;
+  }
   public Point getPosition()
   {
     return position;
