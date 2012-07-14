@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Board {
   public enum CellTypes {
-    Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty, Tramp, Target
+    Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty, Tramp, Target, Beard, TempBeard, Razor
   };
   public enum GameState {
     Win, Lose, Abort, Continue
@@ -33,21 +33,30 @@ public class Board {
   public Robot robot;
   public int waterLevel;
   public int waterRate;
+  public int growthRate;
+  public int razorCount;
+  
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public CellTypes layout[][];
   public ArrayList<Trampoline> trampolines;
   public ArrayList<Target> targets;
+  public ArrayList<Point> tempBeards;
+  public ArrayList<Point> beards;
+  public ArrayList<Point> razors;
   public int layoutWidth;
   public int layoutHeight;
   public int ticks;
 
-  public Board(int width, int height) {
+  private Board(int width, int height) {
     ticks = 0;
     layout = new CellTypes[height][width];
     waterLevel = 0;
     waterRate = 0;
+    growthRate = 25;
+    razorCount = 0;
     lambdaPos = new ArrayList<Point>();
+    
   }
 
   public Board(String map) {
@@ -61,12 +70,20 @@ public class Board {
 
     ticks = 0;
     layout = new CellTypes[height][width];
-    waterLevel = 0;
-    waterRate = 0;
+   
     lambdaPos = new ArrayList<Point>();
     trampolines = new ArrayList<Trampoline>();
     targets = new ArrayList<Target>();
-
+    beards = new ArrayList<Point>();
+    razors = new ArrayList<Point>();
+    tempBeards = new ArrayList<Point>();
+    
+    waterLevel = 0;
+    waterRate = 0;
+    growthRate = 25;
+    razorCount = 0;
+    
+    
     int y = 0;
     for (String line : lines) {
       for (int x = 0; x < line.length(); ++x) {
@@ -120,17 +137,25 @@ public class Board {
         case '8':
         case '9':
           layout[y][x] = CellTypes.Target;
+          //conversion, so that tramps and targets have same labels. 
           targets.add(new Target(new Point(x,y), (char) (line.charAt(x)-'0' + 'A')));
         break;
         
+        case 'W':
+          layout[y][x] = CellTypes.Beard;
+          beards.add(new Point(x,y));
+          break;
+        case '!':
+          layout[y][x] = CellTypes.Razor;
+          razors.add(new Point(x,y));
+          break;
         }
       }
       y++;
     }
   }
 
-  public GameState move(Robot.Move move) // should change internal state, or create a new
-                              // one?
+  public GameState move(Robot.Move move) // should change internal state, or create a new?
   {
     int x = robot.getPosition().getX();
     int y = robot.getPosition().getY();
@@ -153,15 +178,24 @@ public class Board {
         xp = x;
         yp = y - 1;
       break;
+    case Wait:
+      return GameState.Continue;
+    case Abort:
+      return GameState.Abort;
+    case Shave:
+      
+      return GameState.Continue;
+      
     }
 
     //if we get to the exit and it is open, we win
     if (layout[yp][xp] == CellTypes.Open) {
       return GameState.Win;
     }
-    //cannot go through a wall, or a closed lift
-    if (layout[yp][xp] == CellTypes.Wall
-        || layout[yp][xp] == CellTypes.Closed) {
+    //cannot go through a wall, or a closed lift, or a beard
+    if (layout[yp][xp] == CellTypes.Wall ||
+        layout[yp][xp] == CellTypes.Closed ||
+        layout[yp][xp] == CellTypes.Beard) {
       return GameState.Continue;
     }
     //we stumbled on a lambda! pick it up
@@ -184,6 +218,7 @@ public class Board {
       return GameState.Continue;
     }
     
+    //if we step on a tramp, find our coresponding target, and set that. 
     if (layout[yp][xp] == CellTypes.Tramp)//poor performance
     {
       for (Trampoline tramp : trampolines)
@@ -212,7 +247,7 @@ public class Board {
     return GameState.Continue;
   }
 
-  public GameState move(List<Robot.Move> moves) // same question as above
+  public GameState move(List<Robot.Move> moves) // same question as above, dont use
   {
     for (Robot.Move m : moves) {
       GameState state = move(m);
@@ -241,6 +276,22 @@ public class Board {
         
         if (layout[y][x] == CellTypes.Closed && lambdaPos.size() == 0) {
           layout[y][x] = CellTypes.Open;
+        }
+        //grow beards
+        if(ticks%growthRate == growthRate-1 && layout[y][x] == CellTypes.Beard)
+        {
+              for (int i = y-1; i < 3; ++i)
+                for (int j = x-1; j < 3; ++j)
+                {
+                  if (layout[i][j] == CellTypes.Empty)
+                  {
+                    //temp beards are because we want to differentiate bettween new beards, and old. 
+                    //else, out of control growth. 
+                    layout[i][j] = CellTypes.TempBeard;
+                    tempBeards.add(new Point(j,i));
+                    beards.add(new Point(j,i));
+                  }
+                }
         }
         
         if (layout[y][x] == CellTypes.Rock) {
@@ -285,6 +336,16 @@ public class Board {
           }
           
         }
+      }
+    }
+    
+    //need to change the new beards for this round into permanent beards
+    if (ticks%growthRate == growthRate-1)
+    {
+      for (Point p : tempBeards)
+      {
+        layout[p.y][p.x] = CellTypes.Beard;
+        tempBeards.remove(p);
       }
     }
     return GameState.Continue;
