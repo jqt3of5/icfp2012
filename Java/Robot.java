@@ -4,12 +4,13 @@ public class Robot{
   private int lambdaCount;
   private int score;
   private int waterTime;
-    
+  private int waterThreshold;
   public Robot(int x, int y) {
     position = new Point(x, y);
     lambdaCount = 0;
     score = 0;
     waterTime = 0;
+    waterThreshold = 10;
   }
     
   public void moveUp() {
@@ -72,6 +73,10 @@ public class Robot{
   
   public int getWaterTime() {
       return waterTime;
+  }
+  public int getWaterThreshold()
+  {
+    return waterThreshold;
   }
   public Point getPosition()
   {

@@ -14,7 +14,14 @@ public class Point{
     public int getY() {
         return y;
     }
-    
+    public void setX(int a)
+    {
+      x = a;
+    }
+    public void setY(int b)
+    {
+      y = b;
+    }
     public void increX() {
         x = x + 1;
     }
