@@ -1,4 +1,7 @@
 #temp state variables
+waterLevel = 0
+waterRate = 5
+waterProof = 10
 numLambdas = 0
 lambdaPos = []
 collectedLambdas = 0
@@ -15,9 +18,9 @@ map = [['#','#' ,'#','#' ,'#','#','#'],
 
 #should only recieve L,R,U,D as a move
 def moveRobot(state, move):
-    global robotPos, collectedLambdas
+    global robotPos, collectedLambdas, numLambdas
     (x,y) = robotPos
-    if move == 'L' and x-1 > 0:
+    if move == 'L' and x-1 >= 0:
         xp, yp = x-1, y
     elif move == 'R' and x+1 < len(state[0]):
         xp, yp = x+1, y
@@ -29,10 +32,14 @@ def moveRobot(state, move):
         print "not a move " + move
         return
 
-    if state[yp][xp] == '*' or state[yp][xp] == '#':
+    if state[yp][xp] == 'O':
+        print "you won!"
+    
+    if state[yp][xp] == '*' or state[yp][xp] == '#' or state[yp][xp] == 'L':
         return
     if state[yp][xp] == '\\':
         collectedLambdas += 1
+        numLambdas -= 1
     state[y][x] = ' '
     state [yp][xp] = 'R'
     robotPos = (xp,yp)
@@ -67,6 +74,8 @@ def tickMap(n, state):
 #    return state
     
 def displayState(state):
+    global waterLevel
+    print "WaterLevel: " + str(waterLevel)
     for row in reversed(state):
         print row
             
@@ -101,10 +110,14 @@ numLambdas = len(lambdaPos)
 print robotPos
 print numLambdas
 
+i = 0
 displayState(map)
 print "====================================="
 while True:
+    if waterRate != 0 and i%waterRate == waterRate-1:
+        waterLevel += 1
     moveRobot(map, raw_input("Enter a move: "))
     tickMap(1,map)
     displayState(map)
+    i += 1
     print "====================================="
