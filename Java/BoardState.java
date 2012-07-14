@@ -13,6 +13,7 @@ public class BoardState {
   public Robot.Move move;
   public int timestamp;	// to somehow store history of the board for fast
                         // backtracking
+  public Robot.Move move;
 
   // ---- Set by AStar ----
   public BoardState parentState;

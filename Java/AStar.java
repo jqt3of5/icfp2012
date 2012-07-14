@@ -27,7 +27,7 @@ public class AStar {
   private Board board;
   private Point destination;
 
-  public List<Robot.Move> findPath(Board board, Point destination) {
+  public void findPath(Board board, Point destination) {
     candidates.clear();
 
     this.board = board;
@@ -56,10 +56,5 @@ public class AStar {
    */
   public interface CostFunction {
     public double compute(Board board, Point start, Point end);
-  }
-
-  public interface TerminationCondition {
-    public boolean isTrue(PriorityQueue<BoardState> candidates, Board board,
-                          BoardState lastMove);
   }
 }
