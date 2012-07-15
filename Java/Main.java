@@ -7,11 +7,11 @@ public class Main {
     
     // Add hook for
     Runtime.getRuntime().addShutdownHook(new Thread() {
-  @Override
-  public void run() {
-    // TODO(jack): replace
-    System.out.println("Shutdown hook ran!");
-  }
+        @Override
+        public void run() {
+          // TODO(jack): replace
+          System.out.println("Shutdown hook ran!");
+        }
       });
     
     Scanner scan = new Scanner(System.in);
@@ -21,14 +21,14 @@ public class Main {
     }
     
     //Board b = new Board(map);
-    Skynet superSky = new GreedySkynet(map);
+    Skynet superSky = new Skynet.GreedySkynet(map);
     System.out.println(superSky.plan());
     
     /*while (true) {
       try {
-  Thread.sleep(1000);
+      Thread.sleep(1000);
       } catch (InterruptedException e) {
-  System.out.println("interrupted: " + e);
+      System.out.println("interrupted: " + e);
       }
       }*/
 

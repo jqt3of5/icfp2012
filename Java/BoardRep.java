@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.*;
 
 public class BoardRep {
 
@@ -21,6 +19,20 @@ public class BoardRep {
 	    }
 	  }
 	}
+
+  public BoardRep(BoardRep oldRep) {
+    globalDeltaId = oldRep.globalDeltaId;
+
+	  final int nrows = oldRep.cellTrees.length;
+	  final int ncols = oldRep.cellTrees[0].length;
+    
+	  cellTrees = new CellTree[nrows][ncols];
+	  for (int r = 0; r < nrows; r++) {
+	    for (int c = 0; c < ncols; c++) {
+	      cellTrees[r][c] = new CellTree(oldRep.cellTrees[r][c]);
+	    }
+	  }
+  }
 
 	public Board.CellTypes get(final int r, final int c) {
 	  return cellTrees[r][c].get(globalDeltaId);
@@ -54,6 +66,11 @@ public class BoardRep {
 	    root = new Cell(rootCellType, rootDeltaId);
 	    current = root;
 	  }
+
+    public CellTree(CellTree oldTree) {
+      root = new Cell(oldTree.root);
+      current = root;
+    }
 
 	  public Board.CellTypes get(final int queryDeltaId) {
 	    if (current.deltaId != queryDeltaId) {
@@ -96,13 +113,22 @@ public class BoardRep {
 	  public Board.CellTypes cellType;
 	  public int deltaId;
 	  public List<Cell> children;
-	  public Cell parent;
+	  // public Cell parent;
 
 	  public Cell(final Board.CellTypes inCellType, final int inDeltaId) {
 	    cellType = inCellType;
 	    deltaId = inDeltaId;
 	    children = new ArrayList<Cell>(11);
-	    parent = null;
+	    // parent = null;
 	  }
+
+    public Cell(Cell oldCell) { // can pass parent here later
+      cellType = oldCell.cellType;
+      deltaId = oldCell.deltaId;
+      children = new ArrayList<Cell>();
+      for (Cell c : oldCell.children) {
+        children.add(new Cell(c));
+      }
+    }
 	}
 }
