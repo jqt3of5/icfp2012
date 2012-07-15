@@ -1,10 +1,11 @@
 import java.util.Random;
+import java.util.*;
 
 public class RandBoard{
 
-  static char[] chars = {'*', '.', '#', '\\', ' ', 'W', '!', '.', '.'};
-  static int[] weights = {20, 100, 10, 20, 3, 3, 5, 5};
-  static double[] mulfactor = {0.1, 0.1, 0.2, 0, 0, 0, 0, 0};
+  static char[] chars = {'*', '.', '#', '\\', ' ', 'W', '!', '@'};
+  static int[] weights = {20, 60, 20, 20, 20, 3, 3, 5};
+  static double[] mulfactor = {0.2, 0.2, 3.0, 0, 0, 0, 0, 0};
 
   public static String getNewMap(final int width, final int height) {
     final char[][] layout = new char[height][width];
@@ -25,9 +26,31 @@ public class RandBoard{
     for (int r = 1; r < height-1; r++) {
       for (int c = 1; c < width-1; c++) {
 	final int randInt = random.nextInt(totalWeight);
-	int i = 0;
-	for (; i < cumsum.length && randInt >= cumsum[i]; i++);
+	int i = -1;
+	int baseVal;
+	do {
+	  i++;
+	  baseVal = cumsum[i];
+	  int[] dr = {r-1, r-1, r};
+	  int[] dc = {c, c-1, c-1};
+
+	  for (int j=0; j<dr.length; j++) {
+	    if ((dr[j] > 1 || dr[j] > 1) &&
+		layout[dr[j]][dc[j]] == chars[i])
+	      baseVal += weights[i] * mulfactor[i];
+	  }
+	} while (i < cumsum.length && randInt >= baseVal);
+
 	layout[r][c] = chars[i];
+      }
+    }
+
+    Set<Point> usedPoints = new HashSet<Point>();
+    for (int i=1; i<=1+random.nextInt(9); i++) {
+      int r = random.nextInt(height);
+      int c = random.nextInt(width);
+      if (! usedPoints.contains(new Point(r,c))) {
+	// TODO: add trampoline here
       }
     }
 
