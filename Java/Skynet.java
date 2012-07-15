@@ -31,6 +31,9 @@ public abstract class Skynet {
       Path totalPath = new Path();
 
       while (curBoard.lambdaPos.size() > 0) {
+        if (Main.gotSIGINT)
+          break;
+
         int bestLength = Integer.MAX_VALUE;
         Board bestBoard = curBoard;
         Path bestPath = null;
