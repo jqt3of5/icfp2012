@@ -34,6 +34,7 @@ public class Path {
 
   public void reverse() {
     Collections.reverse(positions);
+    Collections.reverse(moves);
   }
 
   public void addAll(final Path newPath) {

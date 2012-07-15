@@ -26,8 +26,7 @@ public class Main {
       map += scan.nextLine() + System.getProperty("line.separator");
     }
 
-    // Board b = new Board(map);
-    // System.out.println(b);
+    Board b = new Board(map);
     final Skynet superSky = new Skynet.GreedySkynet(map);
     System.out.println(superSky.plan());
     System.out.println("Score: " + superSky.score());
