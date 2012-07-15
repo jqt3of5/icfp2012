@@ -13,6 +13,17 @@ public abstract class Skynet {
     return curBoard.robby.getScore();
   }
 
+  public PriorityQueue<Point> findClosestLambdas(Point current) {
+    PriorityQueue<Point> retQueue = new PriorityQueue<Point>();
+
+
+
+    return retQueue;
+  }
+
+
+  // ------------- AStarSkynet --------------
+
   public static abstract class AStarSkynet extends Skynet {
     AStar pathfinder;
     TerminationConditions.TerminationCondition terminator;
@@ -69,6 +80,13 @@ public abstract class Skynet {
       totalPath.addAll(terminator.getPath());
       curBoard = terminator.getBoard();
       return totalPath.toString();
+    }
+  }
+
+  public static class GreedierSkynet implements Skynet {
+    @Override
+    public String plan() {
+
     }
   }
 
