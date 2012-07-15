@@ -296,9 +296,11 @@ public class Board implements Cloneable {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         if (map[y][x] == CellTypes.Tramp) {
-          s.append((char)('A' + trampolines.indexOf(new Point(y,x))));
+          s.append(trampLabel.get(new Point(y,x)));
+       //   s.append((char)('A' + trampolines.indexOf(new Point(y,x))));
         } else if (map[y][x] == CellTypes.Target) {
-          s.append((char)('1' + trampolines.indexOf(new Point(y,x))));
+          s.append(targetLabel.get(new Point(y,x)));
+         // s.append((char)('1' + trampolines.indexOf(new Point(y,x))));
         } else {
           s.append(map[y][x]);
         }
