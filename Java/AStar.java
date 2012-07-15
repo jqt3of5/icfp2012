@@ -51,12 +51,8 @@ public class AStar {
         newState.copyVisits(curState);
         newState.move = candMove;
         newBoard.tick(candMove);
-<<<<<<< HEAD
-	newState.score =
-=======
         newState.visits[newBoard.getRobotPosition().r][newBoard.getRobotPosition().c]++;
         newState.score =
->>>>>>> af26425b2b48aeb36ee06da90b57098395f744c0
           g.compute(newState, origin, newPosition) +
           h.compute(newState, newPosition, destination);
         candidates.add(newState);
