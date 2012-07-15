@@ -1,7 +1,7 @@
 public class Robot{
   enum Emotions{DestroyAllHumans, Sober, Normal};
   public enum Move {
-    Left, Right, Up, Down, Wait, Abort
+    Left, Right, Up, Down, Wait, Abort, Shave
   }
 
   private Point position;

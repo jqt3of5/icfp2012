@@ -52,13 +52,19 @@ public class Board {
 
   public Board(String map) {
     String[] lines = map.split("\\r\\n|\\r|\\n");
-    int width = 0, height = lines.length;
-    for (String line : lines) {
-      if (line.length() > width) {
-        width = line.length();
+    // Parse map
+    layoutWidth = 0;
+    int i;
+    for (i = 0; i < lines.length; i++) {
+      if (lines[i] == "")
+        break;
+
+      if (lines[i].length() > layoutWidth) {
+        layoutWidth = lines[i].length();
       }
     }
-
+    
+    
     ticks = 0;
     layout = new CellTypes[height][width];
     waterLevel = 0;
