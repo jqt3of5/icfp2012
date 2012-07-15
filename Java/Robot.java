@@ -57,11 +57,11 @@ public class Robot{
   }
 
   public void liftLambda() {
-      score += 50*lambdaCount;
+    score += 50*lambdaCount;
   }
 
   public void abort() {
-      score += 25*lambdaCount;
+    score += 25*lambdaCount;
   }
 
   public int getScore() {

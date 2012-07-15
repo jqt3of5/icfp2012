@@ -30,6 +30,7 @@ public class Main {
     // System.out.println(b);
     final Skynet superSky = new Skynet.GreedySkynet(map);
     System.out.println(superSky.plan());
+    System.out.println("Score: " + superSky.score());
 
     /*while (true) {
       try {

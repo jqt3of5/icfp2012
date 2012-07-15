@@ -376,6 +376,7 @@ public class Board implements Cloneable {
       }
       //if we get to the exit and it is open, we win
       if (map[yp][xp] == CellTypes.Open) {
+        robby.liftLambda();
         return GameState.Win;
       }
       //cannot go through a wall, or a closed lift, or a beard

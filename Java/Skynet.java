@@ -65,6 +65,7 @@ public abstract class Skynet {
       pathfinder.findPath(newBoard, curBoard.liftLocation);
       totalPath.addAll(terminator.getPath());
 
+      curBoard = newBoard;
       return totalPath.toString();
     }
   }
