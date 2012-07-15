@@ -16,7 +16,7 @@ public class Board implements Cloneable {
   public int razorCount;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
-  public BoardRep layout;
+  public BoardRep rep;
   
   public ArrayList<Point> trampolines;
   public HashMap<Point, Point> trampToTargets;
@@ -29,14 +29,13 @@ public class Board implements Cloneable {
   public int ticks;
 
   private Board(int width, int height) {
-   
-    
+
   }
 //needs to handle meta date!
   public Board(String map) {
     
     ticks = 0;
-    layout = new BoardRep(layoutHeight, layoutWidth);//CellTypes[layoutHeight][layoutWidth];
+    CellTypes[][] layout = new CellTypes[layoutHeight][layoutWidth];
     lambdaPos = new ArrayList<Point>();
     trampolines = new ArrayList<Point>();
     trampToTargets = new HashMap<Point,Point>();
@@ -94,31 +93,31 @@ public class Board implements Cloneable {
       for (int x = 0; x < line.length(); ++x) {
         switch (line.charAt(x)) {
         case '*':
-          layout.set(x,y,CellTypes.Rock);
+          layout[y][x] = CellTypes.Rock;
           break;
         case '#':
-          layout.set(x,y,CellTypes.Wall);
+          layout[y][x] = CellTypes.Wall;
           break;
         case 'R':
-          layout.set(x,y,CellTypes.Robot);
+          layout[y][x] = CellTypes.Robot;
           robot = new Robot(x,y);
           break;
         case '.':
-          layout.set(x,y,CellTypes.Earth);
+          layout[y][x] = CellTypes.Earth;
           break;
         case '\\':
-          layout.set(x,y,CellTypes.Lambda);
+          layout[y][x] = CellTypes.Lambda;
           lambdaPos.add(new Point(x, y)); // careful the order
           break;
         case 'L':
-          layout.set(x,y,CellTypes.Closed);
+          layout[y][x] = CellTypes.Closed;
           liftLocation = new Point(x,y);
           break;
         case ' ':
-          layout.set(x,y,CellTypes.Empty);
+          layout[y][x] = CellTypes.Empty;
           break;
         case 'O':
-          layout.set(x,y,CellTypes.Open);
+          layout[y][x] = CellTypes.Open;
           break;
         case 'A':
         case 'B':
@@ -129,7 +128,7 @@ public class Board implements Cloneable {
         case 'G':
         case 'H':
         case 'I':
-          layout.set(x,y,CellTypes.Tramp);
+          layout[y][x] = CellTypes.Tramp;
           trampToLabel.put(new Point(x,y),Character.toString(line.charAt(x)));
           trampolines.add(new Point(x,y));
         break;
@@ -142,18 +141,18 @@ public class Board implements Cloneable {
         case '7':
         case '8':
         case '9':
-          layout.set(x,y,CellTypes.Target);
+          layout[y][x] = CellTypes.Target;
           //conversion, so that tramps and targets have same labels. 
           labelToTarget.put(Character.toString(line.charAt(x)),new Point(x,y));
           
         break;
         
         case 'W':
-          layout.set(x,y,CellTypes.Beard);
+          layout[y][x] = CellTypes.Beard;
           beards.add(new Point(x,y));
           break;
         case '!':
-          layout.set(x,y,CellTypes.Razor);
+          layout[y][x] = CellTypes.Razor;
           razors.add(new Point(x,y));
           break;
         }
@@ -162,15 +161,16 @@ public class Board implements Cloneable {
       y++;
     }
     
-   for (Point p : trampolines)
-   {
-     String trampLabel = trampToLabel.get(p);
-     String targetLabel = labelTolabel.get(trampLabel);
-     Point target = labelToTarget.get(targetLabel);
-     
-     trampToTargets.put(p,  target);
-   }
-   
+    for (Point p : trampolines)
+    {
+      String trampLabel = trampToLabel.get(p);
+      String targetLabel = labelTolabel.get(trampLabel);
+      Point target = labelToTarget.get(targetLabel);
+
+      trampToTargets.put(p,  target);
+    }
+
+    rep = new BoardRep(layout);
   }
 
 
@@ -183,12 +183,7 @@ public class Board implements Cloneable {
     layoutWidth = oldBoard.layoutWidth;
     layoutHeight = oldBoard.layoutHeight;
 
-    // might want to use java's array copy
-    for (int y = 0; y < layoutHeight; y++) {
-      for (int x = 0; x < layoutWidth; x++) {
-        layout.set(x,y,oldBoard.layout.get(x,y));
-      }
-    }
+    rep = new BoardRep(oldBoard.rep);
     ticks = oldBoard.ticks;
   }
 
