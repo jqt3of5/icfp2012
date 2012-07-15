@@ -89,7 +89,7 @@ public class Board implements Cloneable {
   public CellTypes[][] map;
   public Robot robby;
 
-  public ArrayList<Point> trampolines;
+    //  public ArrayList<Point> trampolines;
   public HashMap<Point, Point> trampToTargets;
   public HashMap<Point, String> trampLabel;
   public HashMap<Point, String> targetLabel;
@@ -117,7 +117,7 @@ public class Board implements Cloneable {
   public Board(final String mapStr) {
     ticks = 0;
     lambdaPos = new ArrayList<Point>();
-    trampolines = new ArrayList<Point>();
+    //    trampolines = new ArrayList<Point>();
     trampToTargets = new HashMap<Point, Point>();
     beards = new ArrayList<Point>();
     razors = new ArrayList<Point>();
@@ -227,7 +227,7 @@ public class Board implements Cloneable {
           map[r][c] = CellTypes.Tramp;
           trampLabel.put(new Point(r, c), Character.toString(line.charAt(c)));
           trampToLabel.put(new Point(r, c), Character.toString(line.charAt(c)));
-          trampolines.add(new Point(r, c));
+	  //          trampolines.add(new Point(r, c));
           break;
         case '1':
         case '2':
@@ -258,7 +258,7 @@ public class Board implements Cloneable {
       }
     }
 
-    for (final Point p : trampolines) {
+    for (final Point p : trampToLabel.keySet()) {
       final String trampLabel = trampToLabel.get(p);
       final String targetLabel = labelTolabel.get(trampLabel);
       final Point target = labelToTarget.get(targetLabel);
@@ -292,7 +292,7 @@ public class Board implements Cloneable {
 
     trampLabel = new HashMap<Point, String>(oldBoard.trampLabel);
     targetLabel = new HashMap<Point, String>(oldBoard.targetLabel);
-    trampolines = new ArrayList<Point>(oldBoard.trampolines);
+    //    trampolines = new ArrayList<Point>(oldBoard.trampolines);
     trampToTargets = new HashMap<Point, Point>(oldBoard.trampToTargets);
 
     tempBeards = new ArrayList<Point>(oldBoard.tempBeards);
@@ -426,25 +426,24 @@ public class Board implements Cloneable {
     // if we step on a tramp, find our coresponding target, and set that.
 
     if (map[yp][xp] == CellTypes.Tramp) {
-
+	
+	
       final Point target = trampToTargets.get(new Point(yp, xp));
 
-      trampToTargets.remove(new Point(yp, xp));
-      trampolines.remove(new Point(yp, xp));
-
-      // this is so we can remove all tramps that jump to this target.
-      if (trampToTargets.containsValue(target)) {
-        for (final Point tramp : trampolines) {
-          if (trampToTargets.get(tramp) == target) {
-            trampToTargets.remove(tramp);
-            trampolines.remove(tramp);
-          }
-        }
-      }
-
       map[yp][xp] = CellTypes.Empty;
+      
       xp = target.c;
       yp = target.r;
+
+      // this is so we can remove all tramps that jump to this target.
+      for (Point p : new ArrayList<Point>(trampToTargets.keySet()))
+	  {
+	      if (trampToTargets.get(p) == target)
+		  {
+		      map[p.r][p.c] = CellTypes.Empty;
+		      trampToTargets.remove(p);
+		  }
+	  }
 
     }
     // update our position
@@ -477,17 +476,21 @@ public class Board implements Cloneable {
       return GameState.Lose; // is a drowning lose or abort?
 
     robby.stayInWater();// at what point do we want this called?
-
+    
+    //System.out.println("rate: " + growthRate + " " + ticks%growthRate);
+    
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
         if (map[y][x] == CellTypes.Closed && lambdaPos.size() == 0 && higherOrderCount == 0) {
           map[y][x] = CellTypes.Open;
         }
         // grow beards
-        if (growthRate > 0 && ticks % growthRate == growthRate - 1
+
+        if (growthRate > 0 && (ticks % growthRate == (growthRate - 1))
             && map[y][x] == CellTypes.Beard) {
-          for (int i = y - 1; i < 3; ++i)
-            for (int j = x - 1; j < 3; ++j) {
+	    
+          for (int i = y - 1; i < y+2; ++i)
+            for (int j = x - 1; j < x+2; ++j) {
               if (map[i][j] == CellTypes.Empty) {
                 // temp beards are because we want to differentiate bettween new
                 // beards, and old.
@@ -552,10 +555,11 @@ public class Board implements Cloneable {
 
     // need to change the new beards for this round into permanent beards
     if (growthRate > 0 && ticks % growthRate == growthRate - 1) {
-      for (final Point p : tempBeards) {
+	for (Point p : tempBeards) {
         map[p.r][p.c] = CellTypes.Beard;
-        tempBeards.remove(p);
+
       }
+	tempBeards.clear();
     }
     return GameState.Continue;
   }

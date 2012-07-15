@@ -55,7 +55,8 @@ public abstract class Skynet {
             bestLength = path.size();
           }
         }
-
+	System.out.println("growth: " + bestBoard.ticks%bestBoard.growthRate);
+	System.out.println(bestBoard.toString());
         curBoard = bestBoard;
         totalPath.addAll(bestPath);
       }
