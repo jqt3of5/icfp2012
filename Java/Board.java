@@ -99,10 +99,9 @@ public class Board implements Cloneable {
         labelTolabel.put(words[1], words[3]);
     }
 
-    int y = 0;
-    for (String line : lines) {
-
-      for (int x = 0; x < line.length(); ++x) {
+    for (int y = 0; y < layoutHeight; y++) {
+      for (int x = 0; x < layoutWidth; ++x) {
+        String line = lines[layoutHeight-1-y];
         switch (line.charAt(x)) {
         case '*':
           layout[y][x] = CellTypes.Rock;
@@ -169,8 +168,6 @@ public class Board implements Cloneable {
           break;
         }
       }
-
-      y++;
     }
 
     for (Point p : trampolines)
