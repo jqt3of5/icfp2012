@@ -1,7 +1,6 @@
 /* -*- c-basic-offset: 2; -*- */
 
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class AStar {
 
@@ -10,6 +9,10 @@ public class AStar {
   protected TerminationConditions.TerminationCondition termCond;
 
   private PriorityQueue<BoardState> candidates;
+
+  private long timeout = 0;
+
+  protected boolean halt = false;
 
   public AStar(final CostFunction g, final CostFunction h, final TerminationConditions.TerminationCondition termCond) {
     this.g = g;
@@ -26,14 +29,46 @@ public class AStar {
       });
   }
 
-  public void findPath(final Board board, final Point destination) {
+  public void setTimeout(long ms) {
+    timeout = ms;
+  }
+
+  class Timeout extends TimerTask {
+    private AStar parent;
+    public Timeout(AStar parent) {
+      this.parent = parent;
+    }
+
+    public void run() {
+      parent.timesUp();
+    }
+  }
+
+  protected void timesUp() {
+    halt = true;
+  }
+
+  /*
+   * return false if terminated exceptionally, true otherwise
+   */
+  public boolean findPath(final Board board, final Point destination) {
+    halt = false;
+    Timer timer = null;
+    if (timeout != 0) {
+      timer = new Timer();
+      timer.schedule(new Timeout(this), timeout);
+    }
+
     candidates.clear();
     candidates.add(board.getBoardState());
     final Point origin = board.getRobotPosition();
 
     while (true) {
-      if (Main.gotSIGINT)
-        return;
+      if (Main.gotSIGINT || halt) {
+        if (timer != null)
+          timer.cancel();
+        return false;
+      }
       // A* main
       BoardState curState = candidates.poll();
       Board curBoard = curState.board;
@@ -64,6 +99,10 @@ public class AStar {
       // Termination condition
       if (termCond.isTrue(candidates, curState)) break;
     }
+
+    if (timer != null)
+      timer.cancel();
+    return true;
   }
 
   /**

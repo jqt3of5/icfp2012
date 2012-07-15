@@ -95,17 +95,25 @@ public abstract class Skynet {
           pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
                                  new CostFunctions.ManhattanCost(),
                                  terminator);
-          pathfinder.findPath(newBoard, lambdaPt);
+          pathfinder.setTimeout(10000);
+          boolean finished = pathfinder.findPath(newBoard, lambdaPt);
+
           if (Main.gotSIGINT)
             return totalPath.toString();
-          final Path path = terminator.getPath();
-          if (path.size() < bestLength) {
-            bestBoard = terminator.getBoard();
-            bestPath = terminator.getPath();
-            bestLength = path.size();
+          if (finished) {
+            Path path = terminator.getPath();
+            if (path.size() < bestLength) {
+              bestBoard = terminator.getBoard();
+              bestPath = terminator.getPath();
+              bestLength = path.size();
+            }
           }
         }
         curBoard = bestBoard;
+
+        if (bestPath == null)
+          return "";
+
         totalPath.addAll(bestPath);
       }
 
