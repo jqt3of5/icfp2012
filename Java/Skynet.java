@@ -48,6 +48,7 @@ public abstract class Skynet {
           if (path.size() < bestLength) {
             bestBoard = terminator.getBoard();
             bestPath = terminator.getPath();
+            bestLength = path.size();
           }
         }
 
