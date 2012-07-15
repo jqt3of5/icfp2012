@@ -18,6 +18,7 @@ public abstract class Skynet {
     }
   }
 
+
   public static class GreedySkynet extends AStarSkynet {
     public GreedySkynet(String mapStr) {
       super(mapStr);
@@ -40,6 +41,7 @@ public abstract class Skynet {
             bestBoard = terminator.getBoard();
             bestPath = terminator.getPath();
           }
+
         }
 
         curBoard = bestBoard;
@@ -103,9 +105,14 @@ public abstract class Skynet {
       return newBoard;
     }
 
+<<<<<<< HEAD
+  double evaluate(double curEnergy, double newEnergy, double temperature) {
+    return 0;
+=======
     double evaluate(double curEnergy, double newEnergy, double temperature) {
       return 1.0;
     }
+>>>>>>> 8913e6582b7aed13d517e7fc11ae3dc4a83cd47d
   }
 
 }

@@ -28,6 +28,7 @@ public class Board implements Cloneable {
   public int layoutHeight;
   public int ticks;
 
+
   // private Board(int width, int height) {
   //   ticks = 0;
   //   layoutWidth = width;
@@ -41,6 +42,7 @@ public class Board implements Cloneable {
   // }
 
   //needs to handle meta date!
+
   public Board(String map) {
     robot = new Robot(0,0);
     ticks = 0;
@@ -315,6 +317,7 @@ public class Board implements Cloneable {
           if (trampToTargets.get(tramp) == target)
           {
             trampToTargets.remove(tramp);
+            trampolines.remove(tramp);
           }
         }
       }
