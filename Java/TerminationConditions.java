@@ -42,6 +42,8 @@ public class TerminationConditions {
 
     @Override
     protected boolean concreteIsTrue(final PriorityQueue<BoardState> candidates, final BoardState boardState) {
+      if (boardState.board.state == Board.GameState.Win)
+        return true;
       return boardState.board.getRobotPosition().equals(destination);
     }
   }

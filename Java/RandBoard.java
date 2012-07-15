@@ -1,67 +1,70 @@
-import java.util.*;
+import java.util.Random;
 
 public class RandBoard{
 
-	private static final int maxHeight = 300;
-	private static final int maxWidth = 300;
+  static char[] chars = {'*', '.', '#', '\\', ' ', 'W', '!', '.', '.'};
+  static int[] weights = {20, 100, 10, 20, 3, 3, 5, 5};
+  static double[] mulfactor = {0.1, 0.1, 0.2, 0, 0, 0, 0, 0};
 
-	private static int width;
-	private static int height;
+  public static String getNewMap(final int width, final int height) {
+    final char[][] layout = new char[height][width];
+    for (int r = 0; r < height; r++) {
+      for (int c = 0; c < width; c++) {
+        layout[r][c] = '#';
+      }
+    }
 
-	private static Random r = new Random();
+    // generating
+    final int[] cumsum = new int[weights.length];
+    cumsum[0] = weights[0];
+    for (int i=1; i<cumsum.length; i++)
+      cumsum[i] = cumsum[i-1] + weights[i];
+    final int totalWeight = cumsum[cumsum.length - 1];
 
-	private static char[][] board;
+    final Random random = new Random();
+    for (int r = 1; r < height-1; r++) {
+      for (int c = 1; c < width-1; c++) {
+	final int randInt = random.nextInt(totalWeight);
+	int i = 0;
+	for (; i < cumsum.length && randInt >= cumsum[i]; i++);
+	layout[r][c] = chars[i];
+      }
+    }
 
-	public static char[] getNewMap()
-	{
-		width = maxWidth;
-		height = maxHeight;
-		board = new int[width][height];
-		fill();
-	}
+    // random robot and lift
+    final int row1 = random.nextInt(height), row2 = random.nextInt(height);
+    final int col1 = random.nextInt(width), col2 = random.nextInt(width);
 
-	public static char[] getNewMap(int width, int height)
-	{
-		this.width = width;
-		this.height = height;
-		board = new int[width][height];
-		fill();
-	}
+    layout[row1][col1] = 'R';
+    layout[row2][col2] = 'L';
 
-	private static void fill()
-	{
-		for (int i = 0; i < width; i++)
-		{	
-			for(int j = 0; j < height; j++)
-			{
-				if((i == 0) || (i == width - 1) || (j == 0) || (j == height - 1))
-				{
-					board[i][j] = '#';
-				}
-				else
-				{
-					switch(r.nextInt(2))
-					{
-						case 0:
-							board[i][j] = '.'; //earth
-							break;
-						case 1:
-							board[i][j] = '*'; //rock
-							break;
-						case 2:
-							board[i][j] = '\\'; //lambda
-							break;
-					}
-				}
-			}
-		}
 
-		for (int i = 0; i < width; i++)
-		{
-			for (int j = 0; j < height; j++)
-			{
-				
-			}
-		}
-	}
+    return arrayToString(layout);
+  }
+
+  public static String arrayToString(final char[][] layout) {
+    final StringBuilder sb = new StringBuilder();
+    final int height = layout.length;
+    final int width = layout[0].length;
+
+    for (int r = 0; r < height; r++) {
+      for (int c = 0; c < width; c++) {
+        sb.append(layout[r][c]);
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
+
+  public static void main(final String[] args) {
+    if (args.length < 2) {
+      System.out.println("Usage: java RandBoard <width> <height>");
+      System.exit(1);
+    }
+
+    int width = Integer.parseInt(args[0]);
+    int height = Integer.parseInt(args[1]);
+
+    System.out.println(RandBoard.getNewMap(width, height));
+  }
 }

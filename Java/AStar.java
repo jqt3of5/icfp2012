@@ -49,8 +49,8 @@ public class AStar {
         newState.move = candMove;
         newBoard.tick(candMove);
         newState.score =
-          g.compute(newBoard, origin, newPosition) +
-          h.compute(newBoard, newPosition, destination);
+          g.compute(newState, origin, newPosition) +
+          h.compute(newState, newPosition, destination);
         candidates.add(newState);
 
         System.out.println(candMove + ": " + newState.score);
@@ -65,6 +65,6 @@ public class AStar {
    * Interface for defining a cost function, e.g., g and h.
    */
   public interface CostFunction {
-    public double compute(Board board, Point start, Point end);
+    public double compute(BoardState board, Point start, Point end);
   }
 }
