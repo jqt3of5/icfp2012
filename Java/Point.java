@@ -1,76 +1,61 @@
 public class Point implements Comparable<Point> {
-  public int x;
-  public int y;
-    
-  public Point(int a, int b) {
-    x = a;
-    y = b;
+  public int c;
+  public int r;
+
+  public Point(final int inR, final int inC) {
+    c = inC;
+    r = inR;
   }
 
+  @Override
   public String toString() {
-    return "(" + x + "," + y + ")";
+    return "(" + r + "," + c + ")";
   }
 
-  public int getX() {
-    return x;
+  public int getC() {
+    return c;
   }
-    
-  public int getY() {
-    return y;
+
+  public int getR() {
+    return r;
   }
-  public void setX(int a)
-    {
-      x = a;
-    }
-  public void setY(int b)
-    {
-      y = b;
-    }
-  public void increX() {
-    x = x + 1;
+  public void setC(final int a) {
+    c = a;
   }
-    
-  public void decreX() {
-    x = x - 1;
-  }
-    
-  public void increY() {
-    y = y + 1;
-  }
-    
-  public void decreY() {
-    y = y - 1;
+  public void setR(final int b) {
+    r = b;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + x;
-    result = prime * result + y;
+    result = prime * result + c;
+    result = prime * result + r;
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    Point other = (Point) obj;
-    if (x != other.x)
+    final Point other = (Point) obj;
+    if (c != other.c)
       return false;
-    if (y != other.y)
+    if (r != other.r)
       return false;
     return true;
   }
 
-  public int compareTo(Point otherPoint) {
-    if (y == otherPoint.y)
-      return x - otherPoint.x;
+  @Override
+  public int compareTo(final Point otherPoint) {
+    if (r == otherPoint.r)
+      return c - otherPoint.c;
     else
-      return y - otherPoint.y;
+      return r - otherPoint.r;
   }
 }

@@ -1,7 +1,5 @@
 /* -*- c-basic-offset: 2; -*- */
 
-import java.util.*;
-import java.io.*;
 
 /**
  * Data object to hold the state of the board for A* search.
@@ -17,4 +15,5 @@ public class BoardState {
   // ---- Set by AStar ----
   public BoardState parentState;
   public double score;
+
 }

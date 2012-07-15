@@ -38,7 +38,6 @@ public abstract class Skynet {
           pathfinder.findPath(newBoard, lambdaPt);
           Path path = terminator.getPath();
           if (path.size() < bestLength) {
-            bestLength = path.size();
             bestBoard = terminator.getBoard();
             bestPath = terminator.getPath();
           }
