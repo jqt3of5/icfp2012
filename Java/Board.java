@@ -615,6 +615,11 @@ public class Board implements Cloneable {
       final int c = robby.getPosition().c + dc[i];
       if (0 <= r && r < height && 0 <= c && c < width
           && map[r][c] != CellTypes.Wall) {
+        // Can't push rocks up or down
+        if ((robotMove[i] == Robot.Move.Down || robotMove[i] == Robot.Move.Up)
+            && map[r][c] == CellTypes.Rock) {
+          continue;
+        }
         retList.add(robotMove[i]);
       }
     }
