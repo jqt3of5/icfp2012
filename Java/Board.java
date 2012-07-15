@@ -273,6 +273,8 @@ public class Board implements Cloneable {
       }
     }
 
+    trampLabel = new HashMap<Point, String>(oldBoard.trampLabel);
+    targetLabel = new HashMap<Point, String>(oldBoard.targetLabel);
     trampolines = new ArrayList<Point>(oldBoard.trampolines);
     trampToTargets = new HashMap<Point, Point>(oldBoard.trampToTargets);
 
