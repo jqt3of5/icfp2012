@@ -55,8 +55,17 @@ public class RandBoard{
     }
 
     // random robot and lift
-    final int row1 = random.nextInt(height), row2 = random.nextInt(height);
-    final int col1 = random.nextInt(width), col2 = random.nextInt(width);
+    final int row1 = 1+random.nextInt(height-2),
+      col1 = 1+random.nextInt(width-2);
+    int row2 = 0, col2 = 0;
+
+    while ((row2 == 0 && col2 == 0) ||
+	   (row2 == height-1 && col2 == width-1) ||
+	   (row2 == height-1 && col2 == 0) ||
+	   (row2 == 0 && col2 == width-1)) {
+      row2 = random.nextInt(height);
+      col2 = random.nextInt(width);
+    }
 
     layout[row1][col1] = 'R';
     layout[row2][col2] = 'L';

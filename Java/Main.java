@@ -31,6 +31,7 @@ public class Main {
     final Skynet superSky = new Skynet.GreedySkynet(map);
     System.out.println(superSky.plan());
     System.out.println("Score: " + superSky.score());
+    System.out.println(superSky.getBoard());
 
     /*while (true) {
       try {

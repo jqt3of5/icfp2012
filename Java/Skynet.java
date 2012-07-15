@@ -13,6 +13,21 @@ public abstract class Skynet {
     return curBoard.robby.getScore();
   }
 
+  public PriorityQueue<Point> findClosestLambdas(Point current) {
+    PriorityQueue<Point> retQueue = new PriorityQueue<Point>();
+
+
+
+    return retQueue;
+  }
+
+  public Board getBoard() {
+    return curBoard;
+  }
+
+
+  // ------------- AStarSkynet --------------
+
   public static abstract class AStarSkynet extends Skynet {
     AStar pathfinder;
     TerminationConditions.TerminationCondition terminator;
@@ -45,17 +60,25 @@ public abstract class Skynet {
           pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
                                  new CostFunctions.ManhattanCost(),
                                  terminator);
-          pathfinder.findPath(newBoard, lambdaPt);
+          pathfinder.setTimeout(10000);
+          boolean finished = pathfinder.findPath(newBoard, lambdaPt);
+
           if (Main.gotSIGINT)
             return totalPath.toString();
-          Path path = terminator.getPath();
-          if (path.size() < bestLength) {
-            bestBoard = terminator.getBoard();
-            bestPath = terminator.getPath();
-            bestLength = path.size();
+          if (finished) {
+            Path path = terminator.getPath();
+            if (path.size() < bestLength) {
+              bestBoard = terminator.getBoard();
+              bestPath = terminator.getPath();
+              bestLength = path.size();
+            }
           }
         }
         curBoard = bestBoard;
+
+        if (bestPath == null)
+          return "";
+
         totalPath.addAll(bestPath);
       }
 
@@ -69,6 +92,13 @@ public abstract class Skynet {
       totalPath.addAll(terminator.getPath());
       curBoard = terminator.getBoard();
       return totalPath.toString();
+    }
+  }
+
+  public static class GreedierSkynet implements Skynet {
+    @Override
+    public String plan() {
+
     }
   }
 
