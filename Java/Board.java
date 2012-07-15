@@ -4,7 +4,71 @@ import java.util.List;
 
 public class Board implements Cloneable {
   public enum CellTypes {
-    Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty, Tramp, Target, Beard, TempBeard, Razor
+    Robot {
+      public String toString() {
+        return "R";
+      }
+    },
+    Rock {
+      public String toString() {
+        return "*";
+      }
+    },
+    Closed {
+      public String toString() {
+        return "L";
+      }
+    },
+    Earth {
+      public String toString() {
+        return ".";
+      }
+    },
+    Wall {
+      public String toString() {
+        return "#";
+      }
+    },
+    Lambda {
+      public String toString() {
+        return "\\";
+      }
+    },
+    Open {
+      public String toString() {
+        return "O";
+      }
+    },
+    Empty {
+      public String toString() {
+        return " ";
+      }
+    },
+    Tramp {
+      public String toString() {
+        return "";
+      }
+    },
+    Target {
+      public String toString() {
+        return "";
+      }
+    },
+    Beard {
+      public String toString() {
+        return "W";
+      }
+    },
+    TempBeard {
+      public String toString() {
+        return "w";
+      }
+    },
+    Razor {
+      public String toString() {
+        return "!";
+      }
+    }
   };
   public enum GameState {
     Win, Lose, Abort, Continue
@@ -211,6 +275,9 @@ public class Board implements Cloneable {
     final StringBuilder s = new StringBuilder();
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
+        if (map[y][x] == CellTypes.Tramp) {
+          s.append('A' + trampolines.indexOf(new Point(y,x)));
+        }
         s.append(map[y][x]);
       }
       s.append("\n");
