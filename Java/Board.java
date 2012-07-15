@@ -524,9 +524,10 @@ public class Board implements Cloneable {
       if (0 <= r && r < layoutHeight && 0 <= c && c < layoutWidth && 
           rep.get(r, c) != CellTypes.Wall) {
         BoardState state = new BoardState();
-        state.position = new Point(r, c);
+        state.position = new Point(c, r);
         state.move = robotMove[i];
         state.deltaId = rep.globalDeltaId;
+        retList.add(state);
       }
     }
 
