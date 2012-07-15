@@ -46,6 +46,8 @@ public class Test<E extends Skynet> {
       //long delay = 150*1000;
       long delay = 10*1000;
 
+      Main.gotSIGINT = false;
+
       System.out.println("-----------------------------------------------------------------------------");
       System.out.println("     Map: " + mapName);
       System.out.println("-----------------------------------------------------------------------------");
@@ -56,8 +58,11 @@ public class Test<E extends Skynet> {
       
       
       planner.plan();
+
+      int score = planner.score();
+      System.out.println("Score: " + score);
       
-      scores.add(planner.score());
+      scores.add(score);
     }
     
     int overall = 0;
@@ -71,6 +76,7 @@ public class Test<E extends Skynet> {
   class Reminder extends TimerTask {
     @Override
     public void run() {
+      System.out.println("Sending SIGINT!");
       Main.gotSIGINT = true;
     } 
   }
