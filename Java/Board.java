@@ -86,7 +86,8 @@ public class Board implements Cloneable {
 
   public ArrayList<Point> trampolines;
   public HashMap<Point, Point> trampToTargets;
-
+  public HashMap<Point, String> trampLabel;
+  public HashMap<Point, String> targetLabel;
   public ArrayList<Point> tempBeards;
   public ArrayList<Point> beards;
   public ArrayList<Point> razors;
@@ -116,6 +117,9 @@ public class Board implements Cloneable {
     beards = new ArrayList<Point>();
     razors = new ArrayList<Point>();
     tempBeards = new ArrayList<Point>();
+    trampLabel = new HashMap<Point, String>();
+    targetLabel = new HashMap<Point, String>();
+
     state = GameState.Continue;
 
     final String[] lines = mapStr.split("\\r\\n|\\r|\\n");
@@ -209,6 +213,7 @@ public class Board implements Cloneable {
         case 'H':
         case 'I':
           map[r][c] = CellTypes.Tramp;
+          trampLabel.put(new Point(r,c), Character.toString(line.charAt(c)));
           trampToLabel.put(new Point(r, c), Character.toString(line.charAt(c)));
           trampolines.add(new Point(r, c));
           break;
@@ -221,6 +226,7 @@ public class Board implements Cloneable {
         case '7':
         case '8':
         case '9':
+          targetLabel.put(new Point(r,c), Character.toString(line.charAt(c)));
           map[r][c] = CellTypes.Target;
           //conversion, so that tramps and targets have same labels.
           labelToTarget.put(Character.toString(line.charAt(c)),new Point(r,c));
@@ -292,9 +298,11 @@ public class Board implements Cloneable {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         if (map[y][x] == CellTypes.Tramp) {
-          s.append((char)('A' + trampolines.indexOf(new Point(y,x))));
+          s.append(trampLabel.get(new Point(y,x)));
+       //   s.append((char)('A' + trampolines.indexOf(new Point(y,x))));
         } else if (map[y][x] == CellTypes.Target) {
-          s.append((char)('1' + trampolines.indexOf(new Point(y,x))));
+          s.append(targetLabel.get(new Point(y,x)));
+         // s.append((char)('1' + trampolines.indexOf(new Point(y,x))));
         } else {
           s.append(map[y][x]);
         }
