@@ -130,6 +130,57 @@ public abstract class Skynet {
     }
   }
 
+  //search each single best move based on the current greedy algorithm
+  public static class LocalSearchSkynet extends AStarSkynet {
+    public LocalSearchSkynet(String mapStr) {
+      super(mapStr);
+    }
+
+    public String plan() {
+      Path totalPath = new Path();
+
+      while (curBoard.lambdaPos.size() > 0) {
+        if (Main.gotSIGINT)
+          return totalPath.toString();
+
+        System.out.println("Pursuing lambda " + curBoard.lambdaPos.size());
+
+        int bestScore = Integer.MIN_VALUE;
+        Robot.Move bestMove = null;
+        
+        for (Point lambdaPt : curBoard.lambdaPos) {
+          Board newBoard = new Board(curBoard);
+          terminator = new TerminationConditions.PointTermination(lambdaPt);
+          pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
+                                 new CostFunctions.ManhattanCost(),
+                                 terminator);
+          pathfinder.findPath(newBoard, lambdaPt);
+          if (Main.gotSIGINT)
+            return totalPath.toString();
+          
+          if (terminator.getBoard().robby.getScore() > bestScore) {
+            bestScore = terminator.getBoard().robby.getScore();
+            bestMove = terminator.getPath().getFirstMove();
+          }
+        }
+        curBoard.tick(bestMove);
+        totalPath.add(curBoard.getRobotPosition(), bestMove);
+      }
+
+      Board newBoard = new Board(curBoard);
+      terminator = new TerminationConditions.PointTermination(curBoard.liftLocation);
+      pathfinder = new AStar(new CostFunctions.BoardSensingCost(), new CostFunctions.ManhattanCost(), terminator);
+      pathfinder.findPath(newBoard, curBoard.liftLocation);
+      if (Main.gotSIGINT)
+        return totalPath.toString();
+
+      totalPath.addAll(terminator.getPath());
+      curBoard = terminator.getBoard();
+      return totalPath.toString();
+    }
+  }
+  
+  
   public static class GreedierSkynet extends Skynet {
     public GreedierSkynet(String mapString) {
       super(mapString);
