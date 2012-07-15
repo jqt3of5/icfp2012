@@ -22,13 +22,10 @@ public class Test<E extends Skynet> {
       Timer timer = new Timer();
       long delay = 150*1000;
       
-      timer.schedule(new TimerTask() {
-        @Override
-        public void run() {          
-        }}, 
-        delay);
-      
       Skynet planner = (Skynet) SkynetClass.getDeclaredConstructor(Map.class).newInstance(map);
+
+      timer.schedule(new Reminder(), delay);
+      
       
       planner.plan();
       
@@ -41,6 +38,17 @@ public class Test<E extends Skynet> {
     }
     
     System.out.println("Average score: " + overall/scores.size());
+  }
+  
+  class Reminder extends TimerTask {
+    @Override
+    public void run() {
+      Main.gotSIGINT = true;
+    } 
+  }
+  
+  public void main(String args[]) {
+    
   }
   
 }
