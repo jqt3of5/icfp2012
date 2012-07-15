@@ -8,7 +8,7 @@ public class Board implements Cloneable {
   public enum GameState {
     Win, Lose, Abort, Continue
   };
-  
+
   public Robot robot;
   public int waterLevel;
   public int waterRate;
@@ -17,10 +17,10 @@ public class Board implements Cloneable {
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public BoardRep rep;
-  
+
   public ArrayList<Point> trampolines;
   public HashMap<Point, Point> trampToTargets;
-  
+
   public ArrayList<Point> tempBeards;
   public ArrayList<Point> beards;
   public ArrayList<Point> razors;
@@ -30,10 +30,21 @@ public class Board implements Cloneable {
 
   private Board(int width, int height) {
 
-  }
-//needs to handle meta date!
+    ticks = 0;
+    layoutWidth = width;
+    layoutHeight = height;
+    rep = new BoardRep(height, width);//new CellTypes[height][width];
+    waterLevel = 0;
+    waterRate = 0;
+    growthRate = 25;
+    razorCount = 0;
+    lambdaPos = new ArrayList<Point>();
+    }
+
+  //needs to handle meta date!
+
   public Board(String map) {
-    
+
     ticks = 0;
     CellTypes[][] layout = new CellTypes[layoutHeight][layoutWidth];
     lambdaPos = new ArrayList<Point>();
@@ -42,8 +53,8 @@ public class Board implements Cloneable {
     beards = new ArrayList<Point>();
     razors = new ArrayList<Point>();
     tempBeards = new ArrayList<Point>();
-    
-    
+
+
     String[] lines = map.split("\\r\\n|\\r|\\n");
 
     // Parse map
@@ -65,11 +76,11 @@ public class Board implements Cloneable {
     growthRate = 25;
     razorCount = 0;
     robot.setWaterThreshold(0);
-    
+
     HashMap<String, String> labelTolabel = new HashMap<String, String>();
     HashMap<Point, String> trampToLabel =  new HashMap<Point, String>();
     HashMap<String, Point> labelToTarget =  new HashMap<String, Point>();
-    
+
     for (; i < lines.length; i++) {
       String[] words = lines[i].split(" ");
       String type = words[0];
@@ -86,10 +97,10 @@ public class Board implements Cloneable {
       else if (type == "Trampoline")
         labelTolabel.put(words[1], words[3]);
     }
-       
+
     int y = 0;
     for (String line : lines) {
-      
+
       for (int x = 0; x < line.length(); ++x) {
         switch (line.charAt(x)) {
         case '*':
@@ -142,11 +153,11 @@ public class Board implements Cloneable {
         case '8':
         case '9':
           layout[y][x] = CellTypes.Target;
-          //conversion, so that tramps and targets have same labels. 
+          //conversion, so that tramps and targets have same labels.
           labelToTarget.put(Character.toString(line.charAt(x)),new Point(x,y));
-          
+
         break;
-        
+
         case 'W':
           layout[y][x] = CellTypes.Beard;
           beards.add(new Point(x,y));
@@ -157,10 +168,10 @@ public class Board implements Cloneable {
           break;
         }
       }
-      
+
       y++;
     }
-    
+
     for (Point p : trampolines)
     {
       String trampLabel = trampToLabel.get(p);
@@ -194,7 +205,7 @@ public class Board implements Cloneable {
     state.deltaId = layout.globalDeltaId;
     return state;
   }
-    
+
 
 
   public GameState move(Robot.Move move) // should change internal state, or create a new
@@ -208,9 +219,9 @@ public class Board implements Cloneable {
         xp = x - 1;
         yp = y;
       break;
-    case Right: 
+    case Right:
         xp = x + 1;
-        yp = y; 
+        yp = y;
       break;
     case Up:
         xp = x;
@@ -232,18 +243,18 @@ public class Board implements Cloneable {
         {
           if (layout.get(j,i) == CellTypes.Beard)
           {
-            //temp beards are because we want to differentiate bettween new beards, and old. 
-            //else, out of control growth. 
+            //temp beards are because we want to differentiate bettween new beards, and old.
+            //else, out of control growth.
             layout.set(j,i,CellTypes.Empty);
             beards.remove(new Point(j,i));
           }
         }
       razorCount--;
       return GameState.Continue;
-      
+
     }
 
-    
+
     if (layout.get(xp,yp) == CellTypes.Razor)
     {
       razorCount += 1;
@@ -270,25 +281,25 @@ public class Board implements Cloneable {
     }
     else if (move == Robot.Move.Right && layout.get(xp,yp) == CellTypes.Rock && layout.get(xp+1, yp) == CellTypes.Empty)
     {
-      layout.set(xp+1, yp,CellTypes.Rock); 
+      layout.set(xp+1, yp,CellTypes.Rock);
     }
     else if (layout.get(xp, yp) == CellTypes.Rock)
     {
       //cant move this rock
       return GameState.Continue;
     }
-    
-    //if we step on a tramp, find our coresponding target, and set that. 
- 
+
+    //if we step on a tramp, find our coresponding target, and set that.
+
     if (layout.get(xp, yp) == CellTypes.Tramp)
     {
-          
+
       Point target = trampToTargets.get(new Point(xp, yp));
-      
+
       trampToTargets.remove(new Point(xp, yp));
       trampolines.remove(new Point(xp, yp));
-      
-      //this is so we can remove all tramps that jump to this target. 
+
+      //this is so we can remove all tramps that jump to this target.
       if (trampToTargets.containsValue(target))
       {
         for (Point tramp : trampolines)
@@ -300,11 +311,11 @@ public class Board implements Cloneable {
           }
         }
       }
-      
+
       layout.set(xp,yp,CellTypes.Empty);
       xp = target.x;
       yp = target.y;
-      
+
     }
     //update our position
     layout.set(x,y,CellTypes.Empty);
@@ -330,16 +341,16 @@ public class Board implements Cloneable {
     if (ticks % waterRate == waterRate - 1) {
       waterLevel += 1;
     }
-    
-    
+
+
     if(robot.getWaterTime() == robot.getWaterThreshold())
       return GameState.Lose; //is a drowning lose or abort?
-    
+
     robot.stayInWater();//at what point do we want this called?
-    
+
     for (int y = 0; y < layoutHeight; ++y) {
       for (int x = 0; x < layoutWidth; ++x) {
-        
+
         if (layout.get(x,y) == CellTypes.Closed && lambdaPos.size() == 0) {
           layout.set(x,y,CellTypes.Open);
         }
@@ -351,34 +362,34 @@ public class Board implements Cloneable {
                 {
                   if (layout.get(j,i) == CellTypes.Empty)
                   {
-                    //temp beards are because we want to differentiate bettween new beards, and old. 
-                    //else, out of control growth. 
+                    //temp beards are because we want to differentiate bettween new beards, and old.
+                    //else, out of control growth.
                     layout.set(j,i,CellTypes.TempBeard);
                     tempBeards.add(new Point(j,i));
                     beards.add(new Point(j,i));
                   }
                 }
         }
-        
+
         if (layout.get(x,y) == CellTypes.Rock) {
-          
+
           int xp = 0, yp = 0;
           if (y-1 > 0 && layout.get(x,y-1) == CellTypes.Empty)
           {
             xp = x;
             yp = y-1;
           }
-          if (y-1 > 0 && x+1 < layoutWidth-1 && 
-              layout.get(x,y-1) == CellTypes.Rock && 
-              layout.get(x+1, y) == CellTypes.Empty && 
+          if (y-1 > 0 && x+1 < layoutWidth-1 &&
+              layout.get(x,y-1) == CellTypes.Rock &&
+              layout.get(x+1, y) == CellTypes.Empty &&
               layout.get(x+1, y-1) == CellTypes.Empty )
           {
             xp = x+1;
             yp = y-1;
           }
           if (y-1 > 0 && x+1 < layoutWidth-1 && x-1 > 0 &&
-              layout.get(x,y-1) == CellTypes.Rock && 
-              (layout.get(x+1, y) != CellTypes.Empty || layout.get(x+1, y-1) != CellTypes.Empty) && 
+              layout.get(x,y-1) == CellTypes.Rock &&
+              (layout.get(x+1, y) != CellTypes.Empty || layout.get(x+1, y-1) != CellTypes.Empty) &&
               layout.get(x-1, y)== CellTypes.Empty &&
               layout.get(x-1, y-1) == CellTypes.Empty)
           {
@@ -393,18 +404,18 @@ public class Board implements Cloneable {
             xp = x+1;
             yp = y-1;
           }
-          
+
           layout.set(x,y,CellTypes.Empty);
           layout.set(xp, yp, CellTypes.Rock);
           if (layout.get(xp, yp-1) == CellTypes.Robot)
           {
             return GameState.Lose;
           }
-          
+
         }
       }
     }
-    
+
     //need to change the new beards for this round into permanent beards
     if (ticks%growthRate == growthRate-1)
     {
@@ -473,13 +484,44 @@ public class Board implements Cloneable {
     state = move(nextMove);
     if (state != GameState.Continue)
       return state;
-    
+
     state = update();
     if (state != GameState.Continue)
       return state;
     ticks += 1;
-   
+
     return GameState.Continue;
   }
 
+  public void revert(BoardState revertState) {
+    layout.revert(revertState.deltaId);
+  }
+
+  public Point getRobotPosition() {
+    return robot.getPosition();
+  }
+
+  public List<BoardState> getAvailableMoves() {
+    List<BoardState> retList = new ArrayList<BoardState>();
+    int[] dr = {-1, 0, 0, 1};
+    int[] dc = {0, -1, 1, 0};
+    Robot.Move[] robotMove = {Robot.Move.Down, Robot.Move.Left,
+			      Robot.Move.Right, Robot.Move.Up};
+
+    // TODO(jack): need to handle trampoline and possibly death
+    // conditions here.
+
+    for (int i = 0; i < dr.length; i++) {
+      int r = dr[i];
+      int c = dc[i];
+      if (layout.get(r, c) != CellTypes.Wall) {
+	BoardState state = new BoardState();
+	state.position = new Point(r, c);
+	state.move = robotMove[i];
+	state.deltaId = layout.globalDeltaId;
+      }
+    }
+
+    return retList;
+  }
 }
