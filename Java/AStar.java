@@ -46,14 +46,14 @@ public class AStar {
         Board newBoard = newState.board;
         Point newPosition = newBoard.getRobotPosition();
         newState.parentState = curState;
-	newState.move = candMove;
-        newState.board.tick(candMove);
+        newState.move = candMove;
+        newBoard.tick(candMove);
         newState.score =
           g.compute(newBoard, origin, newPosition) +
           h.compute(newBoard, newPosition, destination);
         candidates.add(newState);
 
-	System.out.println(candMove + ": " + newState.score);
+        System.out.println(candMove + ": " + newState.score);
       }
 
       // Termination condition
