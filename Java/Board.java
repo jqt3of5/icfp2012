@@ -9,27 +9,6 @@ public class Board implements Cloneable {
     Win, Lose, Abort, Continue
   };
   
-  public class Target
-  {
-    Target(Point pos, char l)
-    {
-      position = pos;
-      label = l;
-    }
-    Point position;
-    char label;
-  }
-  public class Trampoline
-  {
-    Trampoline(Point pos, char l)
-    {
-      position = pos;
-      label = l;
-    }
-    Point position;
-    char label;
-  }
-  
   public Robot robot;
   public int waterLevel;
   public int waterRate;
@@ -38,8 +17,11 @@ public class Board implements Cloneable {
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
   public BoardRep layout;
-  public ArrayList<Trampoline> trampolines;
-  public ArrayList<Target> targets;
+  
+  public HashMap<Point, String> trampolines;
+  public HashMap<String, Point> targets;
+  public HashMap<String, String> trampToTargets;
+  
   public ArrayList<Point> tempBeards;
   public ArrayList<Point> beards;
   public ArrayList<Point> razors;
@@ -61,6 +43,17 @@ public class Board implements Cloneable {
   }
 //needs to handle meta date!
   public Board(String map) {
+    
+    ticks = 0;
+    layout = new BoardRep(layoutHeight, layoutWidth);//CellTypes[layoutHeight][layoutWidth];
+    lambdaPos = new ArrayList<Point>();
+    trampolines = new HashMap<Point, String>();
+    targets = new HashMap<String, Point>();
+    beards = new ArrayList<Point>();
+    razors = new ArrayList<Point>();
+    tempBeards = new ArrayList<Point>();
+    trampToTargets = new HashMap<String, String>();
+    
     String[] lines = map.split("\\r\\n|\\r|\\n");
 
     // Parse map
@@ -79,6 +72,10 @@ public class Board implements Cloneable {
     // Parse metadata
     waterLevel = 0;
     waterRate = 0;
+    growthRate = 25;
+    razorCount = 0;
+    robot.setWaterThreshold(0);
+    
     for (; i < lines.length; i++) {
       String[] words = lines[i].split(" ");
       String type = words[0];
@@ -88,24 +85,17 @@ public class Board implements Cloneable {
         waterRate = Integer.parseInt(words[1]);
       else if (type == "Waterproof")
         robot.setWaterThreshold(Integer.parseInt(words[1]));
+      else if (type == "Growths")
+        growthRate = Integer.parseInt(words[1]);
+      else if (type == "Razors")
+        razorCount = Integer.parseInt(words[1]);
+      else if (type == "Trampoline")
+        trampToTargets.put(words[1], words[3]);
     }
-
-    ticks = 0;
-    layout = new BoardRep(layoutHeight, layoutWidth);//CellTypes[layoutHeight][layoutWidth];
-    lambdaPos = new ArrayList<Point>();
-    trampolines = new ArrayList<Trampoline>();
-    targets = new ArrayList<Target>();
-    beards = new ArrayList<Point>();
-    razors = new ArrayList<Point>();
-    tempBeards = new ArrayList<Point>();
-    
-    waterLevel = 0;
-    waterRate = 0;
-    growthRate = 25;
-    razorCount = 0;
        
     int y = 0;
     for (String line : lines) {
+      
       for (int x = 0; x < line.length(); ++x) {
         switch (line.charAt(x)) {
         case '*':
@@ -145,7 +135,7 @@ public class Board implements Cloneable {
         case 'H':
         case 'I':
           layout.set(x,y,CellTypes.Tramp);
-          trampolines.add(new Trampoline(new Point(x,y), line.charAt(x)));
+          trampolines.put(new Point(x,y),Character.toString(line.charAt(x)));
         break;
         case '1':
         case '2':
@@ -158,7 +148,8 @@ public class Board implements Cloneable {
         case '9':
           layout.set(x,y,CellTypes.Target);
           //conversion, so that tramps and targets have same labels. 
-          targets.add(new Target(new Point(x,y), (char) (line.charAt(x)-'0' + 'A')));
+          targets.put(Character.toString(line.charAt(x)),new Point(x,y));
+          
         break;
         
         case 'W':
@@ -171,8 +162,11 @@ public class Board implements Cloneable {
           break;
         }
       }
+      
       y++;
     }
+    
+   
   }
 
 
@@ -232,7 +226,7 @@ public class Board implements Cloneable {
           {
             //temp beards are because we want to differentiate bettween new beards, and old. 
             //else, out of control growth. 
-            layout.get(j,i) = CellTypes.Empty;
+            layout.set(j,i,CellTypes.Empty);
             beards.remove(new Point(j,i));
           }
         }
@@ -279,24 +273,16 @@ public class Board implements Cloneable {
     //if we step on a tramp, find our coresponding target, and set that. 
     if (layout.get(xp, yp) == CellTypes.Tramp)//poor performance
     {
-      for (Trampoline tramp : trampolines)
-      {
-        if (tramp.position == new Point(xp,yp))
-        {
-          for (Target targ : targets)
-          {
-            if (targ.label == tramp.label)
-            {
-              yp = targ.position.y;
-              xp = targ.position.x;
-              layout.set(tramp.position.x, tramp.position.y, CellTypes.Empty); 
-              trampolines.remove(tramp);
-              targets.remove(targ);
-              break;
-            }
-          }
-        }
-      }
+     
+      String tramp = trampolines.get(new Point(xp, yp));
+      Point targetLoc = targets.get(tramp);
+      trampolines.remove(new Point(xp, yp));
+      targets.remove(tramp);
+      
+      layout.set(xp,yp,CellTypes.Empty);
+      xp = targetLoc.x;
+      yp = targetLoc.y;
+      
     }
     //update our position
     layout.set(x,y,CellTypes.Empty);
