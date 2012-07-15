@@ -54,4 +54,8 @@ public class Path {
     }
     return s.toString();
   }
+  
+  public Robot.Move getFirstMove() {
+    return moves.get(0);
+  }
 }
