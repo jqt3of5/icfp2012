@@ -36,12 +36,14 @@ public class AStar {
       BoardState curState = candidates.poll();
       Board curBoard = curState.board;
 
+      System.out.println(curBoard);
+
       for (Robot.Move candMove : curBoard.getAvailableMoves()) {
         BoardState newState = curState.board.getBoardState();
         Board newBoard = newState.board;
         Point newPosition = newBoard.getRobotPosition();
         newState.parentState = curState;
-        newState.board.move(candMove);
+        newState.board.tick(candMove);
         newState.score =
           g.compute(newBoard, origin, newPosition) +
           h.compute(newBoard, newPosition, destination);

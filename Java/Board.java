@@ -94,6 +94,7 @@ public class Board implements Cloneable {
   public int height;
   public int ticks;
 
+  public GameState state;
 
   // private Board(int width, int height) {
   //   ticks = 0;
@@ -164,6 +165,12 @@ public class Board implements Cloneable {
     for (int r = 0; r < height; r++) {
       for (int c = 0; c < width; ++c) {
         final String line = lines[height-1-r];
+
+        if (line.length() <= c) {
+          map[r][c] = CellTypes.Empty;
+          continue;
+        }
+
         switch (line.charAt(c)) {
         case '*':
           map[r][c] = CellTypes.Rock;
@@ -261,7 +268,16 @@ public class Board implements Cloneable {
         map[r][c] = oldBoard.map[r][c];
       }
     }
+
+    trampolines = new ArrayList<Point>(oldBoard.trampolines);
+    trampToTargets = new HashMap<Point, Point>(oldBoard.trampToTargets);
+
+    tempBeards = new ArrayList<Point>(oldBoard.tempBeards);
+    beards = new ArrayList<Point>(oldBoard.beards);
+    razors = new ArrayList<Point>(oldBoard.razors);
     ticks = oldBoard.ticks;
+
+    state = oldBoard.state;
   }
 
   public BoardState getBoardState() {
@@ -276,9 +292,12 @@ public class Board implements Cloneable {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         if (map[y][x] == CellTypes.Tramp) {
-          s.append('A' + trampolines.indexOf(new Point(y,x)));
+          s.append((char)('A' + trampolines.indexOf(new Point(y,x))));
+        } else if (map[y][x] == CellTypes.Target) {
+          s.append((char)('1' + trampolines.indexOf(new Point(y,x))));
+        } else {
+          s.append(map[y][x]);
         }
-        s.append(map[y][x]);
       }
       s.append("\n");
     }
@@ -505,59 +524,11 @@ public class Board implements Cloneable {
       return GameState.Continue;
     }
 
-  public void displayBoard()
-    {
-      for (int y = 0; y < height; ++y)
-      {
-        for(int x = 0; x < width; ++x)
-        {
-          switch(map[y][x])
-          {
-          case Robot:
-            System.out.print('R');
-            break;
-          case Rock:
-            System.out.print('*');
-            break;
-          case Empty:
-            System.out.print(' ');
-            break;
-          case Earth:
-            System.out.print('.');
-            break;
-          case Lambda:
-            System.out.print('/');
-            break;
-          case Closed:
-            System.out.print('L');
-            break;
-          case Open:
-            System.out.print('O');
-            break;
-          case Beard:
-            System.out.print('W');
-            break;
-          case Razor:
-            System.out.print('!');
-            break;
-          case Wall:
-            System.out.print('#');
-            break;
-          case Tramp:
-            System.out.print('A');
-            break;
-          case Target:
-            System.out.print('1');
-            break;
-          }
-        }
-        System.out.print("\n");
-      }
-    }
   public GameState tick(final Robot.Move nextMove) {
-    GameState state;
-    if (nextMove == Robot.Move.Abort)
-      return GameState.Abort;
+    if (nextMove == Robot.Move.Abort) {
+      state = GameState.Abort;
+      return state;
+    }
     state = move(nextMove);
     if (state != GameState.Continue)
       return state;
@@ -567,7 +538,8 @@ public class Board implements Cloneable {
       return state;
     ticks += 1;
 
-    return GameState.Continue;
+    state = GameState.Continue;
+    return state;
   }
 
   // public void revert(final BoardState revertState) {
