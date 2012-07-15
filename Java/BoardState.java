@@ -16,4 +16,7 @@ public class BoardState {
   public BoardState parentState;
   public double score;
 
+  public String toString() {
+    return "BoardState: position=" + position.toString();
+  }
 }

@@ -14,7 +14,6 @@ public class Robot{
     lambdaCount = 0;
     score = 0;
     waterTime = 0;
-    waterThreshold = 10;
   }
 
   public Robot(final Robot oldRobot) {
@@ -22,7 +21,6 @@ public class Robot{
     lambdaCount = oldRobot.lambdaCount;
     score = oldRobot.score;
     waterTime = oldRobot.waterTime;
-    waterThreshold = oldRobot.waterThreshold;
   }
 
   public void moveUp() {
@@ -84,14 +82,6 @@ public class Robot{
 
   public int getWaterTime() {
       return waterTime;
-  }
-  public int getWaterThreshold()
-  {
-    return waterThreshold;
-  }
-  public void setWaterThreshold(final int threshold)
-  {
-    waterThreshold = threshold;
   }
   public Point getPosition()
   {
