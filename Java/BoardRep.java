@@ -3,9 +3,10 @@ import java.util.*;
 public class BoardRep {
 
 	private CellTree[][] cellTrees;
+  private ArrayList<Robot> robotStates;
 	public int globalDeltaId;
 
-	public BoardRep(final Board.CellTypes[][] layout) {
+	public BoardRep(final Board.CellTypes[][] layout, Point robotPosition) {
 	  globalDeltaId = 0;
 
 	  // initialize board
@@ -18,6 +19,9 @@ public class BoardRep {
 	      cellTrees[r][c] = new CellTree(layout[r][c], globalDeltaId);
 	    }
 	  }
+
+    robotStates = new ArrayList<Robot>();
+    robotStates.add(new Robot(robotPosition.y, robotPosition.x));
 	}
 
   public BoardRep(BoardRep oldRep) {
@@ -32,6 +36,11 @@ public class BoardRep {
 	      cellTrees[r][c] = new CellTree(oldRep.cellTrees[r][c]);
 	    }
 	  }
+
+    robotStates = new ArrayList<Robot>();
+    for (Robot r : oldRep.robotStates) {
+      robotStates.add(new Robot(r));
+    }
   }
 
 	public Board.CellTypes get(final int r, final int c) {
@@ -43,7 +52,7 @@ public class BoardRep {
 	  return globalDeltaId;
 	}
 
-	public int set(final int[] r, final int[] c, final Board.CellTypes[] newTypes) {
+	public int set(final int[] r, final int[] c, final Board.CellTypes[] newTypes, Point robotPosition) {
 	  assert(r.length == c.length && c.length == newTypes.length);
 	  globalDeltaId++;
 	  for (int i = 0; i < r.length; i++) {
@@ -55,6 +64,7 @@ public class BoardRep {
 	public void revert(final int deltaId) {
 	  globalDeltaId = deltaId;
 	}
+    
 
 	// --------------- Cells ---------------
 	class CellTree {

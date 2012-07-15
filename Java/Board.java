@@ -10,9 +10,9 @@ public class Board implements Cloneable {
     Win, Lose, Abort, Continue
   };
 
-  public Robot robot;
   public int waterLevel;
   public int waterRate;
+  public int robotWaterLimit;
   public int growthRate;
   public int razorCount;
   public ArrayList<Point> lambdaPos;
@@ -45,7 +45,6 @@ public class Board implements Cloneable {
   //needs to handle meta date!
 
   public Board(final String map) {
-    robot = new Robot(0,0);
     ticks = 0;
     lambdaPos = new ArrayList<Point>();
     trampolines = new ArrayList<Point>();
@@ -77,7 +76,6 @@ public class Board implements Cloneable {
     waterRate = 0;
     growthRate = 25;
     razorCount = 0;
-    robot.setWaterThreshold(0);
 
     final HashMap<String, String> labelTolabel = new HashMap<String, String>();
     final HashMap<Point, String> trampToLabel =  new HashMap<Point, String>();
@@ -91,7 +89,7 @@ public class Board implements Cloneable {
       else if (type == "Flooding")
         waterRate = Integer.parseInt(words[1]);
       else if (type == "Waterproof")
-        robot.setWaterThreshold(Integer.parseInt(words[1]));
+        robotWaterLimit = Integer.parseInt(words[1]);
       else if (type == "Growths")
         growthRate = Integer.parseInt(words[1]);
       else if (type == "Razors")
@@ -99,6 +97,8 @@ public class Board implements Cloneable {
       else if (type == "Trampoline")
         labelTolabel.put(words[1], words[3]);
     }
+
+    Point robotPosition;
 
     for (int r = 0; r < layoutHeight; r++) {
       for (int c = 0; c < layoutWidth; ++c) {
@@ -112,7 +112,7 @@ public class Board implements Cloneable {
           break;
         case 'R':
           layout[r][c] = CellTypes.Robot;
-          robot.setPosition(r,c);
+          robotPosition = new Point(r,c);
           break;
         case '.':
           layout[r][c] = CellTypes.Earth;
@@ -143,7 +143,7 @@ public class Board implements Cloneable {
           layout[r][c] = CellTypes.Tramp;
           trampToLabel.put(new Point(r, c), Character.toString(line.charAt(c)));
           trampolines.add(new Point(r, c));
-        break;
+          break;
         case '1':
         case '2':
         case '3':
@@ -157,7 +157,7 @@ public class Board implements Cloneable {
           //conversion, so that tramps and targets have same labels.
           labelToTarget.put(Character.toString(line.charAt(c)),new Point(r,c));
 
-        break;
+          break;
 
         case 'W':
           layout[r][c] = CellTypes.Beard;
@@ -180,12 +180,11 @@ public class Board implements Cloneable {
       trampToTargets.put(p,  target);
     }
 
-    rep = new BoardRep(layout);
+    rep = new BoardRep(layout, robotPosition);
   }
 
 
   public Board(final Board oldBoard) {
-    robot = new Robot(oldBoard.robot);
     waterLevel = oldBoard.waterLevel;
     waterRate = oldBoard.waterRate;
     lambdaPos = new ArrayList<Point>(oldBoard.lambdaPos);
@@ -199,7 +198,7 @@ public class Board implements Cloneable {
 
   public BoardState getBoardState() {
     final BoardState state = new BoardState();
-    state.position = getRobotPosition();
+    state.position = rep.getRobotPosition();
     state.move = null;
     state.deltaId = rep.globalDeltaId;
     return state;
@@ -218,233 +217,233 @@ public class Board implements Cloneable {
   }
 
   public GameState move(final Robot.Move move) // should change internal state, or create a new
-  {
-    final int x = robot.getPosition().getC();
-    final int y = robot.getPosition().getR();
-    int xp = 0, yp = 0;
+    {
+      final int x = rep.getRobotPosition().getC();
+      final int y = rep.getRobotPosition().getR();
+      int xp = 0, yp = 0;
 
-    switch (move) {
-    case Left:
+      switch (move) {
+      case Left:
         xp = x - 1;
         yp = y;
-      break;
-    case Right:
+        break;
+      case Right:
         xp = x + 1;
         yp = y;
-      break;
-    case Up:
+        break;
+      case Up:
         xp = x;
         yp = y + 1;
-      break;
-    case Down:
+        break;
+      case Down:
         xp = x;
         yp = y - 1;
-      break;
-    case Wait:
-      return GameState.Continue;
-    case Abort:
-      return GameState.Abort;
-    case Shave:
-      if (razorCount < 1)
+        break;
+      case Wait:
         return GameState.Continue;
-      for (int i = y-1; i < 3; ++i)
-        for (int j = x-1; j < 3; ++j)
-        {
-          if (rep.get(i,j) == CellTypes.Beard)
+      case Abort:
+        return GameState.Abort;
+      case Shave:
+        if (razorCount < 1)
+          return GameState.Continue;
+        for (int i = y-1; i < 3; ++i)
+          for (int j = x-1; j < 3; ++j)
           {
-            //temp beards are because we want to differentiate bettween new beards, and old.
-            //else, out of control growth.
-            rep.set(i, j, CellTypes.Empty);
-            beards.remove(new Point(i,j));
+            if (rep.get(i,j) == CellTypes.Beard)
+            {
+              //temp beards are because we want to differentiate bettween new beards, and old.
+              //else, out of control growth.
+              rep.set(i, j, CellTypes.Empty);
+              beards.remove(new Point(i,j));
+            }
           }
-        }
-      razorCount--;
-      return GameState.Continue;
+        razorCount--;
+        return GameState.Continue;
 
-    }
-
-
-    if (rep.get(yp,xp) == CellTypes.Razor)
-    {
-      razorCount += 1;
-    }
-    //if we get to the exit and it is open, we win
-    if (rep.get(yp,xp) == CellTypes.Open) {
-      return GameState.Win;
-    }
-    //cannot go through a wall, or a closed lift, or a beard
-    if (rep.get(yp,xp) == CellTypes.Wall ||
-        rep.get(yp,xp) == CellTypes.Closed ||
-        rep.get(yp,xp) == CellTypes.Beard) {
-      return GameState.Continue;
-    }
-    //we stumbled on a lambda! pick it up
-    if (rep.get(yp,xp) == CellTypes.Lambda) {
-     robot.gainLambda();
-       lambdaPos.remove(new Point(yp, xp)); // careful order!
-    }
-    //if we can move the rock left/right or we just tried to run into it
-    if (move == Robot.Move.Left && rep.get(yp,xp) == CellTypes.Rock && rep.get(yp, xp-1) == CellTypes.Empty)
-    {
-     rep.set(yp,xp-1, CellTypes.Rock);
-    }
-    else if (move == Robot.Move.Right && rep.get(yp,xp) == CellTypes.Rock && rep.get(yp, xp+1) == CellTypes.Empty)
-    {
-      rep.set(yp, xp+1,CellTypes.Rock);
-    }
-    else if (rep.get(yp, xp) == CellTypes.Rock)
-    {
-      //cant move this rock
-      return GameState.Continue;
-    }
-
-    //if we step on a tramp, find our coresponding target, and set that.
-
-    if (rep.get(yp, xp) == CellTypes.Tramp)
-    {
-
-      final Point target = trampToTargets.get(new Point(yp, xp));
-
-      trampToTargets.remove(new Point(yp, xp));
-      trampolines.remove(new Point(yp, xp));
-
-      //this is so we can remove all tramps that jump to this target.
-      if (trampToTargets.containsValue(target))
-      {
-        for (final Point tramp : trampolines)
-        {
-          if (trampToTargets.get(tramp) == target)
-          {
-            trampToTargets.remove(tramp);
-            trampolines.remove(tramp);
-          }
-        }
       }
 
-      rep.set(yp,xp,CellTypes.Empty);
-      xp = target.c;
-      yp = target.r;
 
+      if (rep.get(yp,xp) == CellTypes.Razor)
+      {
+        razorCount += 1;
+      }
+      //if we get to the exit and it is open, we win
+      if (rep.get(yp,xp) == CellTypes.Open) {
+        return GameState.Win;
+      }
+      //cannot go through a wall, or a closed lift, or a beard
+      if (rep.get(yp,xp) == CellTypes.Wall ||
+          rep.get(yp,xp) == CellTypes.Closed ||
+          rep.get(yp,xp) == CellTypes.Beard) {
+        return GameState.Continue;
+      }
+      //we stumbled on a lambda! pick it up
+      if (rep.get(yp,xp) == CellTypes.Lambda) {
+        rep.robotGainLambda();
+        lambdaPos.remove(new Point(yp, xp)); // careful order!
+      }
+      //if we can move the rock left/right or we just tried to run into it
+      if (move == Robot.Move.Left && rep.get(yp,xp) == CellTypes.Rock && rep.get(yp, xp-1) == CellTypes.Empty)
+      {
+        rep.set(yp,xp-1, CellTypes.Rock);
+      }
+      else if (move == Robot.Move.Right && rep.get(yp,xp) == CellTypes.Rock && rep.get(yp, xp+1) == CellTypes.Empty)
+      {
+        rep.set(yp, xp+1,CellTypes.Rock);
+      }
+      else if (rep.get(yp, xp) == CellTypes.Rock)
+      {
+        //cant move this rock
+        return GameState.Continue;
+      }
+
+      //if we step on a tramp, find our coresponding target, and set that.
+
+      if (rep.get(yp, xp) == CellTypes.Tramp)
+      {
+
+        final Point target = trampToTargets.get(new Point(yp, xp));
+
+        trampToTargets.remove(new Point(yp, xp));
+        trampolines.remove(new Point(yp, xp));
+
+        //this is so we can remove all tramps that jump to this target.
+        if (trampToTargets.containsValue(target))
+        {
+          for (final Point tramp : trampolines)
+          {
+            if (trampToTargets.get(tramp) == target)
+            {
+              trampToTargets.remove(tramp);
+              trampolines.remove(tramp);
+            }
+          }
+        }
+
+        rep.set(yp,xp,CellTypes.Empty);
+        xp = target.c;
+        yp = target.r;
+
+      }
+      //update our position
+      rep.set(y,x,CellTypes.Empty);
+      rep.set(yp,xp,CellTypes.Robot);
+      rep.setRobotPosition(yp, xp);
+      return GameState.Continue;
     }
-    //update our position
-    rep.set(y,x,CellTypes.Empty);
-    rep.set(yp,xp,CellTypes.Robot);
-    robot.setPosition(yp, xp);
-    return GameState.Continue;
-  }
 
   private GameState move(final List<Robot.Move> moves) // same question as above, dont use
-  {
-    for (final Robot.Move m : moves) {
-      final GameState state = move(m);
-      if (state != GameState.Continue) {
-        return state;
+    {
+      for (final Robot.Move m : moves) {
+        final GameState state = move(m);
+        if (state != GameState.Continue) {
+          return state;
+        }
       }
+      return GameState.Continue;
     }
-    return GameState.Continue;
-  }
 
   public GameState update() // again
-  {
-
-    if (ticks % waterRate == waterRate - 1) {
-      waterLevel += 1;
-    }
-
-
-    if(robot.getWaterTime() == robot.getWaterThreshold())
-      return GameState.Lose; //is a drowning lose or abort?
-
-    robot.stayInWater();//at what point do we want this called?
-
-    for (int y = 0; y < layoutHeight; ++y) {
-      for (int x = 0; x < layoutWidth; ++x) {
-
-        if (rep.get(y,x) == CellTypes.Closed && lambdaPos.size() == 0) {
-          rep.set(y,x,CellTypes.Open);
-        }
-        //grow beards
-        if(ticks%growthRate == growthRate-1 && rep.get(y,x) == CellTypes.Beard)
-        {
-              for (int i = y-1; i < 3; ++i)
-                for (int j = x-1; j < 3; ++j)
-                {
-                  if (rep.get(i,j) == CellTypes.Empty)
-                  {
-                    //temp beards are because we want to differentiate bettween new beards, and old.
-                    //else, out of control growth.
-                    rep.set(i,j,CellTypes.TempBeard);
-                    tempBeards.add(new Point(i,j));
-                    beards.add(new Point(i,j));
-                  }
-                }
-        }
-
-        if (rep.get(y,x) == CellTypes.Rock) {
-
-          int xp = 0, yp = 0;
-          if (y-1 > 0 && rep.get(y-1,x) == CellTypes.Empty)
-          {
-            xp = x;
-            yp = y-1;
-          }
-          if (y-1 > 0 && x+1 < layoutWidth-1 &&
-              rep.get(y-1, x) == CellTypes.Rock &&
-              rep.get(y, x+1) == CellTypes.Empty &&
-              rep.get(y-1, x+1) == CellTypes.Empty )
-          {
-            xp = x+1;
-            yp = y-1;
-          }
-          if (y-1 > 0 && x+1 < layoutWidth-1 && x-1 > 0 &&
-              rep.get(y-1, x) == CellTypes.Rock &&
-              (rep.get(y, x+1) != CellTypes.Empty || rep.get(x+1, y-1) != CellTypes.Empty) &&
-              rep.get(y, x-1)== CellTypes.Empty &&
-              rep.get(y-1, x-1) == CellTypes.Empty)
-          {
-            xp = x-1;
-            yp = y-1;
-          }
-          if (y-1 > 0 && x+1 < layoutWidth-1 &&
-              rep.get(y-1, x) == CellTypes.Lambda &&
-              rep.get(y, x+1) == CellTypes.Empty &&
-              rep.get(y-1, x+1) == CellTypes.Empty)
-          {
-            xp = x+1;
-            yp = y-1;
-          }
-
-          rep.set(y,x,CellTypes.Empty);
-          rep.set(yp, xp, CellTypes.Rock);
-          if (rep.get(yp-1, xp) == CellTypes.Robot)
-          {
-            return GameState.Lose;
-          }
-
-        }
-      }
-    }
-
-    //need to change the new beards for this round into permanent beards
-    if (ticks%growthRate == growthRate-1)
     {
-      for (final Point p : tempBeards)
-      {
-        rep.set(p.r, p.c, CellTypes.Beard);
-        tempBeards.remove(p);
+
+      if (ticks % waterRate == waterRate - 1) {
+        waterLevel += 1;
       }
+
+
+      if(rep.getRobotWaterTime() == robotWaterLimit)
+        return GameState.Lose; //is a drowning lose or abort?
+
+      robot.stayInWater();//at what point do we want this called?
+
+      for (int y = 0; y < layoutHeight; ++y) {
+        for (int x = 0; x < layoutWidth; ++x) {
+
+          if (rep.get(y,x) == CellTypes.Closed && lambdaPos.size() == 0) {
+            rep.set(y,x,CellTypes.Open);
+          }
+          //grow beards
+          if(ticks%growthRate == growthRate-1 && rep.get(y,x) == CellTypes.Beard)
+          {
+            for (int i = y-1; i < 3; ++i)
+              for (int j = x-1; j < 3; ++j)
+              {
+                if (rep.get(i,j) == CellTypes.Empty)
+                {
+                  //temp beards are because we want to differentiate bettween new beards, and old.
+                  //else, out of control growth.
+                  rep.set(i,j,CellTypes.TempBeard);
+                  tempBeards.add(new Point(i,j));
+                  beards.add(new Point(i,j));
+                }
+              }
+          }
+
+          if (rep.get(y,x) == CellTypes.Rock) {
+
+            int xp = 0, yp = 0;
+            if (y-1 > 0 && rep.get(y-1,x) == CellTypes.Empty)
+            {
+              xp = x;
+              yp = y-1;
+            }
+            if (y-1 > 0 && x+1 < layoutWidth-1 &&
+                rep.get(y-1, x) == CellTypes.Rock &&
+                rep.get(y, x+1) == CellTypes.Empty &&
+                rep.get(y-1, x+1) == CellTypes.Empty )
+            {
+              xp = x+1;
+              yp = y-1;
+            }
+            if (y-1 > 0 && x+1 < layoutWidth-1 && x-1 > 0 &&
+                rep.get(y-1, x) == CellTypes.Rock &&
+                (rep.get(y, x+1) != CellTypes.Empty || rep.get(x+1, y-1) != CellTypes.Empty) &&
+                rep.get(y, x-1)== CellTypes.Empty &&
+                rep.get(y-1, x-1) == CellTypes.Empty)
+            {
+              xp = x-1;
+              yp = y-1;
+            }
+            if (y-1 > 0 && x+1 < layoutWidth-1 &&
+                rep.get(y-1, x) == CellTypes.Lambda &&
+                rep.get(y, x+1) == CellTypes.Empty &&
+                rep.get(y-1, x+1) == CellTypes.Empty)
+            {
+              xp = x+1;
+              yp = y-1;
+            }
+
+            rep.set(y,x,CellTypes.Empty);
+            rep.set(yp, xp, CellTypes.Rock);
+            if (rep.get(yp-1, xp) == CellTypes.Robot)
+            {
+              return GameState.Lose;
+            }
+
+          }
+        }
+      }
+
+      //need to change the new beards for this round into permanent beards
+      if (ticks%growthRate == growthRate-1)
+      {
+        for (final Point p : tempBeards)
+        {
+          rep.set(p.r, p.c, CellTypes.Beard);
+          tempBeards.remove(p);
+        }
+      }
+      return GameState.Continue;
     }
-    return GameState.Continue;
-  }
 
   public void displayBoard()
-  {
-    for (int y = 0; y < layoutHeight; ++y)
     {
-      for(int x = 0; x < layoutWidth; ++x)
+      for (int y = 0; y < layoutHeight; ++y)
       {
-        switch(rep.get(y,x))
+        for(int x = 0; x < layoutWidth; ++x)
         {
+          switch(rep.get(y,x))
+          {
           case Robot:
             System.out.print('R');
             break;
@@ -481,11 +480,11 @@ public class Board implements Cloneable {
           case Target:
             System.out.print('1');
             break;
+          }
         }
+        System.out.print("\n");
       }
-      System.out.print("\n");
     }
-  }
   public GameState tick(final Robot.Move nextMove) {
     GameState state;
     if (nextMove == Robot.Move.Abort)
@@ -515,7 +514,7 @@ public class Board implements Cloneable {
     final int[] dr = {-1, 0, 0, 1};
     final int[] dc = {0, -1, 1, 0};
     final Robot.Move[] robotMove = {Robot.Move.Down, Robot.Move.Left,
-			      Robot.Move.Right, Robot.Move.Up};
+                                    Robot.Move.Right, Robot.Move.Up};
 
     // TODO(jack): need to handle trampoline and possibly death
     // conditions here.
@@ -531,6 +530,11 @@ public class Board implements Cloneable {
         state.deltaId = rep.globalDeltaId;
       }
     }
+
+    for (BoardState b : retList) {
+      System.out.print(b + " ");
+    }
+    System.out.println();
 
     return retList;
   }
