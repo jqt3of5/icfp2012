@@ -32,14 +32,16 @@ public class AStar {
     final Point origin = board.getRobotPosition();
 
     while (true) {
+      if (Main.gotSIGINT)
+        return;
       // A* main
       BoardState curState = candidates.poll();
       Board curBoard = curState.board;
 
-      System.out.println(curState.move);
-      System.out.println(curBoard);
-      System.out.println(curBoard.state);
-      System.out.println(curBoard.getAvailableMoves());
+      // System.out.println(curState.move);
+      // System.out.println(curBoard);
+      // System.out.println(curBoard.state);
+      // System.out.println(curBoard.getAvailableMoves());
 
       for (Robot.Move candMove : curBoard.getAvailableMoves()) {
         BoardState newState = curState.board.getBoardState();
@@ -55,8 +57,9 @@ public class AStar {
           h.compute(newState, newPosition, destination);
         candidates.add(newState);
 
-        System.out.println(candMove + ": " + newState.score);
+        // System.out.println(candMove + ": " + newState.score);
       }
+      // System.out.println();
 
       // Termination condition
       if (termCond.isTrue(candidates, curState)) break;

@@ -43,9 +43,11 @@ public abstract class Skynet {
           Board newBoard = new Board(curBoard);
           terminator = new TerminationConditions.PointTermination(lambdaPt);
           pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
-				 new CostFunctions.ManhattanCost(),
-				 terminator);
+                                 new CostFunctions.ManhattanCost(),
+                                 terminator);
           pathfinder.findPath(newBoard, lambdaPt);
+          if (Main.gotSIGINT)
+            break;
           Path path = terminator.getPath();
           if (path.size() < bestLength) {
             bestBoard = terminator.getBoard();
@@ -57,6 +59,9 @@ public abstract class Skynet {
         curBoard = bestBoard;
         totalPath.addAll(bestPath);
       }
+
+      if (Main.gotSIGINT)
+        return totalPath.toString();
 
       Board newBoard = new Board(curBoard);
       terminator = new TerminationConditions.PointTermination(curBoard.liftLocation);
