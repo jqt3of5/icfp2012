@@ -21,6 +21,10 @@ public abstract class Skynet {
     return retQueue;
   }
 
+  public Board getBoard() {
+    return curBoard;
+  }
+
 
   // ------------- AStarSkynet --------------
 
