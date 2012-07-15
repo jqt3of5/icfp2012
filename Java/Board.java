@@ -287,9 +287,7 @@ public class Board implements Cloneable {
   }
 
   public BoardState getBoardState() {
-    final BoardState state = new BoardState();
-    state.board = new Board(this);
-    return state;
+    return new BoardState(new Board(this));
   }
 
   @Override
