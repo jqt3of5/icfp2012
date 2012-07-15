@@ -94,6 +94,7 @@ public class Board implements Cloneable {
   public int height;
   public int ticks;
 
+  public GameState state;
 
   // private Board(int width, int height) {
   //   ticks = 0;
@@ -275,6 +276,8 @@ public class Board implements Cloneable {
     beards = new ArrayList<Point>(oldBoard.beards);
     razors = new ArrayList<Point>(oldBoard.razors);
     ticks = oldBoard.ticks;
+
+    state = oldBoard.state;
   }
 
   public BoardState getBoardState() {
@@ -522,9 +525,10 @@ public class Board implements Cloneable {
     }
 
   public GameState tick(final Robot.Move nextMove) {
-    GameState state;
-    if (nextMove == Robot.Move.Abort)
-      return GameState.Abort;
+    if (nextMove == Robot.Move.Abort) {
+      state = GameState.Abort;
+      return state;
+    }
     state = move(nextMove);
     if (state != GameState.Continue)
       return state;
@@ -534,7 +538,8 @@ public class Board implements Cloneable {
       return state;
     ticks += 1;
 
-    return GameState.Continue;
+    state = GameState.Continue;
+    return state;
   }
 
   // public void revert(final BoardState revertState) {
