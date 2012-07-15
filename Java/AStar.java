@@ -1,7 +1,7 @@
 /* -*- c-basic-offset: 2; -*- */
 
-import java.util.*;
-import java.io.*;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class AStar {
 
@@ -9,14 +9,15 @@ public class AStar {
   protected CostFunction g, h;
   protected TerminationConditions.TerminationCondition termCond;
 
-  public AStar(CostFunction g, CostFunction h, TerminationConditions.TerminationCondition termCond) {
+  public AStar(final CostFunction g, final CostFunction h, final TerminationConditions.TerminationCondition termCond) {
     this.g = g;
     this.h = h;
     this.termCond = termCond;
     // init PriorityQueue
     candidates = new PriorityQueue<BoardState>(
       INITIAL_PQ_CAPACITY, new Comparator<BoardState>() {
-        public int compare(BoardState s, BoardState t) {
+        @Override
+        public int compare(final BoardState s, final BoardState t) {
           if (s.score == t.score) return 0;
           else return (s.score < t.score) ? -1 : 1;
         }
@@ -24,21 +25,17 @@ public class AStar {
   }
 
   private PriorityQueue<BoardState> candidates;
-  private Board board;
-  private Point destination;
 
-  public void findPath(Board board, Point destination) {
+  public void findPath(final Board board, final Point destination) {
     candidates.clear();
-
-    this.board = board;
-    this.destination = destination;
     candidates.add(board.getBoardState());
 
     while (true) {
       // A* main
-      BoardState nextMove = candidates.poll();
+      final BoardState nextMove = candidates.poll();
+      System.out.println(nextMove.position);
       board.revert(nextMove);
-      for (BoardState candMove : board.getAvailableMoves()) {
+      for (final BoardState candMove : board.getAvailableMoves()) {
         candMove.parentState = nextMove;
         candMove.score =
           g.compute(board, board.getRobotPosition(), candMove.position) +

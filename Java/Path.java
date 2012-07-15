@@ -1,4 +1,5 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class Path {
@@ -7,23 +8,23 @@ public class Path {
   public Path() {
     positions = new ArrayList<Point> ();
   }
-	
-  public void addPosition(Point currentPosition) {
-    Point temp = new Point(currentPosition.getX(), currentPosition.getY());
+
+  public void addPosition(final Point currentPosition) {
+    final Point temp = new Point(currentPosition.getR(), currentPosition.getC());
     positions.add(temp);
   }
-  
-  public boolean inPosition(Point position) {
-    for(Point p: positions) {
-      if(position.getX() == p.getX() && position.getY() == p.getY())
+
+  public boolean inPosition(final Point position) {
+    for(final Point p: positions) {
+      if(position.getC() == p.getC() && position.getR() == p.getR())
         return true;
     }
     return false;
   }
-  
-  public boolean inPosition(int x, int y) {
-    for(Point p: positions) {
-      if(x == p.getX() && x == p.getY())
+
+  public boolean inPosition(final int x, final int y) {
+    for(final Point p: positions) {
+      if(x == p.getC() && x == p.getR())
         return true;
     }
     return false;
@@ -33,7 +34,7 @@ public class Path {
     Collections.reverse(positions);
   }
 
-  public void addAll(Path newPath) {
+  public void addAll(final Path newPath) {
     positions.addAll(newPath.positions);
   }
 

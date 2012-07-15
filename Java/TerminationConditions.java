@@ -1,4 +1,4 @@
-import java.util.*;
+import java.util.PriorityQueue;
 
 public class TerminationConditions {
 
@@ -7,8 +7,8 @@ public class TerminationConditions {
     private Board finalBoard;
     private BoardState finalLastMove;
 
-    public boolean isTrue(PriorityQueue<BoardState> candidates, Board board,
-                          BoardState lastMove) {
+    public boolean isTrue(final PriorityQueue<BoardState> candidates, final Board board,
+                          final BoardState lastMove) {
       if (candidates.size() == 0 || concreteIsTrue(candidates, board, lastMove)) {
         finalCandidates = candidates;
         finalBoard = board;
@@ -23,7 +23,7 @@ public class TerminationConditions {
                                               Board board, BoardState lastMove);
 
     public Path getPath() {
-      Path path = new Path();
+      final Path path = new Path();
       for (BoardState cur = finalLastMove; cur != null; cur = cur.parentState) {
         path.addPosition(cur.position);
       }
@@ -39,11 +39,12 @@ public class TerminationConditions {
   public static class PointTermination extends TerminationCondition {
     Point destination;
 
-    public PointTermination(Point initDestination) {
+    public PointTermination(final Point initDestination) {
       destination = initDestination;
     }
 
-    protected boolean concreteIsTrue(PriorityQueue<BoardState> candidates, Board board, BoardState lastMove) {
+    @Override
+    protected boolean concreteIsTrue(final PriorityQueue<BoardState> candidates, final Board board, final BoardState lastMove) {
       return board.robot.getPosition().equals(destination);
     }
   }

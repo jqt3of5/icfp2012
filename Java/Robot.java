@@ -9,79 +9,79 @@ public class Robot{
   private int score;
   private int waterTime;
   private int waterThreshold;
-  public Robot(int x, int y) {
-    position = new Point(x, y);
+  public Robot(final int r, final int c) {
+    position = new Point(r, c);
     lambdaCount = 0;
     score = 0;
     waterTime = 0;
     waterThreshold = 10;
   }
 
-  public Robot(Robot oldRobot) {
-    position = new Point(oldRobot.position.x, oldRobot.position.y);
+  public Robot(final Robot oldRobot) {
+    position = new Point(oldRobot.position.r, oldRobot.position.c);
     lambdaCount = oldRobot.lambdaCount;
     score = oldRobot.score;
     waterTime = oldRobot.waterTime;
     waterThreshold = oldRobot.waterThreshold;
   }
-    
+
   public void moveUp() {
-    position.y++;
+    position.r++;
     score--;
   }
-    
+
   public void moveDown() {
-    position.y--;
+    position.r--;
     score--;
   }
-    
+
   public void moveLeft() {
-      position.x--;
+      position.c--;
       score--;
   }
-  
+
   public void moveRight() {
-      position.x++;
+      position.c++;
       score--;
   }
-  public void setPosition(int x, int y)
+  public void setPosition(final int r, final int c)
   {
-    position.x = x;
-    position.y = y;
+    position.c = c;
+    position.r = r;
   }
   public void stay() {
       score--;
   }
-  
+
   public void gainLambda() {
       lambdaCount++;
       score += 25;
   }
-  
+
   public void liftLambda() {
       score += 50*lambdaCount;
   }
-  
+
   public void abort() {
       score += 25*lambdaCount;
   }
-  
+
   public int getScore() {
       return score;
   }
-  
+
   public int getLambda() {
       return lambdaCount;
   }
-  
+
   public void cleanWaterTime() {
       waterTime = 0;
   }
-  
+
   public void stayInWater() {
       waterTime++;
   }
-  
+
   public int getWaterTime() {
       return waterTime;
   }
@@ -89,7 +89,7 @@ public class Robot{
   {
     return waterThreshold;
   }
-  public void setWaterThreshold(int threshold)
+  public void setWaterThreshold(final int threshold)
   {
     waterThreshold = threshold;
   }
