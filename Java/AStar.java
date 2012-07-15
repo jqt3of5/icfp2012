@@ -37,6 +37,7 @@ public class AStar {
     while (true) {
       // A* main
       BoardState nextMove = candidates.poll();
+      System.out.println(nextMove.position);
       board.revert(nextMove);
       for (BoardState candMove : board.getAvailableMoves()) {
         candMove.parentState = nextMove;

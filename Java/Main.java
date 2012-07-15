@@ -20,9 +20,10 @@ public class Main {
       map += scan.nextLine() + System.getProperty("line.separator");
     }
     
-    //Board b = new Board(map);
-    Skynet superSky = new Skynet.GreedySkynet(map);
-    System.out.println(superSky.plan());
+    Board b = new Board(map);
+    System.out.println(b);
+    // Skynet superSky = new Skynet.GreedySkynet(map);
+    // System.out.println(superSky.plan());
     
     /*while (true) {
       try {

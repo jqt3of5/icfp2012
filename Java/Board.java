@@ -205,7 +205,16 @@ public class Board implements Cloneable {
     return state;
   }
 
-
+  public String toString() {
+    StringBuilder s = new StringBuilder();
+    for (int y = 0; y < layoutHeight; y++) {
+      for (int x = 0; x < layoutWidth; x++) {
+        s.append(rep.get(y,x));
+      }
+      s.append("\n");
+    }
+    return s.toString();
+  }
 
   public GameState move(Robot.Move move) // should change internal state, or create a new
   {
@@ -510,8 +519,8 @@ public class Board implements Cloneable {
     // conditions here.
 
     for (int i = 0; i < dr.length; i++) {
-      int r = dr[i];
-      int c = dc[i];
+      int r = robot.getPosition().y + dr[i];
+      int c = robot.getPosition().x + dc[i];
       if (0 <= r && r < layoutHeight && 0 <= c && c < layoutWidth && 
           rep.get(r, c) != CellTypes.Wall) {
         BoardState state = new BoardState();

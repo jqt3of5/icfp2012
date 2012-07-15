@@ -6,7 +6,11 @@ public class Point implements Comparable<Point> {
     x = a;
     y = b;
   }
-    
+
+  public String toString() {
+    return "(" + x + "," + y + ")";
+  }
+
   public int getX() {
     return x;
   }
