@@ -58,14 +58,14 @@ public abstract class Skynet {
         totalPath.addAll(bestPath);
       }
 
+      System.out.println("skynet: " + curBoard.robby.getScore());
+
       Board newBoard = new Board(curBoard);
       terminator = new TerminationConditions.PointTermination(curBoard.liftLocation);
-      System.out.println("lift: " + curBoard.liftLocation);
       pathfinder = new AStar(new CostFunctions.BoardSensingCost(), new CostFunctions.ManhattanCost(), terminator);
       pathfinder.findPath(newBoard, curBoard.liftLocation);
       totalPath.addAll(terminator.getPath());
-
-      curBoard = newBoard;
+      curBoard = terminator.getBoard();
       return totalPath.toString();
     }
   }

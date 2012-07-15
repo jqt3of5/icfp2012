@@ -48,7 +48,7 @@ public class AStar {
         newState.parentState = curState;
         newState.move = candMove;
         newBoard.tick(candMove);
-        newState.score =
+	newState.score =
           g.compute(newState, origin, newPosition) +
           h.compute(newState, newPosition, destination);
         candidates.add(newState);

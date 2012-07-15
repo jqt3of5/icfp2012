@@ -378,6 +378,10 @@ public class Board implements Cloneable {
       }
       //if we get to the exit and it is open, we win
       if (map[yp][xp] == CellTypes.Open) {
+	  map[y][x] = CellTypes.Empty;
+	  map[yp][xp] = CellTypes.Robot;
+	  robby.setPosition(yp, xp);
+	  
         robby.liftLambda();
         return GameState.Win;
       }

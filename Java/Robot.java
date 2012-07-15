@@ -57,7 +57,8 @@ public class Robot{
   }
 
   public void liftLambda() {
-    score += 50*lambdaCount;
+      score = score + 50*lambdaCount;
+   
   }
 
   public void abort() {
