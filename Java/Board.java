@@ -267,6 +267,13 @@ public class Board implements Cloneable {
         map[r][c] = oldBoard.map[r][c];
       }
     }
+
+    trampolines = new ArrayList<Point>(oldBoard.trampolines);
+    trampToTargets = new HashMap<Point, Point>(oldBoard.trampToTargets);
+
+    tempBeards = new ArrayList<Point>(oldBoard.tempBeards);
+    beards = new ArrayList<Point>(oldBoard.beards);
+    razors = new ArrayList<Point>(oldBoard.razors);
     ticks = oldBoard.ticks;
   }
 
@@ -282,9 +289,12 @@ public class Board implements Cloneable {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         if (map[y][x] == CellTypes.Tramp) {
-          s.append('A' + trampolines.indexOf(new Point(y,x)));
+          s.append((char)('A' + trampolines.indexOf(new Point(y,x))));
+        } else if (map[y][x] == CellTypes.Target) {
+          s.append((char)('1' + trampolines.indexOf(new Point(y,x))));
+        } else {
+          s.append(map[y][x]);
         }
-        s.append(map[y][x]);
       }
       s.append("\n");
     }
