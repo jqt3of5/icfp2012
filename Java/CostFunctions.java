@@ -20,6 +20,11 @@ public class CostFunctions {
       Board board = boardState.board;
       Point robotPos = board.getRobotPosition();
 
+      Board prevBoard = null;
+      if (boardState.parentState != null) {
+        prevBoard = boardState.parentState.board;
+      }
+
       if (board.state == Board.GameState.Lose)
         return Double.POSITIVE_INFINITY;
 
@@ -29,17 +34,14 @@ public class CostFunctions {
       double cost = -1 * board.robby.score;
 
       // Pushing rock
-      if (boardState.parentState != null) {
-        Board prevBoard = boardState.parentState.board;
-
+      if (prevBoard != null) {
         if (prevBoard.get(robotPos) == Board.CellTypes.Rock) {
           cost += 5;
         }
       }
 
       // Not moving (stuck?)
-      if (boardState.parentState != null) {
-        Board prevBoard = boardState.parentState.board;
+      if (prevBoard != null) {
         if (robotPos.equals(prevBoard.getRobotPosition())) {
           cost += 10;
         }
@@ -47,6 +49,13 @@ public class CostFunctions {
 
       // Don't backtrack
       cost += 5*boardState.visits[robotPos.r][robotPos.c];
+
+      // Don't block the lift
+      if (prevBoard != null) {
+        if (!BoardQuery.isLiftBlocked(prevBoard) && BoardQuery.isLiftBlocked(board)) {
+          cost += 50;
+        }
+      }
 
       return cost;
     }
