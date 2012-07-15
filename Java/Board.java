@@ -97,8 +97,6 @@ public class Board implements Cloneable {
         labelTolabel.put(words[1], words[3]);
     }
 
-    Point robotPosition;
-
     for (int r = 0; r < height; r++) {
       for (int c = 0; c < width; ++c) {
         final String line = lines[height-1-r];
@@ -111,7 +109,7 @@ public class Board implements Cloneable {
           break;
         case 'R':
           map[r][c] = CellTypes.Robot;
-          robotPosition = new Point(r,c);
+          robby = new Robot(new Point(r,c));
           break;
         case '.':
           map[r][c] = CellTypes.Earth;
@@ -178,6 +176,8 @@ public class Board implements Cloneable {
 
       trampToTargets.put(p,  target);
     }
+
+    System.out.println("Creating a board from string");
   }
 
 
@@ -189,6 +189,9 @@ public class Board implements Cloneable {
     width = oldBoard.width;
     height = oldBoard.height;
 
+    robby = new Robot(oldBoard.robby);
+
+    map = new CellTypes[height][width];
     for (int r = 0; r < height; r++) {
       for (int c = 0; c < width; c++) {
         map[r][c] = oldBoard.map[r][c];
@@ -527,10 +530,10 @@ public class Board implements Cloneable {
       }
     }
 
-    for (Robot.Move b : retList) {
-      System.out.print(b + " ");
-    }
-    System.out.println();
+    // for (Robot.Move b : retList) {
+    //   System.out.print(b + " ");
+    // }
+    // System.out.println();
 
     return retList;
   }

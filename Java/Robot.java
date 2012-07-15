@@ -9,8 +9,8 @@ public class Robot{
   public int score;
   public int waterTime;
   public int waterThreshold;
-  public Robot(final int r, final int c) {
-    position = new Point(r, c);
+  public Robot(Point startingPosition) {
+    position = startingPosition;
     lambdaCount = 0;
     score = 0;
     waterTime = 0;

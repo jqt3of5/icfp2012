@@ -36,6 +36,8 @@ public class AStar {
       BoardState curState = candidates.poll();
       Board curBoard = curState.board;
 
+      System.out.println(curBoard);
+
       for (Robot.Move candMove : curBoard.getAvailableMoves()) {
         BoardState newState = curState.board.getBoardState();
         Board newBoard = newState.board;

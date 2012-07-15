@@ -34,6 +34,8 @@ public abstract class Skynet {
         if (Main.gotSIGINT)
           break;
 
+        System.out.println("Starting a new journey");
+
         int bestLength = Integer.MAX_VALUE;
         Board bestBoard = curBoard;
         Path bestPath = null;
@@ -47,7 +49,6 @@ public abstract class Skynet {
             bestBoard = terminator.getBoard();
             bestPath = terminator.getPath();
           }
-
         }
 
         curBoard = bestBoard;
