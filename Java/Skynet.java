@@ -28,8 +28,8 @@ class GreedySkynet extends AStarSkynet {
 
     while (curBoard.lambdaPos.size() > 0) {
       int bestLength = Integer.MAX_VALUE;
-      Board bestBoard;
-      Path bestPath;
+      Board bestBoard = null;
+      Path bestPath = null;
       for (Point lambdaPt : curBoard.lambdaPos) {
         Board newBoard = new Board(curBoard);
         terminator = new TerminationConditions.PointTermination(lambdaPt);
@@ -100,5 +100,6 @@ class AnnealingSkynet extends AStarSkynet {
   }
 
   double evaluate(double curEnergy, double newEnergy, double temperature) {
+    return 0;
   }
 }
