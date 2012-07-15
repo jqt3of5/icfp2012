@@ -608,4 +608,8 @@ public class Board implements Cloneable {
 
     return retList;
   }
+
+  public CellTypes get(Point p) {
+    return map[p.r][p.c];
+  }
 }
