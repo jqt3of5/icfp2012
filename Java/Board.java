@@ -28,17 +28,17 @@ public class Board implements Cloneable {
   public int layoutHeight;
   public int ticks;
 
-  private Board(int width, int height) {
-    ticks = 0;
-    layoutWidth = width;
-    layoutHeight = height;
-    // rep = new BoardRep(height, width);//new CellTypes[height][width];
-    waterLevel = 0;
-    waterRate = 0;
-    growthRate = 25;
-    razorCount = 0;
-    lambdaPos = new ArrayList<Point>();
-    }
+  // private Board(int width, int height) {
+  //   ticks = 0;
+  //   layoutWidth = width;
+  //   layoutHeight = height;
+  //   // rep = new BoardRep(height, width);//new CellTypes[height][width];
+  //   waterLevel = 0;
+  //   waterRate = 0;
+  //   growthRate = 25;
+  //   razorCount = 0;
+  //   lambdaPos = new ArrayList<Point>();
+  // }
 
   //needs to handle meta date!
   public Board(String map) {
