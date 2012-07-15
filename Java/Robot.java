@@ -48,7 +48,6 @@ public class Robot{
   {
     position.x = x;
     position.y = y;
-    score--;
   }
   public void stay() {
       score--;

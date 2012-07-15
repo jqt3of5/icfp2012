@@ -42,9 +42,8 @@ public class Board implements Cloneable {
 
   //needs to handle meta date!
   public Board(String map) {
-
+    robot = new Robot(0,0);
     ticks = 0;
-    CellTypes[][] layout = new CellTypes[layoutHeight][layoutWidth];
     lambdaPos = new ArrayList<Point>();
     trampolines = new ArrayList<Point>();
     trampToTargets = new HashMap<Point,Point>();
@@ -67,6 +66,8 @@ public class Board implements Cloneable {
       }
     }
     layoutHeight = i;
+
+    CellTypes[][] layout = new CellTypes[layoutHeight][layoutWidth];
 
     // Parse metadata
     waterLevel = 0;
@@ -109,7 +110,7 @@ public class Board implements Cloneable {
           break;
         case 'R':
           layout[y][x] = CellTypes.Robot;
-          robot = new Robot(x,y);
+          robot.setPosition(x,y);
           break;
         case '.':
           layout[y][x] = CellTypes.Earth;
@@ -511,11 +512,12 @@ public class Board implements Cloneable {
     for (int i = 0; i < dr.length; i++) {
       int r = dr[i];
       int c = dc[i];
-      if (rep.get(r, c) != CellTypes.Wall) {
-	BoardState state = new BoardState();
-	state.position = new Point(r, c);
-	state.move = robotMove[i];
-	state.deltaId = rep.globalDeltaId;
+      if (0 <= r && r < layoutHeight && 0 <= c && c < layoutWidth && 
+          rep.get(r, c) != CellTypes.Wall) {
+        BoardState state = new BoardState();
+        state.position = new Point(r, c);
+        state.move = robotMove[i];
+        state.deltaId = rep.globalDeltaId;
       }
     }
 

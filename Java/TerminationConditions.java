@@ -9,7 +9,7 @@ public class TerminationConditions {
 
     public boolean isTrue(PriorityQueue<BoardState> candidates, Board board,
                           BoardState lastMove) {
-      if (concreteIsTrue(candidates, board, lastMove)) {
+      if (candidates.size() == 0 || concreteIsTrue(candidates, board, lastMove)) {
         finalCandidates = candidates;
         finalBoard = board;
         finalLastMove = lastMove;
