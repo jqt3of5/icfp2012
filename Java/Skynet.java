@@ -85,6 +85,10 @@ class AnnealingSkynet extends AStarSkynet {
   double energy(Board b) {
     return 1.0;
   }
+  
+  public int score() {
+    return curBoard.robot.getScore();
+  }
 
   double temperature(double timeRatio) {
     return 1-timeRatio;
