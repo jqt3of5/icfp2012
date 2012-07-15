@@ -11,9 +11,8 @@ public class BoardState {
   // ---- Set by Board ----
   public Point position;
   public Robot.Move move;
-  public int timestamp;	// to somehow store history of the board for fast
+  public int deltaId;	// to somehow store history of the board for fast
                         // backtracking
-  public Robot.Move move;
 
   // ---- Set by AStar ----
   public BoardState parentState;

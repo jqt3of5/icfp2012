@@ -200,6 +200,15 @@ public class Board implements Cloneable {
     ticks = oldBoard.ticks;
   }
 
+  public BoardState getBoardState() {
+    BoardState state = new BoardState();
+    state.position = getRobotPosition();
+    state.move = null;
+    state.deltaId = layout.globalDeltaId;
+    return state;
+  }
+    
+
 
   public GameState move(Robot.Move move) // should change internal state, or create a new
   {
