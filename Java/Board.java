@@ -271,11 +271,14 @@ public class Board implements Cloneable {
     }
     
     //if we step on a tramp, find our coresponding target, and set that. 
-    if (layout.get(xp, yp) == CellTypes.Tramp)//poor performance
+    if (layout.get(xp, yp) == CellTypes.Tramp)
     {
      
       String tramp = trampolines.get(new Point(xp, yp));
-      Point targetLoc = targets.get(tramp);
+      String target = trampToTargets.get(tramp);
+      Point targetLoc = targets.get(target);
+      
+      trampToTargets.remove(tramp);
       trampolines.remove(new Point(xp, yp));
       targets.remove(tramp);
       
