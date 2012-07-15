@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.*;
 
 
 public class Path {
@@ -28,5 +28,16 @@ public class Path {
     }
     return false;
   }
-  
+
+  public void reverse() {
+    Collections.reverse(positions);
+  }
+
+  public void addAll(Path newPath) {
+    positions.addAll(newPath.positions);
+  }
+
+  public int size() {
+    return positions.size();
+  }
 }
