@@ -13,6 +13,10 @@ public abstract class Skynet {
     return curBoard.robby.getScore();
   }
 
+  public Board getBoard() {
+    return curBoard;
+  }
+
   public static abstract class AStarSkynet extends Skynet {
     AStar pathfinder;
     TerminationConditions.TerminationCondition terminator;
