@@ -9,6 +9,8 @@ public class AStar {
   protected CostFunction g, h;
   protected TerminationConditions.TerminationCondition termCond;
 
+  private PriorityQueue<BoardState> candidates;
+
   public AStar(final CostFunction g, final CostFunction h, final TerminationConditions.TerminationCondition termCond) {
     this.g = g;
     this.h = h;
@@ -24,27 +26,30 @@ public class AStar {
       });
   }
 
-  private PriorityQueue<BoardState> candidates;
-
   public void findPath(final Board board, final Point destination) {
     candidates.clear();
     candidates.add(board.getBoardState());
+    final Point origin = board.getRobotPosition();
 
     while (true) {
       // A* main
-      final BoardState nextMove = candidates.poll();
-      System.out.println(nextMove.position);
-      board.revert(nextMove);
-      for (final BoardState candMove : board.getAvailableMoves()) {
-        candMove.parentState = nextMove;
-        candMove.score =
-          g.compute(board, board.getRobotPosition(), candMove.position) +
-          h.compute(board, candMove.position, destination);
-        candidates.add(candMove);
+      BoardState curState = candidates.poll();
+      Board curBoard = curState.board;
+
+      for (Robot.Move candMove : curBoard.getAvailableMoves()) {
+        BoardState newState = curState.board.getBoardState();
+        Board newBoard = newState.board;
+        Point newPosition = newBoard.getRobotPosition();
+        newState.parentState = curState;
+        newState.board.move(candMove);
+        newState.score =
+          g.compute(newBoard, origin, newPosition) +
+          h.compute(newBoard, newPosition, destination);
+        candidates.add(newState);
       }
 
       // Termination condition
-      if (termCond.isTrue(candidates, board, nextMove)) break;
+      if (termCond.isTrue(candidates, curState)) break;
     }
   }
 

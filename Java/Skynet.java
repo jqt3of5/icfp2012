@@ -10,7 +10,7 @@ public abstract class Skynet {
   public abstract String plan();
 
   public int score() {
-    return curBoard.robot.getScore();
+    return curBoard.robby.getScore();
   }
   
   public static abstract class AStarSkynet extends Skynet {

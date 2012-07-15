@@ -4,15 +4,12 @@ public class TerminationConditions {
 
   public static abstract class TerminationCondition {
     private PriorityQueue<BoardState> finalCandidates;
-    private Board finalBoard;
-    private BoardState finalLastMove;
+    private BoardState finalLastState;
 
-    public boolean isTrue(final PriorityQueue<BoardState> candidates, final Board board,
-                          final BoardState lastMove) {
-      if (candidates.size() == 0 || concreteIsTrue(candidates, board, lastMove)) {
+    public boolean isTrue(final PriorityQueue<BoardState> candidates, final BoardState boardState) {
+      if (candidates.size() == 0 || concreteIsTrue(candidates, boardState)) {
         finalCandidates = candidates;
-        finalBoard = board;
-        finalLastMove = lastMove;
+        finalLastState = boardState;
         return true;
       }
 
@@ -20,19 +17,19 @@ public class TerminationConditions {
     }
 
     protected abstract boolean concreteIsTrue(PriorityQueue<BoardState> candidates,
-                                              Board board, BoardState lastMove);
+                                              BoardState boardState);
 
     public Path getPath() {
       final Path path = new Path();
-      for (BoardState cur = finalLastMove; cur != null; cur = cur.parentState) {
-        path.addPosition(cur.position);
+      for (BoardState cur = finalLastState; cur != null; cur = cur.parentState) {
+        path.addPosition(cur.board.getRobotPosition());
       }
       path.reverse();
       return path;
     }
 
     public Board getBoard() {
-      return finalBoard;
+      return finalLastState.board;
     }
   }
 
@@ -44,8 +41,8 @@ public class TerminationConditions {
     }
 
     @Override
-    protected boolean concreteIsTrue(final PriorityQueue<BoardState> candidates, final Board board, final BoardState lastMove) {
-      return board.robot.getPosition().equals(destination);
+    protected boolean concreteIsTrue(final PriorityQueue<BoardState> candidates, final BoardState boardState) {
+      return boardState.board.getRobotPosition().equals(destination);
     }
   }
 }

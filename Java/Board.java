@@ -17,7 +17,8 @@ public class Board implements Cloneable {
   public int razorCount;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
-  public BoardRep rep;
+	public CellTypes[][] map;
+  public Robot robby;
 
   public ArrayList<Point> trampolines;
   public HashMap<Point, Point> trampToTargets;
@@ -25,15 +26,15 @@ public class Board implements Cloneable {
   public ArrayList<Point> tempBeards;
   public ArrayList<Point> beards;
   public ArrayList<Point> razors;
-  public int layoutWidth;
-  public int layoutHeight;
+  public int width;
+  public int height;
   public int ticks;
 
 
   // private Board(int width, int height) {
   //   ticks = 0;
-  //   layoutWidth = width;
-  //   layoutHeight = height;
+  //   width = width;
+  //   height = height;
   //   // rep = new BoardRep(height, width);//new CellTypes[height][width];
   //   waterLevel = 0;
   //   waterRate = 0;
@@ -42,9 +43,7 @@ public class Board implements Cloneable {
   //   lambdaPos = new ArrayList<Point>();
   // }
 
-  //needs to handle meta date!
-
-  public Board(final String map) {
+  public Board(final String mapStr) {
     ticks = 0;
     lambdaPos = new ArrayList<Point>();
     trampolines = new ArrayList<Point>();
@@ -54,22 +53,22 @@ public class Board implements Cloneable {
     tempBeards = new ArrayList<Point>();
 
 
-    final String[] lines = map.split("\\r\\n|\\r|\\n");
+    final String[] lines = mapStr.split("\\r\\n|\\r|\\n");
 
     // Parse map
-    layoutWidth = 0;
+    width = 0;
     int i;
     for (i = 0; i < lines.length; i++) {
       if (lines[i] == "")
         break;
 
-      if (lines[i].length() > layoutWidth) {
-        layoutWidth = lines[i].length();
+      if (lines[i].length() > width) {
+        width = lines[i].length();
       }
     }
-    layoutHeight = i;
+    height = i;
 
-    final CellTypes[][] layout = new CellTypes[layoutHeight][layoutWidth];
+    map = new CellTypes[height][width];
 
     // Parse metadata
     waterLevel = 0;
@@ -100,36 +99,36 @@ public class Board implements Cloneable {
 
     Point robotPosition;
 
-    for (int r = 0; r < layoutHeight; r++) {
-      for (int c = 0; c < layoutWidth; ++c) {
-        final String line = lines[layoutHeight-1-r];
+    for (int r = 0; r < height; r++) {
+      for (int c = 0; c < width; ++c) {
+        final String line = lines[height-1-r];
         switch (line.charAt(c)) {
         case '*':
-          layout[r][c] = CellTypes.Rock;
+          map[r][c] = CellTypes.Rock;
           break;
         case '#':
-          layout[r][c] = CellTypes.Wall;
+          map[r][c] = CellTypes.Wall;
           break;
         case 'R':
-          layout[r][c] = CellTypes.Robot;
+          map[r][c] = CellTypes.Robot;
           robotPosition = new Point(r,c);
           break;
         case '.':
-          layout[r][c] = CellTypes.Earth;
+          map[r][c] = CellTypes.Earth;
           break;
         case '\\':
-          layout[r][c] = CellTypes.Lambda;
+          map[r][c] = CellTypes.Lambda;
           lambdaPos.add(new Point(r, c)); // careful the order
           break;
         case 'L':
-          layout[r][c] = CellTypes.Closed;
+          map[r][c] = CellTypes.Closed;
           liftLocation = new Point(r, c);
           break;
         case ' ':
-          layout[r][c] = CellTypes.Empty;
+          map[r][c] = CellTypes.Empty;
           break;
         case 'O':
-          layout[r][c] = CellTypes.Open;
+          map[r][c] = CellTypes.Open;
           break;
         case 'A':
         case 'B':
@@ -140,7 +139,7 @@ public class Board implements Cloneable {
         case 'G':
         case 'H':
         case 'I':
-          layout[r][c] = CellTypes.Tramp;
+          map[r][c] = CellTypes.Tramp;
           trampToLabel.put(new Point(r, c), Character.toString(line.charAt(c)));
           trampolines.add(new Point(r, c));
           break;
@@ -153,18 +152,18 @@ public class Board implements Cloneable {
         case '7':
         case '8':
         case '9':
-          layout[r][c] = CellTypes.Target;
+          map[r][c] = CellTypes.Target;
           //conversion, so that tramps and targets have same labels.
           labelToTarget.put(Character.toString(line.charAt(c)),new Point(r,c));
 
           break;
 
         case 'W':
-          layout[r][c] = CellTypes.Beard;
+          map[r][c] = CellTypes.Beard;
           beards.add(new Point(r,c));
           break;
         case '!':
-          layout[r][c] = CellTypes.Razor;
+          map[r][c] = CellTypes.Razor;
           razors.add(new Point(r,c));
           break;
         }
@@ -179,8 +178,6 @@ public class Board implements Cloneable {
 
       trampToTargets.put(p,  target);
     }
-
-    rep = new BoardRep(layout, robotPosition);
   }
 
 
@@ -189,27 +186,29 @@ public class Board implements Cloneable {
     waterRate = oldBoard.waterRate;
     lambdaPos = new ArrayList<Point>(oldBoard.lambdaPos);
     liftLocation = oldBoard.liftLocation;
-    layoutWidth = oldBoard.layoutWidth;
-    layoutHeight = oldBoard.layoutHeight;
+    width = oldBoard.width;
+    height = oldBoard.height;
 
-    rep = new BoardRep(oldBoard.rep);
+    for (int r = 0; r < height; r++) {
+      for (int c = 0; c < width; c++) {
+        map[r][c] = oldBoard.map[r][c];
+      }
+    }
     ticks = oldBoard.ticks;
   }
 
   public BoardState getBoardState() {
     final BoardState state = new BoardState();
-    state.position = rep.getRobotPosition();
-    state.move = null;
-    state.deltaId = rep.globalDeltaId;
+    state.board = new Board(this);
     return state;
   }
 
   @Override
   public String toString() {
     final StringBuilder s = new StringBuilder();
-    for (int y = 0; y < layoutHeight; y++) {
-      for (int x = 0; x < layoutWidth; x++) {
-        s.append(rep.get(y,x));
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        s.append(map[y][x]);
       }
       s.append("\n");
     }
@@ -218,8 +217,8 @@ public class Board implements Cloneable {
 
   public GameState move(final Robot.Move move) // should change internal state, or create a new
     {
-      final int x = rep.getRobotPosition().getC();
-      final int y = rep.getRobotPosition().getR();
+      final int x = robby.position.c;
+      final int y = robby.position.r;
       int xp = 0, yp = 0;
 
       switch (move) {
@@ -249,11 +248,11 @@ public class Board implements Cloneable {
         for (int i = y-1; i < 3; ++i)
           for (int j = x-1; j < 3; ++j)
           {
-            if (rep.get(i,j) == CellTypes.Beard)
+            if (map[i][j] == CellTypes.Beard)
             {
               //temp beards are because we want to differentiate bettween new beards, and old.
               //else, out of control growth.
-              rep.set(i, j, CellTypes.Empty);
+              map[i][j] = CellTypes.Empty;
               beards.remove(new Point(i,j));
             }
           }
@@ -263,35 +262,35 @@ public class Board implements Cloneable {
       }
 
 
-      if (rep.get(yp,xp) == CellTypes.Razor)
+      if (map[yp][xp] == CellTypes.Razor)
       {
         razorCount += 1;
       }
       //if we get to the exit and it is open, we win
-      if (rep.get(yp,xp) == CellTypes.Open) {
+      if (map[yp][xp] == CellTypes.Open) {
         return GameState.Win;
       }
       //cannot go through a wall, or a closed lift, or a beard
-      if (rep.get(yp,xp) == CellTypes.Wall ||
-          rep.get(yp,xp) == CellTypes.Closed ||
-          rep.get(yp,xp) == CellTypes.Beard) {
+      if (map[yp][xp] == CellTypes.Wall ||
+          map[yp][xp] == CellTypes.Closed ||
+          map[yp][xp] == CellTypes.Beard) {
         return GameState.Continue;
       }
       //we stumbled on a lambda! pick it up
-      if (rep.get(yp,xp) == CellTypes.Lambda) {
-        rep.robotGainLambda();
+      if (map[yp][xp] == CellTypes.Lambda) {
+        robby.gainLambda();
         lambdaPos.remove(new Point(yp, xp)); // careful order!
       }
       //if we can move the rock left/right or we just tried to run into it
-      if (move == Robot.Move.Left && rep.get(yp,xp) == CellTypes.Rock && rep.get(yp, xp-1) == CellTypes.Empty)
+      if (move == Robot.Move.Left && map[yp][xp] == CellTypes.Rock && map[yp][xp-1] == CellTypes.Empty)
       {
-        rep.set(yp,xp-1, CellTypes.Rock);
+        map[yp][xp-1] = CellTypes.Rock;
       }
-      else if (move == Robot.Move.Right && rep.get(yp,xp) == CellTypes.Rock && rep.get(yp, xp+1) == CellTypes.Empty)
+      else if (move == Robot.Move.Right && map[yp][xp] == CellTypes.Rock && map[yp][xp+1] == CellTypes.Empty)
       {
-        rep.set(yp, xp+1,CellTypes.Rock);
+        map[yp][xp+1] = CellTypes.Rock;
       }
-      else if (rep.get(yp, xp) == CellTypes.Rock)
+      else if (map[yp][xp] == CellTypes.Rock)
       {
         //cant move this rock
         return GameState.Continue;
@@ -299,7 +298,7 @@ public class Board implements Cloneable {
 
       //if we step on a tramp, find our coresponding target, and set that.
 
-      if (rep.get(yp, xp) == CellTypes.Tramp)
+      if (map[yp][xp] == CellTypes.Tramp)
       {
 
         final Point target = trampToTargets.get(new Point(yp, xp));
@@ -320,15 +319,15 @@ public class Board implements Cloneable {
           }
         }
 
-        rep.set(yp,xp,CellTypes.Empty);
+        map[yp][xp] = CellTypes.Empty;
         xp = target.c;
         yp = target.r;
 
       }
       //update our position
-      rep.set(y,x,CellTypes.Empty);
-      rep.set(yp,xp,CellTypes.Robot);
-      rep.setRobotPosition(yp, xp);
+      map[y][x] = CellTypes.Empty;
+      map[yp][xp] = CellTypes.Robot;
+      robby.setPosition(yp, xp);
       return GameState.Continue;
     }
 
@@ -351,71 +350,71 @@ public class Board implements Cloneable {
       }
 
 
-      if(rep.getRobotWaterTime() == robotWaterLimit)
+      if(robby.waterTime == robotWaterLimit)
         return GameState.Lose; //is a drowning lose or abort?
 
-      robot.stayInWater();//at what point do we want this called?
+      robby.stayInWater();//at what point do we want this called?
 
-      for (int y = 0; y < layoutHeight; ++y) {
-        for (int x = 0; x < layoutWidth; ++x) {
+      for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
 
-          if (rep.get(y,x) == CellTypes.Closed && lambdaPos.size() == 0) {
-            rep.set(y,x,CellTypes.Open);
+          if (map[y][x] == CellTypes.Closed && lambdaPos.size() == 0) {
+            map[y][x] = CellTypes.Open;
           }
           //grow beards
-          if(ticks%growthRate == growthRate-1 && rep.get(y,x) == CellTypes.Beard)
+          if(ticks%growthRate == growthRate-1 && map[y][x] == CellTypes.Beard)
           {
             for (int i = y-1; i < 3; ++i)
               for (int j = x-1; j < 3; ++j)
               {
-                if (rep.get(i,j) == CellTypes.Empty)
+                if (map[i][j] == CellTypes.Empty)
                 {
                   //temp beards are because we want to differentiate bettween new beards, and old.
                   //else, out of control growth.
-                  rep.set(i,j,CellTypes.TempBeard);
+                  map[i][j] = CellTypes.TempBeard;
                   tempBeards.add(new Point(i,j));
                   beards.add(new Point(i,j));
                 }
               }
           }
 
-          if (rep.get(y,x) == CellTypes.Rock) {
+          if (map[y][x] == CellTypes.Rock) {
 
             int xp = 0, yp = 0;
-            if (y-1 > 0 && rep.get(y-1,x) == CellTypes.Empty)
+            if (y-1 > 0 && map[y-1][x] == CellTypes.Empty)
             {
               xp = x;
               yp = y-1;
             }
-            if (y-1 > 0 && x+1 < layoutWidth-1 &&
-                rep.get(y-1, x) == CellTypes.Rock &&
-                rep.get(y, x+1) == CellTypes.Empty &&
-                rep.get(y-1, x+1) == CellTypes.Empty )
+            if (y-1 > 0 && x+1 < width-1 &&
+                map[y-1][x] == CellTypes.Rock &&
+                map[y][x+1] == CellTypes.Empty &&
+                map[y-1][x+1] == CellTypes.Empty )
             {
               xp = x+1;
               yp = y-1;
             }
-            if (y-1 > 0 && x+1 < layoutWidth-1 && x-1 > 0 &&
-                rep.get(y-1, x) == CellTypes.Rock &&
-                (rep.get(y, x+1) != CellTypes.Empty || rep.get(x+1, y-1) != CellTypes.Empty) &&
-                rep.get(y, x-1)== CellTypes.Empty &&
-                rep.get(y-1, x-1) == CellTypes.Empty)
+            if (y-1 > 0 && x+1 < width-1 && x-1 > 0 &&
+                map[y-1][x] == CellTypes.Rock &&
+                (map[y][x+1] != CellTypes.Empty || map[x+1][y-1] != CellTypes.Empty) &&
+                map[y][x-1]== CellTypes.Empty &&
+                map[y-1][x-1] == CellTypes.Empty)
             {
               xp = x-1;
               yp = y-1;
             }
-            if (y-1 > 0 && x+1 < layoutWidth-1 &&
-                rep.get(y-1, x) == CellTypes.Lambda &&
-                rep.get(y, x+1) == CellTypes.Empty &&
-                rep.get(y-1, x+1) == CellTypes.Empty)
+            if (y-1 > 0 && x+1 < width-1 &&
+                map[y-1][x] == CellTypes.Lambda &&
+                map[y][x+1] == CellTypes.Empty &&
+                map[y-1][x+1] == CellTypes.Empty)
             {
               xp = x+1;
               yp = y-1;
             }
 
-            rep.set(y,x,CellTypes.Empty);
-            rep.set(yp, xp, CellTypes.Rock);
-            if (rep.get(yp-1, xp) == CellTypes.Robot)
+            map[y][x] = CellTypes.Empty;
+            map[yp][xp] = CellTypes.Rock;
+            if (map[yp-1][xp] == CellTypes.Robot)
             {
               return GameState.Lose;
             }
@@ -429,7 +428,7 @@ public class Board implements Cloneable {
       {
         for (final Point p : tempBeards)
         {
-          rep.set(p.r, p.c, CellTypes.Beard);
+          map[p.r][p.c] = CellTypes.Beard;
           tempBeards.remove(p);
         }
       }
@@ -438,11 +437,11 @@ public class Board implements Cloneable {
 
   public void displayBoard()
     {
-      for (int y = 0; y < layoutHeight; ++y)
+      for (int y = 0; y < height; ++y)
       {
-        for(int x = 0; x < layoutWidth; ++x)
+        for(int x = 0; x < width; ++x)
         {
-          switch(rep.get(y,x))
+          switch(map[y][x])
           {
           case Robot:
             System.out.print('R');
@@ -501,16 +500,16 @@ public class Board implements Cloneable {
     return GameState.Continue;
   }
 
-  public void revert(final BoardState revertState) {
-    rep.revert(revertState.deltaId);
-  }
+  // public void revert(final BoardState revertState) {
+  //   rep.revert(revertState.deltaId);
+  // }
 
   public Point getRobotPosition() {
-    return robot.getPosition();
+    return robby.getPosition();
   }
 
-  public List<BoardState> getAvailableMoves() {
-    final List<BoardState> retList = new ArrayList<BoardState>();
+  public List<Robot.Move> getAvailableMoves() {
+    final List<Robot.Move> retList = new ArrayList<Robot.Move>();
     final int[] dr = {-1, 0, 0, 1};
     final int[] dc = {0, -1, 1, 0};
     final Robot.Move[] robotMove = {Robot.Move.Down, Robot.Move.Left,
@@ -520,18 +519,15 @@ public class Board implements Cloneable {
     // conditions here.
 
     for (int i = 0; i < dr.length; i++) {
-      final int r = robot.getPosition().r + dr[i];
-      final int c = robot.getPosition().c + dc[i];
-      if (0 <= r && r < layoutHeight && 0 <= c && c < layoutWidth &&
-          rep.get(r, c) != CellTypes.Wall) {
-        final BoardState state = new BoardState();
-        state.position = new Point(r, c);
-        state.move = robotMove[i];
-        state.deltaId = rep.globalDeltaId;
+      final int r = robby.getPosition().r + dr[i];
+      final int c = robby.getPosition().c + dc[i];
+      if (0 <= r && r < height && 0 <= c && c < width &&
+          map[r][c] != CellTypes.Wall) {
+        retList.add(robotMove[i]);
       }
     }
 
-    for (BoardState b : retList) {
+    for (Robot.Move b : retList) {
       System.out.print(b + " ");
     }
     System.out.println();

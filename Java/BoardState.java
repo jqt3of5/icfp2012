@@ -7,16 +7,13 @@
 public class BoardState {
 
   // ---- Set by Board ----
-  public Point position;
-  public Robot.Move move;
-  public int deltaId;	// to somehow store history of the board for fast
-                        // backtracking
+  public Board board;
 
   // ---- Set by AStar ----
   public BoardState parentState;
   public double score;
 
   public String toString() {
-    return "BoardState: position=" + position.toString();
+    return board.toString();
   }
 }

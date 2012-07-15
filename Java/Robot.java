@@ -4,11 +4,11 @@ public class Robot{
     Left, Right, Up, Down, Wait, Abort, Shave
   }
 
-  private Point position;
-  private int lambdaCount;
-  private int score;
-  private int waterTime;
-  private int waterThreshold;
+  public Point position;
+  public int lambdaCount;
+  public int score;
+  public int waterTime;
+  public int waterThreshold;
   public Robot(final int r, final int c) {
     position = new Point(r, c);
     lambdaCount = 0;
