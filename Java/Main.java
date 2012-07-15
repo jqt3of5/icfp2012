@@ -13,14 +13,15 @@ public class Main {
     System.out.println("Shutdown hook ran!");
   }
       });
-
+    
     Scanner scan = new Scanner(System.in);
     String map = "";
     while(scan.hasNext()) {
-      map += scan.next() + "\n";
+      map += scan.nextLine() + System.getProperty("line.separator");
     }
-    System.out.print(map);
-
+    
+    Board b = new Board(map);
+    
     /*while (true) {
       try {
   Thread.sleep(1000);
