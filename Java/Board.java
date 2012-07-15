@@ -164,6 +164,12 @@ public class Board implements Cloneable {
     for (int r = 0; r < height; r++) {
       for (int c = 0; c < width; ++c) {
         final String line = lines[height-1-r];
+
+        if (line.length() <= c) {
+          map[r][c] = CellTypes.Empty;
+          continue;
+        }
+
         switch (line.charAt(c)) {
         case '*':
           map[r][c] = CellTypes.Rock;
