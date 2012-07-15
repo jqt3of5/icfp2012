@@ -18,9 +18,8 @@ public class Board implements Cloneable {
   public Point liftLocation;
   public BoardRep layout;
   
-  public HashMap<Point, String> trampolines;
-  public HashMap<String, Point> targets;
-  public HashMap<String, String> trampToTargets;
+  public ArrayList<Point> trampolines;
+  public HashMap<Point, Point> trampToTargets;
   
   public ArrayList<Point> tempBeards;
   public ArrayList<Point> beards;
@@ -47,12 +46,12 @@ public class Board implements Cloneable {
     ticks = 0;
     layout = new BoardRep(layoutHeight, layoutWidth);//CellTypes[layoutHeight][layoutWidth];
     lambdaPos = new ArrayList<Point>();
-    trampolines = new HashMap<Point, String>();
-    targets = new HashMap<String, Point>();
+    trampolines = new ArrayList<Point>();
+    trampToTargets = new HashMap<Point,Point>();
     beards = new ArrayList<Point>();
     razors = new ArrayList<Point>();
     tempBeards = new ArrayList<Point>();
-    trampToTargets = new HashMap<String, String>();
+    
     
     String[] lines = map.split("\\r\\n|\\r|\\n");
 
@@ -76,6 +75,10 @@ public class Board implements Cloneable {
     razorCount = 0;
     robot.setWaterThreshold(0);
     
+    HashMap<String, String> labelTolabel = new HashMap<String, String>();
+    HashMap<Point, String> trampToLabel =  new HashMap<Point, String>();
+    HashMap<String, Point> labelToTarget =  new HashMap<String, Point>();
+    
     for (; i < lines.length; i++) {
       String[] words = lines[i].split(" ");
       String type = words[0];
@@ -90,7 +93,7 @@ public class Board implements Cloneable {
       else if (type == "Razors")
         razorCount = Integer.parseInt(words[1]);
       else if (type == "Trampoline")
-        trampToTargets.put(words[1], words[3]);
+        labelTolabel.put(words[1], words[3]);
     }
        
     int y = 0;
@@ -135,7 +138,8 @@ public class Board implements Cloneable {
         case 'H':
         case 'I':
           layout.set(x,y,CellTypes.Tramp);
-          trampolines.put(new Point(x,y),Character.toString(line.charAt(x)));
+          trampToLabel.put(new Point(x,y),Character.toString(line.charAt(x)));
+          trampolines.add(new Point(x,y));
         break;
         case '1':
         case '2':
@@ -148,7 +152,7 @@ public class Board implements Cloneable {
         case '9':
           layout.set(x,y,CellTypes.Target);
           //conversion, so that tramps and targets have same labels. 
-          targets.put(Character.toString(line.charAt(x)),new Point(x,y));
+          labelToTarget.put(Character.toString(line.charAt(x)),new Point(x,y));
           
         break;
         
@@ -166,6 +170,14 @@ public class Board implements Cloneable {
       y++;
     }
     
+   for (Point p : trampolines)
+   {
+     String trampLabel = trampToLabel.get(p);
+     String targetLabel = labelTolabel.get(trampLabel);
+     Point target = labelToTarget.get(targetLabel);
+     
+     trampToTargets.put(p,  target);
+   }
    
   }
 
@@ -271,20 +283,30 @@ public class Board implements Cloneable {
     }
     
     //if we step on a tramp, find our coresponding target, and set that. 
+ 
     if (layout.get(xp, yp) == CellTypes.Tramp)
     {
-     
-      String tramp = trampolines.get(new Point(xp, yp));
-      String target = trampToTargets.get(tramp);
-      Point targetLoc = targets.get(target);
+          
+      Point target = trampToTargets.get(new Point(xp, yp));
       
-      trampToTargets.remove(tramp);
+      trampToTargets.remove(new Point(xp, yp));
       trampolines.remove(new Point(xp, yp));
-      targets.remove(tramp);
+      
+      //this is so we can remove all tramps that jump to this target. 
+      if (trampToTargets.containsValue(target))
+      {
+        for (Point tramp : trampolines)
+        {
+          if (trampToTargets.get(tramp) == target)
+          {
+            trampToTargets.remove(tramp);
+          }
+        }
+      }
       
       layout.set(xp,yp,CellTypes.Empty);
-      xp = targetLoc.x;
-      yp = targetLoc.y;
+      xp = target.x;
+      yp = target.y;
       
     }
     //update our position
