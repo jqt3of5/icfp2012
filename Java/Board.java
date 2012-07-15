@@ -483,7 +483,7 @@ public class Board implements Cloneable {
               xp = x;
               yp = y-1;
             }
-            if (y-1 > 0 && x+1 < width-1 &&
+            else if (y-1 > 0 && x+1 < width-1 &&
                 map[y-1][x] == CellTypes.Rock &&
                 map[y][x+1] == CellTypes.Empty &&
                 map[y-1][x+1] == CellTypes.Empty )
@@ -491,7 +491,7 @@ public class Board implements Cloneable {
               xp = x+1;
               yp = y-1;
             }
-            if (y-1 > 0 && x+1 < width-1 && x-1 > 0 &&
+            else if (y-1 > 0 && x+1 < width-1 && x-1 > 0 &&
                 map[y-1][x] == CellTypes.Rock &&
                 (map[y][x+1] != CellTypes.Empty || map[x+1][y-1] != CellTypes.Empty) &&
                 map[y][x-1]== CellTypes.Empty &&
@@ -500,7 +500,7 @@ public class Board implements Cloneable {
               xp = x-1;
               yp = y-1;
             }
-            if (y-1 > 0 && x+1 < width-1 &&
+            else if (y-1 > 0 && x+1 < width-1 &&
                 map[y-1][x] == CellTypes.Lambda &&
                 map[y][x+1] == CellTypes.Empty &&
                 map[y-1][x+1] == CellTypes.Empty)
@@ -508,7 +508,9 @@ public class Board implements Cloneable {
               xp = x+1;
               yp = y-1;
             }
-
+	    else {
+		continue;
+	    }
             map[y][x] = CellTypes.Empty;
             map[yp][xp] = CellTypes.Rock;
             if (yp > 0 && map[yp-1][xp] == CellTypes.Robot)
@@ -537,11 +539,13 @@ public class Board implements Cloneable {
       state = GameState.Abort;
       return state;
     }
+
     state = move(nextMove);
     if (state != GameState.Continue)
       return state;
 
     state = update();
+
     if (state != GameState.Continue)
       return state;
     ticks += 1;
