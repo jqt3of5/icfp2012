@@ -1,7 +1,7 @@
 //import java.awt.Point;
 import java.util.*;
 
-public class Board implements Cloneable {
+public class Board {
   public enum CellTypes {
     Robot, Rock, Closed, Earth, Wall, Lambda, Open, Empty, Tramp, Target
   };
@@ -44,8 +44,6 @@ public class Board implements Cloneable {
 
   public Board(int width, int height) {
     ticks = 0;
-    layoutWidth = width;
-    layoutHeight = height;
     layout = new CellTypes[height][width];
     waterLevel = 0;
     waterRate = 0;
@@ -54,41 +52,22 @@ public class Board implements Cloneable {
 
   public Board(String map) {
     String[] lines = map.split("\\r\\n|\\r|\\n");
-
-    // Parse map
-    layoutWidth = 0;
-    int i;
-    for (i = 0; i < lines.length; i++) {
-      if (lines[i] == "")
-        break;
-
-      if (lines[i].length() > layoutWidth) {
-        layoutWidth = lines[i].length();
+    int width = 0, height = lines.length;
+    for (String line : lines) {
+      if (line.length() > width) {
+        width = line.length();
       }
-    }
-    layoutHeight = i;
-
-    // Parse metadata
-    waterLevel = 0;
-    waterRate = 0;
-    for (; i < lines.length; i++) {
-      String[] words = lines[i].split(" ");
-      String type = words[0];
-      if (type == "Water")
-        waterLevel = Integer.parseInt(words[1]);
-      else if (type == "Flooding")
-        waterRate = Integer.parseInt(words[1]);
-      else if (type == "Waterproof")
-        robot.setWaterThreshold(Integer.parseInt(words[1]));
     }
 
     ticks = 0;
-    layout = new CellTypes[layoutHeight][layoutWidth];
+    layout = new CellTypes[height][width];
+    waterLevel = 0;
+    waterRate = 0;
     lambdaPos = new ArrayList<Point>();
     trampolines = new ArrayList<Trampoline>();
     targets = new ArrayList<Target>();
 
-    int y = 0;
+    int y = lines.length - 1;
     for (String line : lines) {
       for (int x = 0; x < line.length(); ++x) {
         switch (line.charAt(x)) {
@@ -146,28 +125,9 @@ public class Board implements Cloneable {
         
         }
       }
-      y++;
+      y--;
     }
   }
-
-  public Board(Board oldBoard) {
-    robot = new Robot(oldBoard.robot);
-    waterLevel = oldBoard.waterLevel;
-    waterRate = oldBoard.waterRate;
-    lambdaPos = new ArrayList<Point>(oldBoard.lambdaPos);
-    liftLocation = oldBoard.liftLocation;
-    layoutWidth = oldBoard.layoutWidth;
-    layoutHeight = oldBoard.layoutHeight;
-
-    // might want to use java's array copy
-    for (int y = 0; y < layoutHeight; y++) {
-      for (int x = 0; x < layoutWidth; x++) {
-        layout[y][x] = oldBoard.layout[y][x];
-      }
-    }
-    ticks = oldBoard.ticks;
-  }
-
 
   public GameState move(Robot.Move move) // should change internal state, or create a new
                               // one?
