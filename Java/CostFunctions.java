@@ -18,9 +18,9 @@ public class CostFunctions {
     @Override
     public double compute(final Board board, final Point start, final Point end) {
       if (board.state == Board.GameState.Lose) {
-	return Double.POSITIVE_INFINITY;
+        return Double.POSITIVE_INFINITY;
       } else {
-	return -1 * board.robby.score;
+        return -1 * board.robby.score;
       }
     }
   }

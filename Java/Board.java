@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Board implements Cloneable {
   public enum CellTypes {
@@ -294,8 +292,10 @@ public class Board implements Cloneable {
 
   @Override
   public String toString() {
-    final StringBuilder s = new StringBuilder();
+    StringBuilder s;
+    List<String> lines = new ArrayList<String>();
     for (int y = 0; y < height; y++) {
+      s = new StringBuilder();
       for (int x = 0; x < width; x++) {
         if (map[y][x] == CellTypes.Tramp) {
           s.append(trampLabel.get(new Point(y,x)));
@@ -307,8 +307,19 @@ public class Board implements Cloneable {
           s.append(map[y][x]);
         }
       }
+      lines.add(s.toString());
+    }
+    Collections.reverse(lines);
+
+    s = new StringBuilder();
+
+    for (int i = 0; i < lines.size()-1; i++) {
+      s.append(lines.get(i));
       s.append("\n");
     }
+
+    s.append(lines.get(lines.size()-1));
+
     return s.toString();
   }
 
@@ -540,15 +551,24 @@ public class Board implements Cloneable {
       return state;
     }
 
+    // System.out.println("Before move:");
+    // System.out.println(this);
+
     state = move(nextMove);
     if (state != GameState.Continue)
       return state;
+
+    // System.out.println("Before update:");
+    // System.out.println(this);
 
     state = update();
 
     if (state != GameState.Continue)
       return state;
     ticks += 1;
+
+    // System.out.println("After update:");
+    // System.out.println(this);
 
     state = GameState.Continue;
     return state;
