@@ -509,7 +509,7 @@ public class Board implements Cloneable {
             }
             else if (y-1 > 0 && x+1 < width-1 && x-1 > 0 &&
                 map[y-1][x] == CellTypes.Rock &&
-                (map[y][x+1] != CellTypes.Empty || map[x+1][y-1] != CellTypes.Empty) &&
+                (map[y][x+1] != CellTypes.Empty || map[y-1][x+1] != CellTypes.Empty) &&
                 map[y][x-1]== CellTypes.Empty &&
                 map[y-1][x-1] == CellTypes.Empty)
             {
