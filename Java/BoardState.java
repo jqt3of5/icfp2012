@@ -17,5 +17,4 @@ public class BoardState {
   // ---- Set by AStar ----
   public BoardState parentState;
   public double score;
-
 }
