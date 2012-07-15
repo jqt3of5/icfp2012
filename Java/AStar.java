@@ -43,7 +43,7 @@ public class AStar {
         Board newBoard = newState.board;
         Point newPosition = newBoard.getRobotPosition();
         newState.parentState = curState;
-        newState.board.move(candMove);
+        newState.board.tick(candMove);
         newState.score =
           g.compute(newBoard, origin, newPosition) +
           h.compute(newBoard, newPosition, destination);
