@@ -9,7 +9,10 @@ public abstract class Skynet {
 
   public abstract String plan();
 
-
+  public int score() {
+    return curBoard.robot.getScore();
+  }
+  
   public static abstract class AStarSkynet extends Skynet {
     AStar pathfinder;
     TerminationConditions.TerminationCondition terminator;
@@ -86,10 +89,6 @@ public abstract class Skynet {
 
     double energy(Board b) {
       return 1.0;
-    }
-  
-    public int score() {
-      return curBoard.robot.getScore();
     }
 
     double temperature(double timeRatio) {
