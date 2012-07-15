@@ -105,14 +105,11 @@ public abstract class Skynet {
       return newBoard;
     }
 
-<<<<<<< HEAD
-  double evaluate(double curEnergy, double newEnergy, double temperature) {
-    return 0;
-=======
+
     double evaluate(double curEnergy, double newEnergy, double temperature) {
       return 1.0;
     }
->>>>>>> 8913e6582b7aed13d517e7fc11ae3dc4a83cd47d
+
   }
 
 }
