@@ -80,6 +80,7 @@ public class Robot{
     {
       position.c = c;
       position.r = r;
+      score--;
     }
   public void stay() {
     score--;
