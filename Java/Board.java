@@ -480,27 +480,6 @@ public class Board implements Cloneable {
 
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
-
-<<<<<<< variant A
-          if (map[y][x] == CellTypes.Closed && lambdaPos.size() == 0) {
-            map[y][x] = CellTypes.Open;
-          }
-          //grow beards
-          if(growthRate > 0 && ticks%growthRate == growthRate-1 && map[y][x] == CellTypes.Beard)
-          {
-            System.out.println("Growing beard");
-            for (int i = y-1; i < 3; ++i)
-              for (int j = x-1; j < 3; ++j)
-              {
-                if (map[i][j] == CellTypes.Empty)
-                {
-                  //temp beards are because we want to differentiate bettween new beards, and old.
-                  //else, out of control growth.
-                  map[i][j] = CellTypes.TempBeard;
-                  tempBeards.add(new Point(i,j));
-                  beards.add(new Point(i,j));
-                }
->>>>>>> variant B
         if (map[y][x] == CellTypes.Closed && lambdaPos.size() == 0 && higherOrderCount == 0) {
           map[y][x] = CellTypes.Open;
         }
@@ -516,7 +495,6 @@ public class Board implements Cloneable {
                 map[i][j] = CellTypes.TempBeard;
                 tempBeards.add(new Point(i, j));
                 beards.add(new Point(i, j));
-======= end
               }
             }
         }
