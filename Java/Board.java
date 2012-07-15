@@ -60,7 +60,7 @@ public class Board implements Cloneable {
     layoutWidth = 0;
     int i;
     for (i = 0; i < lines.length; i++) {
-      if (lines[i] == "")
+      if (lines[i].length() == 0)
         break;
 
       if (lines[i].length() > layoutWidth) {
