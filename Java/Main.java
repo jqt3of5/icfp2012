@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
+  
+  public static boolean gotSIGINT = false;
 
   public static void main(final String[] args) throws IOException {
 
@@ -10,7 +12,7 @@ public class Main {
     Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
-          // TODO(jack): replace
+          gotSIGINT = true;
           System.out.println("Shutdown hook ran!");
         }
       });
