@@ -12,6 +12,7 @@ public class BoardState {
   // ---- Set by AStar ----
   public BoardState parentState;
   public double score;
+  public Robot.Move move = null;
 
   public String toString() {
     return board.toString();

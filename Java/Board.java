@@ -116,7 +116,7 @@ public class Board implements Cloneable {
     beards = new ArrayList<Point>();
     razors = new ArrayList<Point>();
     tempBeards = new ArrayList<Point>();
-
+    state = GameState.Continue;
 
     final String[] lines = mapStr.split("\\r\\n|\\r|\\n");
 
@@ -434,12 +434,12 @@ public class Board implements Cloneable {
   public GameState update() // again
     {
 
-      if (ticks % waterRate == waterRate - 1) {
+      if (waterRate != 0 && ticks % waterRate == waterRate - 1) {
         waterLevel += 1;
       }
 
 
-      if(robby.waterTime == robotWaterLimit)
+      if(robby.waterTime > 0 && robby.waterTime == robotWaterLimit)
         return GameState.Lose; //is a drowning lose or abort?
 
       robby.stayInWater();//at what point do we want this called?
@@ -451,7 +451,7 @@ public class Board implements Cloneable {
             map[y][x] = CellTypes.Open;
           }
           //grow beards
-          if(ticks%growthRate == growthRate-1 && map[y][x] == CellTypes.Beard)
+          if(growthRate > 0 && ticks%growthRate == growthRate-1 && map[y][x] == CellTypes.Beard)
           {
             for (int i = y-1; i < 3; ++i)
               for (int j = x-1; j < 3; ++j)
@@ -503,7 +503,7 @@ public class Board implements Cloneable {
 
             map[y][x] = CellTypes.Empty;
             map[yp][xp] = CellTypes.Rock;
-            if (map[yp-1][xp] == CellTypes.Robot)
+            if (yp > 0 && map[yp-1][xp] == CellTypes.Robot)
             {
               return GameState.Lose;
             }
@@ -513,7 +513,7 @@ public class Board implements Cloneable {
       }
 
       //need to change the new beards for this round into permanent beards
-      if (ticks%growthRate == growthRate-1)
+      if (growthRate > 0 && ticks%growthRate == growthRate-1)
       {
         for (final Point p : tempBeards)
         {

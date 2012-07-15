@@ -12,7 +12,7 @@ public abstract class Skynet {
   public int score() {
     return curBoard.robby.getScore();
   }
-  
+
   public static abstract class AStarSkynet extends Skynet {
     AStar pathfinder;
     TerminationConditions.TerminationCondition terminator;
@@ -42,7 +42,9 @@ public abstract class Skynet {
         for (Point lambdaPt : curBoard.lambdaPos) {
           Board newBoard = new Board(curBoard);
           terminator = new TerminationConditions.PointTermination(lambdaPt);
-          pathfinder = new AStar(new CostFunctions.TrivialCost(), new CostFunctions.TrivialCost(), terminator);
+          pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
+				 new CostFunctions.ManhattanCost(),
+				 terminator);
           pathfinder.findPath(newBoard, lambdaPt);
           Path path = terminator.getPath();
           if (path.size() < bestLength) {

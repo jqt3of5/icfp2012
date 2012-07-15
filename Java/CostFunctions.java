@@ -14,16 +14,13 @@ public class CostFunctions {
     }
   }
 
-  public static class BoardSensingCost implements Astar.CostFunction {
+  public static class BoardSensingCost implements AStar.CostFunction {
     @Override
     public double compute(final Board board, final Point start, final Point end) {
-      int r = end.r;
-      int c = end.c;
-
-      if (board.isDead) {
+      if (board.state == Board.GameState.Lose) {
 	return Double.POSITIVE_INFINITY;
       } else {
-	return board.robby.score;
+	return -1 * board.robby.score;
       }
     }
   }

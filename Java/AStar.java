@@ -36,18 +36,24 @@ public class AStar {
       BoardState curState = candidates.poll();
       Board curBoard = curState.board;
 
+      System.out.println(curState.move);
       System.out.println(curBoard);
+      System.out.println(curBoard.state);
+      System.out.println(curBoard.getAvailableMoves());
 
       for (Robot.Move candMove : curBoard.getAvailableMoves()) {
         BoardState newState = curState.board.getBoardState();
         Board newBoard = newState.board;
         Point newPosition = newBoard.getRobotPosition();
         newState.parentState = curState;
+	newState.move = candMove;
         newState.board.tick(candMove);
         newState.score =
           g.compute(newBoard, origin, newPosition) +
           h.compute(newBoard, newPosition, destination);
         candidates.add(newState);
+
+	System.out.println(candMove + ": " + newState.score);
       }
 
       // Termination condition
