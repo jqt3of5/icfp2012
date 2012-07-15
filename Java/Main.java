@@ -21,7 +21,7 @@ public class Main {
     }
     
     //Board b = new Board(map);
-    Skynet superSky = new GreedySkynet(map);
+    Skynet superSky = new Skynet.GreedySkynet(map);
     System.out.println(superSky.plan());
     
     /*while (true) {
