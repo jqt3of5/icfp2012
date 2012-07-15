@@ -300,6 +300,7 @@ public class Board implements Cloneable {
           if (trampToTargets.get(tramp) == target)
           {
             trampToTargets.remove(tramp);
+            trampolines.remove(tramp);
           }
         }
       }
