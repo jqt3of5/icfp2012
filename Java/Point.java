@@ -6,6 +6,11 @@ public class Point implements Comparable<Point> {
     c = inC;
     r = inR;
   }
+    
+  public Point(Point p) {
+    c = p.c;
+    r = p.r;
+  }
 
   @Override
   public String toString() {

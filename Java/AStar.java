@@ -32,29 +32,38 @@ public class AStar {
     final Point origin = board.getRobotPosition();
 
     while (true) {
+      if (Main.gotSIGINT)
+        return;
       // A* main
       BoardState curState = candidates.poll();
       Board curBoard = curState.board;
 
-      System.out.println(curState.move);
-      System.out.println(curBoard);
-      System.out.println(curBoard.state);
-      System.out.println(curBoard.getAvailableMoves());
+      // System.out.println(curState.move);
+      // System.out.println(curBoard);
+      // System.out.println(curBoard.state);
+      // System.out.println(curBoard.getAvailableMoves());
 
       for (Robot.Move candMove : curBoard.getAvailableMoves()) {
         BoardState newState = curState.board.getBoardState();
         Board newBoard = newState.board;
         Point newPosition = newBoard.getRobotPosition();
         newState.parentState = curState;
+        newState.copyVisits(curState);
         newState.move = candMove;
         newBoard.tick(candMove);
+<<<<<<< HEAD
 	newState.score =
+=======
+        newState.visits[newBoard.getRobotPosition().r][newBoard.getRobotPosition().c]++;
+        newState.score =
+>>>>>>> af26425b2b48aeb36ee06da90b57098395f744c0
           g.compute(newState, origin, newPosition) +
           h.compute(newState, newPosition, destination);
         candidates.add(newState);
 
-        System.out.println(candMove + ": " + newState.score);
+        // System.out.println(candMove + ": " + newState.score);
       }
+      // System.out.println();
 
       // Termination condition
       if (termCond.isTrue(candidates, curState)) break;

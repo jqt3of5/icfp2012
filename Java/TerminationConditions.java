@@ -22,7 +22,7 @@ public class TerminationConditions {
     public Path getPath() {
       final Path path = new Path();
       for (BoardState cur = finalLastState; cur != null; cur = cur.parentState) {
-        path.addPosition(cur.board.getRobotPosition());
+        path.add(cur.board.getRobotPosition(), cur.move);
       }
       path.reverse();
       return path;

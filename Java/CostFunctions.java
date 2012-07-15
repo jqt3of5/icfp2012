@@ -18,6 +18,7 @@ public class CostFunctions {
     @Override
     public double compute(final BoardState boardState, final Point start, final Point end) {
       Board board = boardState.board;
+      Point robotPos = board.getRobotPosition();
 
       if (board.state == Board.GameState.Lose)
         return Double.POSITIVE_INFINITY;
@@ -31,18 +32,21 @@ public class CostFunctions {
       if (boardState.parentState != null) {
         Board prevBoard = boardState.parentState.board;
 
-        if (prevBoard.get(board.getRobotPosition()) == Board.CellTypes.Rock) {
+        if (prevBoard.get(robotPos) == Board.CellTypes.Rock) {
           cost += 5;
         }
       }
 
-      // Not moving
+      // Not moving (stuck?)
       if (boardState.parentState != null) {
         Board prevBoard = boardState.parentState.board;
-        if (board.getRobotPosition().equals(prevBoard.getRobotPosition())) {
+        if (robotPos.equals(prevBoard.getRobotPosition())) {
           cost += 10;
         }
       }
+
+      // Don't backtrack
+      cost += 5*boardState.visits[robotPos.r][robotPos.c];
 
       return cost;
     }
