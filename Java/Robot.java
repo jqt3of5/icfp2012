@@ -1,7 +1,41 @@
 public class Robot{
   enum Emotions{DestroyAllHumans, Sober, Normal};
   public enum Move {
-    Left, Right, Up, Down, Wait, Abort, Shave
+    Left {
+      public String toString() {
+        return "L";
+      }
+    },
+    Right {
+      public String toString() {
+        return "R";
+      }
+    },
+    Up {
+      public String toString() {
+        return "U";
+      }
+    },
+    Down {
+      public String toString() {
+        return "D";
+      }
+    },
+    Wait {
+      public String toString() {
+        return "W";
+      }
+    },
+    Abort {
+      public String toString() {
+        return "A";
+      }
+    },
+    Shave {
+      public String toString() {
+        return "S";
+      }
+    }
   }
 
   public Point position;
@@ -34,26 +68,26 @@ public class Robot{
   }
 
   public void moveLeft() {
-      position.c--;
-      score--;
+    position.c--;
+    score--;
   }
 
   public void moveRight() {
-      position.c++;
-      score--;
+    position.c++;
+    score--;
   }
   public void setPosition(final int r, final int c)
-  {
-    position.c = c;
-    position.r = r;
-  }
+    {
+      position.c = c;
+      position.r = r;
+    }
   public void stay() {
-      score--;
+    score--;
   }
 
   public void gainLambda() {
-      lambdaCount++;
-      score += 25;
+    lambdaCount++;
+    score += 25;
   }
 
   public void liftLambda() {
@@ -65,27 +99,27 @@ public class Robot{
   }
 
   public int getScore() {
-      return score;
+    return score;
   }
 
   public int getLambda() {
-      return lambdaCount;
+    return lambdaCount;
   }
 
   public void cleanWaterTime() {
-      waterTime = 0;
+    waterTime = 0;
   }
 
   public void stayInWater() {
-      waterTime++;
+    waterTime++;
   }
 
   public int getWaterTime() {
-      return waterTime;
+    return waterTime;
   }
   public Point getPosition()
-  {
-    return position;
-  }
+    {
+      return position;
+    }
 
 }

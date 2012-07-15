@@ -4,14 +4,16 @@ import java.util.Collections;
 
 public class Path {
   private ArrayList<Point> positions;
+  private ArrayList<Robot.Move> moves;
 
   public Path() {
-    positions = new ArrayList<Point> ();
+    positions = new ArrayList<Point>();
+    moves = new ArrayList<Robot.Move>();
   }
 
-  public void addPosition(final Point currentPosition) {
-    final Point temp = new Point(currentPosition.getR(), currentPosition.getC());
-    positions.add(temp);
+  public void add(final Point currentPosition, final Robot.Move move) {
+    positions.add(new Point(currentPosition));
+    moves.add(move);
   }
 
   public boolean inPosition(final Point position) {
@@ -36,9 +38,19 @@ public class Path {
 
   public void addAll(final Path newPath) {
     positions.addAll(newPath.positions);
+    moves.addAll(newPath.moves);
   }
 
   public int size() {
     return positions.size();
+  }
+
+  public String toString() {
+    StringBuilder s = new StringBuilder();
+    for (Robot.Move move : moves) {
+      if (move != null)
+        s.append(move.toString());
+    }
+    return s.toString();
   }
 }
