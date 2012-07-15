@@ -72,8 +72,23 @@ public class BoardRep {
 	    current = newCell;
 	  }
 
+    // Potentially stupid algorithm? May optimize later
 	  public Cell findCell(final int queryDeltaId) {
+      Queue<Cell> curCells = new LinkedList<Cell>();
+      curCells.add(root);
+      Cell max = root;
+      Cell cur;
+      while (curCells.size() > 0) {
+        cur = curCells.remove();
+        if (cur.deltaId < queryDeltaId) {
+          curCells.addAll(cur.children);
+          if (cur.deltaId > max.deltaId) {
+            max = cur;
+          }
+        }
+      }
 
+      return max;
 	  }
 	}
 
