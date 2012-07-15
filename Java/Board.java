@@ -538,7 +538,8 @@ public class Board implements Cloneable {
             return GameState.Lose;
           }
 
-          if (yp > 0 && map[yp-1][xp] != CellTypes.Empty)
+          if (map[y][x] == CellTypes.HigherOrder &&
+              yp > 0 && map[yp-1][xp] != CellTypes.Empty)
           {
             map[yp-1][xp] = CellTypes.Lambda;
             lambdaPos.add(new Point(yp-1,xp));
