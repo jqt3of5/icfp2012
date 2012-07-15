@@ -7,9 +7,9 @@ public class AStar {
 
   public static final int INITIAL_PQ_CAPACITY = 59;
   protected CostFunction g, h;
-  protected TerminationCondition termCond;
+  protected TerminationConditions.TerminationCondition termCond;
 
-  public AStar(CostFunction g, CostFunction h, TerminationCondition termCond) {
+  public AStar(CostFunction g, CostFunction h, TerminationConditions.TerminationCondition termCond) {
     this.g = g;
     this.h = h;
     this.termCond = termCond;

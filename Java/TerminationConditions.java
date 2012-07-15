@@ -2,7 +2,7 @@ import java.util.*;
 
 public class TerminationConditions {
 
-  public abstract class TerminationCondition {
+  public static abstract class TerminationCondition {
     private PriorityQueue<BoardState> finalCandidates;
     private Board finalBoard;
     private BoardState finalLastMove;
@@ -22,13 +22,13 @@ public class TerminationConditions {
     protected abstract boolean concreteIsTrue(PriorityQueue<BoardState> candidates,
                                               Board board, BoardState lastMove);
 
-    public List<Robot.Move> getPath() {
-      List<Robot.Move> moves = new LinkedList<Robot.Move>();
+    public Path getPath() {
+      Path path = new Path();
       for (BoardState cur = finalLastMove; cur != null; cur = cur.parentState) {
-        moves.add(cur.move);
+        path.addPosition(cur.position);
       }
-      Collections.reverse(moves);
-      return moves;
+      path.reverse();
+      return path;
     }
 
     public Board getBoard() {
@@ -36,7 +36,7 @@ public class TerminationConditions {
     }
   }
 
-  public class PointTermination extends TerminationCondition {
+  public static class PointTermination extends TerminationCondition {
     Point destination;
 
     public PointTermination(Point initDestination) {
