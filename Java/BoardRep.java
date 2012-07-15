@@ -5,7 +5,7 @@ import java.util.List;
 public class BoardRep {
 
 	private CellTree[][] cellTrees;
-	private int globalDeltaId;
+	public int globalDeltaId;
 
 	public BoardRep(final Board.CellTypes[][] layout) {
 	  globalDeltaId = 0;

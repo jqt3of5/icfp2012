@@ -47,7 +47,7 @@ public class AStar {
       }
 
       // Termination condition
-      if (terminationCondition.isTrue(candidates, board, lastMove)) break;
+      if (termCond.isTrue(candidates, board, nextMove)) break;
     }
   }
 
