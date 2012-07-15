@@ -126,7 +126,7 @@ public class Board implements Cloneable {
     width = 0;
     int i;
     for (i = 0; i < lines.length; i++) {
-      if (lines[i] == "")
+      if (lines[i].length() == 0)
         break;
 
       if (lines[i].length() > width) {
@@ -148,19 +148,22 @@ public class Board implements Cloneable {
     final HashMap<String, Point> labelToTarget =  new HashMap<String, Point>();
 
     for (; i < lines.length; i++) {
+      if (lines[i].length() == 0)
+        continue;
+
       final String[] words = lines[i].split(" ");
       final String type = words[0];
-      if (type == "Water")
+      if (type.equals("Water"))
         waterLevel = Integer.parseInt(words[1]);
-      else if (type == "Flooding")
+      else if (type.equals("Flooding"))
         waterRate = Integer.parseInt(words[1]);
-      else if (type == "Waterproof")
+      else if (type.equals("Waterproof"))
         robotWaterLimit = Integer.parseInt(words[1]);
-      else if (type == "Growths")
+      else if (type.equals("Growth"))
         growthRate = Integer.parseInt(words[1]);
-      else if (type == "Razors")
+      else if (type.equals("Razors"))
         razorCount = Integer.parseInt(words[1]);
-      else if (type == "Trampoline")
+      else if (type.equals("Trampoline"))
         labelTolabel.put(words[1], words[3]);
     }
 
@@ -259,12 +262,13 @@ public class Board implements Cloneable {
   public Board(final Board oldBoard) {
     waterLevel = oldBoard.waterLevel;
     waterRate = oldBoard.waterRate;
+    robotWaterLimit = oldBoard.robotWaterLimit;
+    growthRate = oldBoard.growthRate;
+    razorCount = oldBoard.razorCount;
     lambdaPos = new ArrayList<Point>(oldBoard.lambdaPos);
     liftLocation = oldBoard.liftLocation;
     width = oldBoard.width;
     height = oldBoard.height;
-
-    robby = new Robot(oldBoard.robby);
 
     map = new CellTypes[height][width];
     for (int r = 0; r < height; r++) {
@@ -272,6 +276,8 @@ public class Board implements Cloneable {
         map[r][c] = oldBoard.map[r][c];
       }
     }
+
+    robby = new Robot(oldBoard.robby);
 
     trampLabel = new HashMap<Point, String>(oldBoard.trampLabel);
     targetLabel = new HashMap<Point, String>(oldBoard.targetLabel);
@@ -385,7 +391,8 @@ public class Board implements Cloneable {
       //cannot go through a wall, or a closed lift, or a beard
       if (map[yp][xp] == CellTypes.Wall ||
           map[yp][xp] == CellTypes.Closed ||
-          map[yp][xp] == CellTypes.Beard) {
+          map[yp][xp] == CellTypes.Beard ||
+          map[yp][xp] == CellTypes.TempBeard) {
         return GameState.Continue;
       }
       //we stumbled on a lambda! pick it up
@@ -476,6 +483,7 @@ public class Board implements Cloneable {
           //grow beards
           if(growthRate > 0 && ticks%growthRate == growthRate-1 && map[y][x] == CellTypes.Beard)
           {
+            System.out.println("Growing beard");
             for (int i = y-1; i < 3; ++i)
               for (int j = x-1; j < 3; ++j)
               {
