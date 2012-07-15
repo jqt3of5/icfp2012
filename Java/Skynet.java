@@ -32,9 +32,9 @@ public abstract class Skynet {
 
       while (curBoard.lambdaPos.size() > 0) {
         if (Main.gotSIGINT)
-          break;
+          return totalPath.toString();
 
-        System.out.println("Starting a new journey" + curBoard.lambdaPos.size());
+        System.out.println("Pursuing lambda " + curBoard.lambdaPos.size());
 
         int bestLength = Integer.MAX_VALUE;
         Board bestBoard = curBoard;
@@ -47,7 +47,7 @@ public abstract class Skynet {
                                  terminator);
           pathfinder.findPath(newBoard, lambdaPt);
           if (Main.gotSIGINT)
-            break;
+            return totalPath.toString();
           Path path = terminator.getPath();
           if (path.size() < bestLength) {
             bestBoard = terminator.getBoard();
@@ -55,19 +55,17 @@ public abstract class Skynet {
             bestLength = path.size();
           }
         }
-	System.out.println("growth: " + bestBoard.ticks%bestBoard.growthRate);
-	System.out.println(bestBoard.toString());
         curBoard = bestBoard;
         totalPath.addAll(bestPath);
       }
-
-      if (Main.gotSIGINT)
-        return totalPath.toString();
 
       Board newBoard = new Board(curBoard);
       terminator = new TerminationConditions.PointTermination(curBoard.liftLocation);
       pathfinder = new AStar(new CostFunctions.BoardSensingCost(), new CostFunctions.ManhattanCost(), terminator);
       pathfinder.findPath(newBoard, curBoard.liftLocation);
+      if (Main.gotSIGINT)
+        return totalPath.toString();
+
       totalPath.addAll(terminator.getPath());
       curBoard = terminator.getBoard();
       return totalPath.toString();

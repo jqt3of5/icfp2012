@@ -3,34 +3,34 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Test<E extends Skynet> {
   private ArrayList<String> maps;
+  private ArrayList<String> mapNames;
   private ArrayList<Integer> scores;
   
   public Test() {
     maps = new ArrayList<String>();
+    mapNames = new ArrayList<String>();
     scores = new ArrayList<Integer>();
   }
   
   public void readMaps() throws IOException {
     Scanner cmd = new Scanner(new InputStreamReader(Runtime.getRuntime().exec("ls ../maps").getInputStream()));
     while(cmd.hasNext()) {
-      File fileName = new File("../maps/" + cmd.next());
+      String mapName = cmd.next();
+      File fileName = new File("../maps/" + mapName);
       Scanner inFile = new Scanner(fileName);
       String newMap = "";
       while(inFile.hasNext()) {
         newMap += inFile.nextLine() + System.getProperty("line.separator");
       }
       addMap(newMap);
+      mapNames.add(mapName);
     }
-   for(String map: maps) {
-    System.out.print(map);
-   }
   }
   
   public void addMap(String map) {
@@ -38,11 +38,19 @@ public class Test<E extends Skynet> {
   }
   
   public void runTests(Class SkynetClass) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-    for(String map: maps) {
+    for (int i=0; i < maps.size(); i++) {
+      String map = maps.get(i);
+      String mapName = mapNames.get(i);
+
       Timer timer = new Timer();
-      long delay = 150*1000;
+      //long delay = 150*1000;
+      long delay = 10*1000;
+
+      System.out.println("-----------------------------------------------------------------------------");
+      System.out.println("     Map: " + mapName);
+      System.out.println("-----------------------------------------------------------------------------");
       
-      Skynet planner = (Skynet) SkynetClass.getDeclaredConstructor(Map.class).newInstance(map);
+      Skynet planner = (Skynet) SkynetClass.getDeclaredConstructor(String.class).newInstance(map);
 
       timer.schedule(new Reminder(), delay);
       
@@ -67,10 +75,12 @@ public class Test<E extends Skynet> {
     } 
   }
   
-  public static void main(String args[]) throws IOException {
+  public static void main(String args[]) throws IOException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     Test<Skynet> t = new Test<Skynet>();
     
     t.readMaps();
+
+    t.runTests(Skynet.GreedySkynet.class);
   }
   
 }
