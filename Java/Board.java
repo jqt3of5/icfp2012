@@ -606,6 +606,17 @@ public class Board implements Cloneable {
           continue;
 	}
 
+	// Death conditions
+	if (cellWillBeEmpty(r+1, c) &&
+	    ( isRock(getCell(r+2, c)) ||
+	      (isRock(getCell(r+2, c-1)) &&
+	       (getCell(r+1, c-1) == CellTypes.Lambda || isRock(getCell(r+1, c-1)) )) ||
+	      (isRock(getCell(r+2, c+1)) &&
+	       (isRock(getCell(r+1, c+1)) && getCell(r+1, c+2) != CellTypes.Empty))
+	    )) {
+	  continue;
+	}
+
 	retList.add(robotMove[i]);
       }
     }
@@ -621,10 +632,23 @@ public class Board implements Cloneable {
     return retList;
   }
 
+  public boolean cellWillBeEmpty(int r, int c) {
+    if (getCell(r, c) != CellTypes.Empty) return false;
+    if (growthRate > 0 && (ticks+1) % growthRate == growthRate - 1) {
+      if (adjacentBeard(r, c)) return false;
+    }
+    return true;
+  }
+
   public CellTypes getCell(int r, int c) {
     if (0 <= r && r < height && 0 <= c && c < width) return map[r][c];
     else return CellTypes.Wall;
   }
+
+  private boolean isRock(CellTypes type) {
+    return type == CellTypes.Rock || type == CellTypes.HigherOrder;
+  }
+
 
   private boolean adjacentBeard(int r, int c) {
     if (r-1 >= 0) {
