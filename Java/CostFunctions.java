@@ -34,7 +34,7 @@ public class CostFunctions {
       double cost = 1;
 
       // Don't backtrack
-      cost += boardState.visits[robotPos.r][robotPos.c];
+      cost += 0.75*boardState.visits[robotPos.r][robotPos.c];
 
       // Don't stay in water longer than necessary
       cost += 0.5*board.robby.waterTime;
@@ -73,6 +73,10 @@ public class CostFunctions {
         // Jumped through a trampoline
         if (Math.abs(prevBoard.robby.position.r-robotPos.r) > 1
             || Math.abs(prevBoard.robby.position.c-robotPos.c) > 1)
+          cost += 10;
+
+        // Didn't move
+        if (prevBoard.robby.position.equals(robotPos))
           cost += 10;
       }
 

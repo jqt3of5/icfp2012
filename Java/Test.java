@@ -88,7 +88,7 @@ public class Test<E extends Skynet> {
     
     t.readMaps();
 
-    t.runTests(Skynet.GreedierSkynet.class);
+    t.runTests(HungrySkynet.class);
   }
   
 }

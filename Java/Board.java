@@ -325,7 +325,7 @@ public class Board implements Cloneable {
     }
 
     if (map[yp][xp] == CellTypes.Razor) {
-      System.err.println("Gaining a razor!");
+      // System.err.println("Gaining a razor!");
       razors.removeFirstOccurrence(new Point(yp,xp));
       robby.razorCount++;
     }
@@ -414,6 +414,8 @@ public class Board implements Cloneable {
     }
 
     tempMap = new CellTypes[height][width];
+    tempHeight = height;
+    tempWidth = width;
   }
 
   private void swapBuffers() {
@@ -458,7 +460,8 @@ public class Board implements Cloneable {
 
           for (int i = y - 1; i < y+2; ++i)
             for (int j = x - 1; j < x+2; ++j) {
-              if (map[i][j] == CellTypes.Empty) {
+              if (i >= 0 && i < height && j >= 0 && j < width
+                  && map[i][j] == CellTypes.Empty) {
                 // temp beards are because we want to differentiate bettween new
                 // beards, and old.
                 // else, out of control growth.
@@ -626,6 +629,8 @@ public class Board implements Cloneable {
     if (robby.razorCount > 0 && adjacentBeard(robby.getPosition().r, robby.getPosition().c))
       retList.add(Robot.Move.Shave);
 
+    retList.add(Robot.Move.Wait);
+
     // for (Robot.Move b : retList) {
     //   System.err.print(b + " ");
     // }
@@ -650,7 +655,6 @@ public class Board implements Cloneable {
   private boolean isRock(CellTypes type) {
     return type == CellTypes.Rock || type == CellTypes.HigherOrder;
   }
-
 
   private boolean adjacentBeard(int r, int c) {
     if (r-1 >= 0) {

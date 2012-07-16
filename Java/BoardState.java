@@ -19,7 +19,6 @@ public class BoardState {
 
   public BoardState(final Board board) {
     this.board = board;
-    visits = new int[board.height][board.width];
   }
 
   @Override
@@ -27,14 +26,14 @@ public class BoardState {
     return board.toString();
   }
 
-  public void copyVisits(final BoardState parent) {
-    final int h = parent.visits.length;
-    final int w = parent.visits[0].length;
-    visits = new int[h][w];
-    for (int r = 0; r < h; r++) {
-      for (int c = 0; c < w; c++) {
-        visits[r][c] = parent.visits[r][c];
-      }
-    }
-  }
+  // public void copyVisits(final BoardState parent) {
+  //   final int h = parent.visits.length;
+  //   final int w = parent.visits[0].length;
+  //   visits = new int[h][w];
+  //   for (int r = 0; r < h; r++) {
+  //     for (int c = 0; c < w; c++) {
+  //       visits[r][c] = parent.visits[r][c];
+  //     }
+  //   }
+  // }
 }

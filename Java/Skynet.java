@@ -23,6 +23,10 @@ public abstract class Skynet {
     return findClosest(lambdaTarget);
   }
 
+  public Queue<Point> findClosestLambdas(int n) {
+    return findClosest(lambdaTarget, n);
+  }
+
   public Queue<Point> findClosest(Board.CellTypes[] targetTypes) {
     return findClosest(targetTypes, 0);
   }

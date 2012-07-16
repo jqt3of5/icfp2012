@@ -87,9 +87,9 @@ public class AStar {
       final BoardState curState = candidates.poll();
       final Board curBoard = curState.board;
 
-      System.err.println(curState.move);
-      System.err.println(curBoard);
-      System.err.println(curBoard.getAvailableMoves());
+      // System.err.println(curState.move);
+      // System.err.println(curBoard);
+      // system.err.println(curBoard.getAvailableMoves());
 
       if (curBoard.state != Board.GameState.Lose &&
           curState.pathLength < maxPathLength) {
@@ -116,7 +116,7 @@ public class AStar {
           //   System.err.println();
           // }
 
-          System.err.println(candMove + ": " + newState.score);
+          // System.err.println(candMove + ": " + newState.score);
         }
       }
       // System.err.println();

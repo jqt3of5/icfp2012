@@ -9,6 +9,7 @@ public class HungrySkynet extends Skynet {
 
     public abstract void init(Board currentBoard);
     public abstract boolean exec();
+    public abstract void vary();
 
     public Board getBoard() { return board; }
     public Path getPath() {return path; }
@@ -29,33 +30,72 @@ public class HungrySkynet extends Skynet {
     public void init(Board currentBoard) {
       board = currentBoard;
       path = new Path();
-      value = -1;
+      value = -2;
     }
     
     public boolean exec() {
       board.tick(Robot.Move.Shave);
       return true;
     }
+
+    public void vary() {
+      value = Double.NEGATIVE_INFINITY;
+    }
   }
+
+  public class RandomLambda extends Strategy {
+    public void init(Board init) {
+      board = init;
+      path = null;
+      value = -1;
+    }
+
+    public boolean exec() {
+      Random rand = new Random();
+      System.err.println(board.lambdaPos.size());
+      Point lambdaPt = board.lambdaPos.get(rand.nextInt(board.lambdaPos.size()));
+      TerminationConditions.PointTermination terminator
+        = new TerminationConditions.PointTermination(lambdaPt);
+      AStar pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
+                                   new CostFunctions.ManhattanCost(),
+                                   terminator);
+      pathfinder.setTimeout(3000);
+      final boolean finished = pathfinder.findPath(board, lambdaPt);
+
+      // save path
+      if (finished &&
+          terminator.getBoard().robby.getScore() > bestScore) {
+        board = terminator.getBoard();
+        path = terminator.getPath();
+      }
+
+      return finished;
+    }
+
+    public void vary() {
+    }
+  }
+      
 
   public class Greediest extends Strategy {
     static final int NUM_LAMBDAS_PER_ITERATION = 3;
     Queue<Point> nearestPoints;
+    int numIterations;
 
     public void init(Board init) {
       board = init;
       path = null;
-      nearestPoints = findClosestLambdas();
-      value = nearestPoints.size();
+      value = 2;
+      numIterations = NUM_LAMBDAS_PER_ITERATION;
     }
 
     public boolean exec() {
-      System.err.println("Starting Greediest");
+      // System.err.println("Starting Greediest");
+      nearestPoints = findClosestLambdas(numIterations);
 
       double bestScore = board.robby.getScore();
       Board bestBoard = board;
 
-      int numIterations = NUM_LAMBDAS_PER_ITERATION;
       if (nearestPoints.size() < numIterations)
         numIterations = nearestPoints.size();
 
@@ -89,6 +129,11 @@ public class HungrySkynet extends Skynet {
       board = bestBoard;
       return true;
     }
+
+    public void vary() {
+      numIterations += NUM_LAMBDAS_PER_ITERATION;
+      value -= 5;
+    }
   }
 
   List<Strategy> strategies;
@@ -102,50 +147,52 @@ public class HungrySkynet extends Skynet {
     strategies = new ArrayList<Strategy>();
     strategies.add(new Shave());
     strategies.add(new Greediest());
+    strategies.add(new RandomLambda());
+    history.add(new History(new Path(), new Board(curBoard), -1));
   }
 
   @Override
   public String plan() {
-    Strategy bestStrategy = null;
-    BoardState curState = null;
     while(true)
     {
       if (Main.gotSIGINT)
         break;
 
+      Strategy bestStrategy = null;
       History curHistory = history.peekLast();
-      if (curHistory != null)
-        System.err.println(curHistory.path);
+      // if (curHistory != null)
+      //   System.err.println(curHistory.path);
 
       double bestValue = Double.NEGATIVE_INFINITY;
-      int i;
-      for (i = 0; i < strategies.size(); i++) {
+      int bestIndex = -1;
+      for (int i = 0; i < strategies.size(); i++) {
+        Strategy s = strategies.get(i);
+        s.init(curBoard);
         if (curHistory != null
             && curHistory.triedChildren.contains(i)) {
           continue;
         }
-        Strategy s = strategies.get(i);
-        s.init(curBoard);
         // System.err.println(s + " " + s.getValue());
         if (s.getValue() > bestValue) {
           bestStrategy = s;
           bestValue = s.getValue();
+          bestIndex = i;
         }
       }
 
-      if (bestValue == Double.NEGATIVE_INFINITY) {
-        backtrack();
-      }
-
       boolean finished = bestStrategy.exec();
-      // System.err.println(bestStrategy);
+      // System.err.println(finished);
+      System.err.println(bestStrategy);
 
-      if (!finished || Main.gotSIGINT) {
+      if (Main.gotSIGINT) {
         break;
       }
 
       curBoard = bestStrategy.getBoard();
-      history.add(new History(bestStrategy.getPath(), new Board(curBoard), i));
+
+      System.err.println(curBoard);
+
+      history.add(new History(bestStrategy.getPath(), new Board(curBoard), bestIndex));
       if (curBoard.robby.getScore() > bestScore) {
         bestPath = new Path();
         for (History h : history) {
@@ -154,8 +201,6 @@ public class HungrySkynet extends Skynet {
         bestScore = curBoard.robby.getScore();
         bestBoard = curBoard;
       }
-
-      System.err.println(curBoard);
 
       if (Main.gotSIGINT)
         break;
@@ -167,11 +212,15 @@ public class HungrySkynet extends Skynet {
 
       if (curBoard.state == Board.GameState.Win) break;
 
-      if (curBoard.state == Board.GameState.Lose) backtrack();
+      if (curBoard.state == Board.GameState.Lose) {
+        if (!backtrack())
+          break;
+      }
 
       if (stuck()) {
         System.err.println("Hey, I'm stuck!");
-        backtrack();
+        if (!backtrack())
+          break;
       }
     }
 
@@ -183,19 +232,26 @@ public class HungrySkynet extends Skynet {
     }
   }
 
-  void backtrack() {
+  boolean backtrack() {
     History last = history.pollLast();
     History cur = history.peekLast();
-    cur.triedChildren.add(last.strategyIndex);
-    curBoard = cur.board;
+    if (cur != null) {
+      cur.triedChildren.add(last.strategyIndex);
+      curBoard = cur.board;
+      System.err.println(cur.triedChildren.size());
+      if (cur.triedChildren.size() == strategies.size()) {
+        return backtrack();
+      }
+      return true;
+    }
+    System.err.println("no history");
+    return false;
   }
 
-  static final Board.CellTypes[] targetTypes = new Board.CellTypes[]{
-    Board.CellTypes.Lambda
-  }; // TODO - add more as strategies exist for them
   boolean stuck() {
-    Queue<Point> targets = findClosest(targetTypes, 1);
-    return targets.size() == 0;
+    if (history.size() == 1) return false;
+    History last = history.get(history.size()-2);
+    return last.board.getRobotPosition().equals(curBoard.getRobotPosition());
   }
 
   void finish() {
