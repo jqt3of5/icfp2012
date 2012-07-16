@@ -33,32 +33,43 @@ public class CostFunctions {
 
       double cost = -1 * board.robby.score;
 
-      // Pushing rock
-      if (prevBoard != null) {
-        if (prevBoard.get(robotPos) == Board.CellTypes.Rock) {
-          cost += 5;
-        }
-      }
-
-      // Not moving (stuck?)
-      if (prevBoard != null) {
-        if (robotPos.equals(prevBoard.getRobotPosition())) {
-          cost += 10;
-        }
-      }
-
       // Don't backtrack
       cost += boardState.visits[robotPos.r][robotPos.c];
 
-      // Don't block the lift
+      // Don't stay in water longer than necessary
+      cost += 0.5*board.robby.waterTime;
+
+      // Not moving (stuck?)
+      if (boardState.visits[robotPos.r][robotPos.c] > 10) {
+        cost += 100;
+      }
+
+      // Get a razor
+      if (board.beards.size() > 0) {
+        cost -= 5.0*board.beards.size()/(board.robby.razorCount+1);
+      }
+
       if (prevBoard != null) {
+        // Pushing rock
+        if (prevBoard.get(robotPos) == Board.CellTypes.Rock) {
+          cost += 5;
+        }
+
+        // Don't block the lift
         if (!BoardQuery.isLiftBlocked(prevBoard) && BoardQuery.isLiftBlocked(board)) {
           cost += 50;
         }
+
+        // Shaving all of the beard
+        if (prevBoard.beards.size() > 0 && board.beards.size() == 0)
+          cost -= 10;
+
+        // Jumped through a trampoline
+        if (Math.abs(prevBoard.robby.position.r-robotPos.r) > 1
+            || Math.abs(prevBoard.robby.position.c-robotPos.c) > 1)
+          cost += 10;
       }
 
-      // Don't stay in water longer than necessary
-      cost += 0.5*board.robby.waterTime;
 
       return cost;
     }
