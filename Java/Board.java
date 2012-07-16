@@ -668,6 +668,35 @@ public class Board implements Cloneable {
     return retList;
   }
 
+  private boolean adjacentBeard(int r, int c) {
+    if (r-1 >= 0) {
+      if (c-1 >= 0 && map[r-1][c-1] == CellTypes.Beard)
+        return true;
+      if (map[r-1][c-1] == CellTypes.Beard)
+        return true;
+      if (c+1 < width && map[r-1][c+1] == CellTypes.Beard)
+        return true;
+    }
+
+    if (c-1 >= 0 && map[r][c-1] == CellTypes.Beard)
+      return true;
+    if (map[r][c-1] == CellTypes.Beard)
+      return true;
+    if (c+1 < width && map[r][c+1] == CellTypes.Beard)
+      return true;
+
+    if (r+1 < height) {
+      if (c-1 >= 0 && map[r+1][c-1] == CellTypes.Beard)
+        return true;
+      if (map[r+1][c-1] == CellTypes.Beard)
+        return true;
+      if (c+1 < width && map[r+1][c+1] == CellTypes.Beard)
+        return true;
+    }
+
+    return false;
+  }
+
   public CellTypes get(Point p) {
     return map[p.r][p.c];
   }
