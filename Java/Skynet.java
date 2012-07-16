@@ -221,7 +221,7 @@ public abstract class Skynet {
           pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
                                  new CostFunctions.ManhattanCost(),
                                  terminator);
-          pathfinder.setTimeout(10000);
+          pathfinder.setTimeout(1000);
           final boolean finished = pathfinder.findPath(newBoard, lambdaPt);
 
           if (Main.gotSIGINT)

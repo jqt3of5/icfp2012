@@ -8,6 +8,10 @@ public class Main {
 
   public static void main(final String[] args) throws IOException {
 
+    if (args.length == 0) {
+      System.err.println("Usage: java Main <greedy | greedier> [<file>]");
+    }
+
     // Add hook for
     Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
@@ -18,8 +22,8 @@ public class Main {
       });
 
     Scanner scan = new Scanner(System.in);
-    if (args.length > 0) {
-      scan = new Scanner(new File(args[0]));
+    if (args.length > 1) {
+      scan = new Scanner(new File(args[1]));
     }
     String map = "";
     while(scan.hasNext()) {
@@ -28,7 +32,15 @@ public class Main {
 
     Board b = new Board(map);
     System.out.println(b);
-    final Skynet superSky = new Skynet.GreedierSkynet(map);
+    Skynet superSky = null;
+    if (args[0].equalsIgnoreCase("greedy")) {
+      superSky = new Skynet.GreedySkynet(map);
+    } else if (args[0].equalsIgnoreCase("greedier")) {
+      superSky = new Skynet.GreedierSkynet(map);
+    } else {
+      System.err.println("invalid option.");
+      System.exit(0);
+    }
     System.out.println(superSky.plan());
     System.out.println("Score: " + superSky.score());
     System.out.println(superSky.getBoard());
