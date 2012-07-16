@@ -19,7 +19,7 @@ public class Test<E extends Skynet> {
   }
   
   public void readMaps() throws IOException {
-    Scanner cmd = new Scanner(new InputStreamReader(Runtime.getRuntime().exec("ls ../maps").getInputStream()));
+    Scanner cmd = new Scanner(new InputStreamReader(Runtime.getRuntime().exec("ls ../maps/").getInputStream()));
     while(cmd.hasNext()) {
       String mapName = cmd.next();
       File fileName = new File("../maps/" + mapName);

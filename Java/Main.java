@@ -16,11 +16,11 @@ public class Main {
     Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
-	  gotSIGINT = true;
+          gotSIGINT = true;
           System.out.println("Shutdown hook ran!");
-	  try {
-	    Thread.sleep(10000);
-	  } catch(InterruptedException e) { System.err.println("interrupted"); }
+          try {
+            Thread.sleep(10000);
+          } catch(InterruptedException e) { System.err.println("interrupted"); }
         }
       });
 
