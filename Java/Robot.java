@@ -42,7 +42,6 @@ public class Robot{
   public int lambdaCount;
   public int score;
   public int waterTime;
-  public int waterThreshold;
   public Robot(Point startingPosition) {
     position = startingPosition;
     lambdaCount = 0;
