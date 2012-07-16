@@ -1,0 +1,20 @@
+#!/bin/bash
+
+mkdir temp_dir
+cd temp_dir
+
+mkdir src
+cp ~/icfp2012/Java/*.java src/
+
+mkdir bin
+cp ~/icfp2012/Java/*.class bin/
+
+cp ~/icfp2012/install ./
+cp ~/icfp2012/lifter ./
+cp ~/icfp2012/PACKAGES-TESTING ./
+cp ~/icfp2012/README ./
+
+tar zcf ../icfp-96695858.tgz *
+
+cd ../
+rm -r temp_dir

@@ -17,9 +17,9 @@ public class Main {
         @Override
         public void run() {
           gotSIGINT = true;
-          System.out.println("Shutdown hook ran!");
+          System.err.println("Shutdown hook ran!");
           try {
-            Thread.sleep(1000);
+            Thread.sleep(6000);
           } catch(InterruptedException e) { System.err.println("interrupted"); }
         }
       });

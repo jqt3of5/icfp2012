@@ -54,9 +54,9 @@ public class CostFunctions {
         cost -= 50*(board.robby.lambdaCount - prevBoard.robby.lambdaCount);
 
         // Pushing rock
-        if (prevBoard.get(robotPos) == Board.CellTypes.Rock) {
-          cost += 5;
-        }
+        // if (prevBoard.get(robotPos) == Board.CellTypes.Rock) {
+        //   cost += 5;
+        // }
 
         // Don't block the lift
         if (!BoardQuery.isLiftBlocked(prevBoard) && BoardQuery.isLiftBlocked(board)) {

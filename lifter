@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd Java
+java Main hungry
