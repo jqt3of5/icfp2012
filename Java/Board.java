@@ -7,81 +7,17 @@ public class Board implements Cloneable {
   private static int tempWidth;
 
   public enum CellTypes {
-    Robot {
-      public String toString() {
-        return "R";
-      }
-    },
-    Rock {
-      public String toString() {
-        return "*";
-      }
-    },
-    Closed {
-      public String toString() {
-        return "L";
-      }
-    },
-    Earth {
-      public String toString() {
-        return ".";
-      }
-    },
-    Wall {
-      public String toString() {
-        return "#";
-      }
-    },
-    Lambda {
-      public String toString() {
-        return "\\";
-      }
-    },
-    Open {
-      public String toString() {
-        return "O";
-      }
-    },
-    Empty {
-      public String toString() {
-        return " ";
-      }
-    },
-    Tramp {
-      public String toString() {
-        return "";
-      }
-    },
-    Target {
-      public String toString() {
-        return "";
-      }
-    },
-    Beard {
-      public String toString() {
-        return "W";
-      }
-    },
-    TempBeard {
-      public String toString() {
-        return "w";
-      }
-    },
-    Razor {
-      public String toString() {
-        return "!";
-      }
-    },
-    HigherOrder {
-      public String toString() {
-        return "@";
-      }
-    }
-  };
+    Robot("R"), Rock("*"), Closed("L"), Earth("."),
+    Wall("#"), Lambda("\\"), Open("O"), Empty(" "),
+    Tramp(""), Target(""), Beard("W"), TempBeard("w"),
+    Razor("!"), HigherOrder("@");
 
-  public enum GameState {
-    Win, Lose, Abort, Continue
-  };
+    private String rep;
+    private CellTypes(String inRep) { rep = inRep; }
+    public String toString() { return rep; }
+  }
+
+  public enum GameState { Win, Lose, Abort, Continue }
 
   public int waterLevel;
   public int waterRate;
@@ -430,24 +366,24 @@ public class Board implements Cloneable {
     // if we step on a tramp, find our coresponding target, and set that.
 
     if (map[yp][xp] == CellTypes.Tramp) {
-	
-	
+
+
       final Point target = trampToTargets.get(new Point(yp, xp));
 
       map[yp][xp] = CellTypes.Empty;
-      
+
       xp = target.c;
       yp = target.r;
 
       // this is so we can remove all tramps that jump to this target.
       for (Point p : new ArrayList<Point>(trampToTargets.keySet()))
-      {
-	      if (trampToTargets.get(p) == target)
-        {
-		      map[p.r][p.c] = CellTypes.Empty;
-		      trampToTargets.remove(p);
-        }
-      }
+	{
+	  if (trampToTargets.get(p) == target)
+	    {
+	      map[p.r][p.c] = CellTypes.Empty;
+	      trampToTargets.remove(p);
+	    }
+	}
 
     }
     // update our position
@@ -507,7 +443,7 @@ public class Board implements Cloneable {
     }
 
     ensureBufferValid();
-    
+
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
         tempMap[y][x] = map[y][x];
@@ -519,7 +455,7 @@ public class Board implements Cloneable {
 
         if (growthRate > 0 && (ticks % growthRate == (growthRate - 1))
             && map[y][x] == CellTypes.Beard) {
-	    
+
           for (int i = y - 1; i < y+2; ++i)
             for (int j = x - 1; j < x+2; ++j) {
               if (map[i][j] == CellTypes.Empty) {
@@ -574,12 +510,12 @@ public class Board implements Cloneable {
 
           if (map[y][x] == CellTypes.HigherOrder &&
               yp > 0 && map[yp-1][xp] != CellTypes.Empty)
-          {
-            tempMap[yp-1][xp] = CellTypes.Lambda;
-            lambdaPos.add(new Point(yp-1,xp));
-            higherOrderCount--;
-          }
-          
+	    {
+	      tempMap[yp-1][xp] = CellTypes.Lambda;
+	      lambdaPos.add(new Point(yp-1,xp));
+	      higherOrderCount--;
+	    }
+
         }
       }
     }
@@ -637,10 +573,11 @@ public class Board implements Cloneable {
 
   public List<Robot.Move> getAvailableMoves() {
     final List<Robot.Move> retList = new ArrayList<Robot.Move>();
-    final int[] dr = { -1, 0, 0, 1 };
-    final int[] dc = { 0, -1, 1, 0 };
+    final int[] dr = { -1, 0, 0, 1, 0 };
+    final int[] dc = { 0, -1, 1, 0, 0 };
     final Robot.Move[] robotMove = { Robot.Move.Down, Robot.Move.Left,
-                                     Robot.Move.Right, Robot.Move.Up };
+                                     Robot.Move.Right, Robot.Move.Up,
+				     Robot.Move.Shave };
 
     // TODO(jack): need to handle trampoline and possibly death
     // conditions here.
@@ -649,13 +586,43 @@ public class Board implements Cloneable {
       final int r = robby.getPosition().r + dr[i];
       final int c = robby.getPosition().c + dc[i];
       if (0 <= r && r < height && 0 <= c && c < width
-          && map[r][c] != CellTypes.Wall) {
+          && map[r][c] != CellTypes.Wall
+	  && map[r][c] != CellTypes.Beard
+	  && map[r][c] != CellTypes.Closed) {
+
         // Can't push rocks up or down
-        if ((robotMove[i] == Robot.Move.Down || robotMove[i] == Robot.Move.Up)
+        if ((robotMove[i] == Robot.Move.Down ||
+	     robotMove[i] == Robot.Move.Up)
             && map[r][c] == CellTypes.Rock) {
           continue;
         }
-        retList.add(robotMove[i]);
+
+	// Can't push rocks to nonempty cells
+	if (robotMove[i] == Robot.Move.Left
+            && map[r][c] == CellTypes.Rock
+	    && getCell(r, c-1) != CellTypes.Empty) {
+          continue;
+        }
+	if (robotMove[i] == Robot.Move.Right
+            && map[r][c] == CellTypes.Rock
+	    && getCell(r, c+1) != CellTypes.Empty) {
+          continue;
+	}
+
+	// No need to add shave if no Beard nearby
+	if (robotMove[i] == Robot.Move.Shave &&
+	    ! (getCell(r-1,c-1) == CellTypes.Beard ||
+	       getCell(r-1,c) == CellTypes.Beard ||
+	       getCell(r-1,c+1) == CellTypes.Beard ||
+	       getCell(r,c-1) == CellTypes.Beard ||
+	       getCell(r,c+1) == CellTypes.Beard ||
+	       getCell(r+1,c-1) == CellTypes.Beard ||
+	       getCell(r+1,c) == CellTypes.Beard ||
+	       getCell(r+1,c+1) == CellTypes.Beard)) {
+	  continue;
+	}
+
+	retList.add(robotMove[i]);
       }
     }
 
@@ -665,6 +632,11 @@ public class Board implements Cloneable {
     // System.out.println();
 
     return retList;
+  }
+
+  public CellTypes getCell(int r, int c) {
+    if (0 <= r && r < height && 0 <= c && c < width) return map[r][c];
+    else return CellTypes.Wall;
   }
 
   public CellTypes get(Point p) {
