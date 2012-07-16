@@ -16,7 +16,7 @@ public class Main {
     Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
-          gotSIGINT = true;
+	  gotSIGINT = true;
           System.out.println("Shutdown hook ran!");
         }
       });

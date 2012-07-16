@@ -1,6 +1,9 @@
 /* -*- c-basic-offset: 2; -*- */
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AStar {
 
@@ -29,16 +32,17 @@ public class AStar {
       });
   }
 
-  public void setTimeout(long ms) {
+  public void setTimeout(final long ms) {
     timeout = ms;
   }
 
   class Timeout extends TimerTask {
     private AStar parent;
-    public Timeout(AStar parent) {
+    public Timeout(final AStar parent) {
       this.parent = parent;
     }
 
+    @Override
     public void run() {
       parent.timesUp();
     }
@@ -63,6 +67,8 @@ public class AStar {
     candidates.add(board.getBoardState());
     final Point origin = board.getRobotPosition();
 
+    final int maxPathLength = board.height * board.width;
+
     while (true) {
       if (Main.gotSIGINT || halt) {
         if (timer != null)
@@ -70,22 +76,24 @@ public class AStar {
         return false;
       }
       // A* main
-      BoardState curState = candidates.poll();
-      Board curBoard = curState.board;
+      final BoardState curState = candidates.poll();
+      final Board curBoard = curState.board;
 
       // System.err.println(curState.move);
       // System.err.println(curBoard);
       // System.err.println(curBoard.getAvailableMoves());
 
-      if (curBoard.state != Board.GameState.Lose) {
-        
-        for (Robot.Move candMove : curBoard.getAvailableMoves()) {
-          BoardState newState = curState.board.getBoardState();
-          Board newBoard = newState.board;
-          Point newPosition = newBoard.getRobotPosition();
+      if (curBoard.state != Board.GameState.Lose &&
+          curState.pathLength < maxPathLength) {
+
+        for (final Robot.Move candMove : curBoard.getAvailableMoves()) {
+          final BoardState newState = curState.board.getBoardState();
+          final Board newBoard = newState.board;
+          final Point newPosition = newBoard.getRobotPosition();
           newState.parentState = curState;
           newState.copyVisits(curState);
           newState.move = candMove;
+          newState.pathLength = curState.pathLength + 1;
           newBoard.tick(candMove);
           newState.visits[newBoard.getRobotPosition().r][newBoard.getRobotPosition().c]++;
           newState.score =
