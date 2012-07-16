@@ -90,7 +90,7 @@ public abstract class Skynet {
 
         System.err.println("Pursuing lambda " + curBoard.lambdaPos.size());
 
-        double bestScore = Integer.MIN_VALUE;
+        double bestScore = curBoard.robby.getScore();
         Board bestBoard = curBoard;
         Path bestPath = null;
 
@@ -120,15 +120,16 @@ public abstract class Skynet {
         totalPath.addAll(bestPath);
       }
 
-      final Board newBoard = new Board(curBoard);
+      Board newBoard = new Board(curBoard);
       terminator = new TerminationConditions.PointTermination(curBoard.liftLocation);
       pathfinder = new AStar(new CostFunctions.BoardSensingCost(), new CostFunctions.ManhattanCost(), terminator);
       pathfinder.findPath(newBoard, curBoard.liftLocation);
-      if (Main.gotSIGINT)
-        return totalPath.toString();
+      newBoard = terminator.getBoard();
 
-      totalPath.addAll(terminator.getPath());
-      curBoard = terminator.getBoard();
+      if (newBoard.robby.getScore() > curBoard.robby.getScore()) {
+        totalPath.addAll(terminator.getPath());
+        curBoard = newBoard;
+      }
       return totalPath.toString();
     }
   }
@@ -149,7 +150,7 @@ public abstract class Skynet {
 
         System.out.println("Pursuing lambda " + curBoard.lambdaPos.size());
 
-        int bestScore = Integer.MIN_VALUE;
+        int bestScore = curBoard.robby.getScore();
         Robot.Move bestMove = null;
 
         for (final Point lambdaPt : curBoard.lambdaPos) {
@@ -202,19 +203,19 @@ public abstract class Skynet {
 
         System.err.println("Greedier Pursuing lambda " + curBoard.lambdaPos.size());
 
-        double bestScore = Integer.MIN_VALUE;
-	Board bestBoard = curBoard;
-	Path bestPath = new Path();
+        double bestScore = curBoard.robby.getScore();
+        Board bestBoard = curBoard;
+        Path bestPath = null;
 
         final Queue<Point> nearestPoints = findClosestLambdas();
-	int numIterations = NUM_LAMBDAS_PER_ITERATION;
-	if (nearestPoints.size() < numIterations)
-	  numIterations = nearestPoints.size();
+        int numIterations = NUM_LAMBDAS_PER_ITERATION;
+        if (nearestPoints.size() < numIterations)
+          numIterations = nearestPoints.size();
 
         for (int i = 0; i < numIterations ||
-	       (bestPath == null && i < nearestPoints.size()); i++) {
+               (bestPath == null && i < nearestPoints.size()); i++) {
           final Point lambdaPt = nearestPoints.remove();
-	  System.err.println("Finding: " + lambdaPt);
+          System.err.println("Finding: " + lambdaPt);
 
           final Board newBoard = new Board(curBoard);
           terminator = new TerminationConditions.PointTermination(lambdaPt);
@@ -224,33 +225,36 @@ public abstract class Skynet {
           pathfinder.setTimeout(1000);
           final boolean finished = pathfinder.findPath(newBoard, lambdaPt);
 
-	  // save bestPath
+          // save bestPath
           if (finished &&
-	      terminator.getBoard().robby.getScore() > bestScore) {
-	    bestBoard = terminator.getBoard();
+              terminator.getBoard().robby.getScore() > bestScore) {
+            bestBoard = terminator.getBoard();
             bestScore = terminator.getBoard().robby.getScore();
             bestPath = terminator.getPath();
           }
 
-	  // System.err.println(bestPath + "||" + totalPath);
-	  if (Main.gotSIGINT)
+          System.err.println("Best path: " + bestPath);
+          if (Main.gotSIGINT)
             return totalPath.toString();
         }
-	curBoard = bestBoard;
+        curBoard = bestBoard;
 
-	if (bestPath == null) return totalPath.toString();
-	totalPath.addAll(bestPath);
-      }
+        if (bestPath == null) return totalPath.toString();
+        totalPath.addAll(bestPath);
+      } // end while
 
-      final Board newBoard = new Board(curBoard);
+      Board newBoard = new Board(curBoard);
       terminator = new TerminationConditions
-	.PointTermination(curBoard.liftLocation);
+        .PointTermination(curBoard.liftLocation);
       pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
-			     new CostFunctions.ManhattanCost(), terminator);
+                             new CostFunctions.ManhattanCost(), terminator);
       pathfinder.findPath(newBoard, curBoard.liftLocation);
+      newBoard = terminator.getBoard();
 
-      totalPath.addAll(terminator.getPath());
-      curBoard = terminator.getBoard();
+      if (newBoard.robby.getScore() > curBoard.robby.getScore()) {
+        totalPath.addAll(terminator.getPath());
+        curBoard = newBoard;
+      }
 
       return totalPath.toString();
     } // end GreedierSkynet.plan()
