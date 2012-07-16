@@ -48,7 +48,7 @@ public class CostFunctions {
       }
 
       // Don't backtrack
-      cost += 5*boardState.visits[robotPos.r][robotPos.c];
+      cost += boardState.visits[robotPos.r][robotPos.c];
 
       // Don't block the lift
       if (prevBoard != null) {
