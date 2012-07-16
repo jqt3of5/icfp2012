@@ -205,6 +205,9 @@ public abstract class Skynet {
         double bestScore = Integer.MIN_VALUE;
 	Board bestBoard = curBoard;
 	Path bestPath = new Path();
+	Point bestPoint = null;
+
+	Set<Point> visitedPoints = new HashSet<Point>();
 
         final Queue<Point> nearestPoints = findClosestLambdas();
 	int numIterations = NUM_LAMBDAS_PER_ITERATION;
@@ -230,9 +233,11 @@ public abstract class Skynet {
 	    bestBoard = terminator.getBoard();
             bestScore = terminator.getBoard().robby.getScore();
             bestPath = terminator.getPath();
+	    bestPoint = lambdaPt;
           }
 
-	  // System.err.println(bestPath + "||" + totalPath);
+	  System.err.println(bestBoard);
+	  System.err.println(bestPath);
 	  if (Main.gotSIGINT)
             return totalPath.toString();
         }
@@ -240,7 +245,8 @@ public abstract class Skynet {
 
 	if (bestPath == null) return totalPath.toString();
 	totalPath.addAll(bestPath);
-      }
+
+      } // end while
 
       final Board newBoard = new Board(curBoard);
       terminator = new TerminationConditions
