@@ -13,6 +13,7 @@ public class HungrySkynet extends Skynet {
   {
     int value = -1;
     Path stratPath = new Path();
+    BoardState state;
     @Override
     public int value() {
       return value;
@@ -25,7 +26,9 @@ public class HungrySkynet extends Skynet {
 
     @Override
     public int evaluate(BoardState currentBoard) {
- 
+      state = currentBoard;
+      
+      state.board.tick(Robot.Move.Shave);
       return 0;
     }
     
@@ -46,7 +49,13 @@ public class HungrySkynet extends Skynet {
 
   @Override
   public String plan() {
-
+    
+    while(true)
+    {
+      
+      Strategy bestStrategy = strategies.poll();
+      if (true) break; // termination condition?
+    }
     return null;
   }
 
