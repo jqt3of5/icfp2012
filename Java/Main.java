@@ -19,7 +19,7 @@ public class Main {
           gotSIGINT = true;
           System.out.println("Shutdown hook ran!");
           try {
-            Thread.sleep(10000);
+            Thread.sleep(1000);
           } catch(InterruptedException e) { System.err.println("interrupted"); }
         }
       });
