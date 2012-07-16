@@ -42,11 +42,13 @@ public class Robot{
   public int lambdaCount;
   public int score;
   public int waterTime;
-  public Robot(Point startingPosition) {
+  public int razorCount;
+  public Robot(Point startingPosition, int initRazors) {
     position = startingPosition;
     lambdaCount = 0;
     score = 0;
     waterTime = 0;
+    razorCount = initRazors;
   }
 
   public Robot(final Robot oldRobot) {
@@ -54,6 +56,7 @@ public class Robot{
     lambdaCount = oldRobot.lambdaCount;
     score = oldRobot.score;
     waterTime = oldRobot.waterTime;
+    razorCount = oldRobot.razorCount;
   }
 
   public void moveUp() {
