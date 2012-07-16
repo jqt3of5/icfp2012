@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-  
+
   public static boolean gotSIGINT = false;
 
   public static void main(final String[] args) throws IOException {
@@ -28,7 +28,7 @@ public class Main {
 
     Board b = new Board(map);
     System.out.println(b);
-    final Skynet superSky = new Skynet.GreedySkynet(map);
+    final Skynet superSky = new Skynet.GreedierSkynet(map);
     System.out.println(superSky.plan());
     System.out.println("Score: " + superSky.score());
     System.out.println(superSky.getBoard());
