@@ -90,7 +90,7 @@ public abstract class Skynet {
 
         System.out.println("Pursuing lambda " + curBoard.lambdaPos.size());
 
-	double bestScore = Integer.MIN_VALUE;
+        double bestScore = Integer.MIN_VALUE;
         Board bestBoard = curBoard;
         Path bestPath = null;
 
@@ -106,10 +106,10 @@ public abstract class Skynet {
           if (Main.gotSIGINT)
             return totalPath.toString();
 
-	  // save bestPath
+          // save bestPath
           if (finished &&
-	      terminator.getBoard().robby.getScore() > bestScore) {
-	    bestBoard = terminator.getBoard();
+              terminator.getBoard().robby.getScore() > bestScore) {
+            bestBoard = terminator.getBoard();
             bestScore = terminator.getBoard().robby.getScore();
             bestPath = terminator.getPath();
           }
@@ -221,7 +221,7 @@ public abstract class Skynet {
           pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
                                  new CostFunctions.ManhattanCost(),
                                  terminator);
-          pathfinder.setTimeout(10000);
+          pathfinder.setTimeout(1000);
           final boolean finished = pathfinder.findPath(newBoard, lambdaPt);
 
           if (Main.gotSIGINT)
