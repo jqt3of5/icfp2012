@@ -74,8 +74,8 @@ public class AStar {
       Board curBoard = curState.board;
 
       // System.err.println(curState.move);
-      System.err.println(curBoard);
-      System.err.println(curBoard.state);
+      // System.err.println(curBoard);
+      // System.err.println(curBoard.state);
       // System.err.println(curBoard.getAvailableMoves());
 
       for (Robot.Move candMove : curBoard.getAvailableMoves()) {
@@ -92,7 +92,7 @@ public class AStar {
           h.compute(newState, newPosition, destination);
         candidates.add(newState);
 
-        System.err.println(candMove + ": " + newState.score);
+        // System.err.println(candMove + ": " + newState.score);
       }
       // System.err.println();
 

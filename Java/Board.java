@@ -1,6 +1,11 @@
 import java.util.*;
 
 public class Board implements Cloneable {
+
+  private static CellTypes[][] tempMap;
+  private static int tempHeight;
+  private static int tempWidth;
+
   public enum CellTypes {
     Robot {
       public String toString() {
@@ -463,24 +468,52 @@ public class Board implements Cloneable {
     return GameState.Continue;
   }
 
+  /*
+   * Ensure that tempMap has the correct dimensions
+   * this is NOT thread-safe!!!
+   */
+  private void ensureBufferValid() {
+    if (tempHeight == height && tempWidth == width) {
+      return;
+    }
+
+    tempMap = new CellTypes[height][width];
+  }
+
+  private void swapBuffers() {
+    CellTypes[][] temp = tempMap;
+    tempMap = map;
+    map = temp;
+  }
+
   // destructive update
   public GameState update() {
+    GameState returnState = GameState.Continue;
+
+    if (robby.getPosition().r >= waterLevel)
+      robby.cleanWaterTime();
 
     if (waterRate != 0 && ticks % waterRate == waterRate - 1) {
       waterLevel += 1;
     }
 
-    if (robby.waterTime > 0 && robby.waterTime == robotWaterLimit)
-      return GameState.Lose; // is a drowning lose or abort?
+    if (robby.getPosition().r < waterLevel)
+      robby.stayInWater();
 
-    robby.stayInWater();// at what point do we want this called?
-    
-    //System.out.println("rate: " + growthRate + " " + ticks%growthRate);
+    if (robby.waterTime > 0 && robby.waterTime > robotWaterLimit) {
+      // System.err.println("Underwater too long!!!");
+      // System.err.println("Current time: " + ticks + " waterTime: " + robby.waterTime);
+      returnState = GameState.Lose;
+    }
+
+    ensureBufferValid();
     
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
+        tempMap[y][x] = map[y][x];
+
         if (map[y][x] == CellTypes.Closed && lambdaPos.size() == 0 && higherOrderCount == 0) {
-          map[y][x] = CellTypes.Open;
+          tempMap[y][x] = CellTypes.Open;
         }
         // grow beards
 
@@ -493,7 +526,7 @@ public class Board implements Cloneable {
                 // temp beards are because we want to differentiate bettween new
                 // beards, and old.
                 // else, out of control growth.
-                map[i][j] = CellTypes.TempBeard;
+                tempMap[i][j] = CellTypes.TempBeard;
                 tempBeards.add(new Point(i, j));
                 beards.add(new Point(i, j));
               }
@@ -532,17 +565,17 @@ public class Board implements Cloneable {
             continue;
           }
 
-          map[yp][xp] = map[y][x];
-          map[y][x] = CellTypes.Empty;
+          tempMap[yp][xp] = map[y][x];
+          tempMap[y][x] = CellTypes.Empty;
 
           if (yp > 0 && map[yp - 1][xp] == CellTypes.Robot) {
-            return GameState.Lose;
+            returnState = GameState.Lose;
           }
 
           if (map[y][x] == CellTypes.HigherOrder &&
               yp > 0 && map[yp-1][xp] != CellTypes.Empty)
           {
-            map[yp-1][xp] = CellTypes.Lambda;
+            tempMap[yp-1][xp] = CellTypes.Lambda;
             lambdaPos.add(new Point(yp-1,xp));
             higherOrderCount--;
           }
@@ -554,12 +587,14 @@ public class Board implements Cloneable {
     // need to change the new beards for this round into permanent beards
     if (growthRate > 0 && ticks % growthRate == growthRate - 1) {
       for (Point p : tempBeards) {
-        map[p.r][p.c] = CellTypes.Beard;
+        tempMap[p.r][p.c] = CellTypes.Beard;
 
       }
       tempBeards.clear();
     }
-    return GameState.Continue;
+
+    swapBuffers();
+    return returnState;
   }
 
   // destructive update
