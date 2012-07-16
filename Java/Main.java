@@ -40,6 +40,8 @@ public class Main {
       superSky = new Skynet.GreedySkynet(map);
     } else if (args[0].equalsIgnoreCase("greedier")) {
       superSky = new Skynet.GreedierSkynet(map);
+    } else if (args[0].equalsIgnoreCase("hungry")) {
+      superSky = new Skynet.HungrySkynet(map);
     } else {
       System.err.println("invalid option.");
       System.exit(0);
