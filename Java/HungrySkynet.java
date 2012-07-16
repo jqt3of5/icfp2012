@@ -54,17 +54,25 @@ public class HungrySkynet extends Skynet {
   public String plan() {
     Strategy bestStrategy = null;
     BoardState curState = null;
+    History curHistory = history.peekLast();
     while(true)
     {
       double bestValue = Double.NEGATIVE_INFINITY;
       int i;
       for (i = 0; i < strategies.size(); i++) {
+        if (curHistory.triedChildren.indexOf(i) != -1) {
+          continue;
+        }
         Strategy s = strategies.get(i);
         double value = s.evaluate(curBoard);
         if (value > bestValue) {
           bestStrategy = s;
           bestValue = value;
         }
+      }
+
+      if (i == strategies.size()) {
+        backtrack();
       }
 
       curBoard = bestStrategy.getBoard();
