@@ -21,10 +21,10 @@ public class SkynetTester {
     final Skynet superSky = new Skynet.GreedierSkynet(map);
     final Queue<Point> nearestPoints = superSky.findClosestLambdas();
 
-    System.err.println(nearestPoints);
+    //System.err.println(nearestPoints);
 
-    /*System.out.println(superSky.plan());
+    System.out.println(superSky.plan());
     System.out.println("Score: " + superSky.score());
-    System.out.println(superSky.getBoard());*/
+    System.out.println(superSky.getBoard());
   }
 }
