@@ -57,6 +57,9 @@ public class CostFunctions {
         }
       }
 
+      // Don't stay in water longer than necessary
+      cost += 0.5*board.robby.waterTime;
+
       return cost;
     }
   }
