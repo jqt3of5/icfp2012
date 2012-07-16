@@ -54,6 +54,10 @@ public class HungrySkynet extends Skynet {
     {
       
       Strategy bestStrategy = strategies.poll();
+      
+      
+      
+      
       if (true) break; // termination condition?
     }
     return null;
