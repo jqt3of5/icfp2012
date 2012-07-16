@@ -112,9 +112,9 @@ public abstract class Skynet {
           }
 
           if (Main.gotSIGINT) {
-	    if (bestPath != null) totalPath.addAll(bestPath);
+            if (bestPath != null) totalPath.addAll(bestPath);
             return totalPath.toString();
-	  }
+          }
         }
         curBoard = bestBoard;
 
@@ -125,12 +125,14 @@ public abstract class Skynet {
       Board newBoard = new Board(curBoard);
       terminator = new TerminationConditions.PointTermination(curBoard.liftLocation);
       pathfinder = new AStar(new CostFunctions.BoardSensingCost(), new CostFunctions.ManhattanCost(), terminator);
-      pathfinder.findPath(newBoard, curBoard.liftLocation);
-      newBoard = terminator.getBoard();
+      boolean finished = pathfinder.findPath(newBoard, curBoard.liftLocation);
+      if (finished) {
+        newBoard = terminator.getBoard();
 
-      if (newBoard.robby.getScore() > curBoard.robby.getScore()) {
-        totalPath.addAll(terminator.getPath());
-        curBoard = newBoard;
+        if (newBoard.robby.getScore() > curBoard.robby.getScore()) {
+          totalPath.addAll(terminator.getPath());
+          curBoard = newBoard;
+        }
       }
       return totalPath.toString();
     }
@@ -217,7 +219,7 @@ public abstract class Skynet {
         for (int i = 0; i < numIterations ||
                (bestPath == null && i < nearestPoints.size()); i++) {
           final Point lambdaPt = nearestPoints.remove();
-          System.err.println("Finding: " + lambdaPt);
+          // System.err.println("Finding: " + lambdaPt);
 
           final Board newBoard = new Board(curBoard);
           terminator = new TerminationConditions.PointTermination(lambdaPt);
@@ -235,11 +237,11 @@ public abstract class Skynet {
             bestPath = terminator.getPath();
           }
 
-          System.err.println("Best path: " + bestPath);
+          // System.err.println("Best path: " + bestPath);
           if (Main.gotSIGINT) {
-	    if (bestPath != null) totalPath.addAll(bestPath);
+            if (bestPath != null) totalPath.addAll(bestPath);
             return totalPath.toString();
-	  }
+          }
         }
         curBoard = bestBoard;
 
@@ -252,12 +254,14 @@ public abstract class Skynet {
         .PointTermination(curBoard.liftLocation);
       pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
                              new CostFunctions.ManhattanCost(), terminator);
-      pathfinder.findPath(newBoard, curBoard.liftLocation);
-      newBoard = terminator.getBoard();
+      boolean finished = pathfinder.findPath(newBoard, curBoard.liftLocation);
+      if (finished) {
+        newBoard = terminator.getBoard();
 
-      if (newBoard.robby.getScore() > curBoard.robby.getScore()) {
-        totalPath.addAll(terminator.getPath());
-        curBoard = newBoard;
+        if (newBoard.robby.getScore() > curBoard.robby.getScore()) {
+          totalPath.addAll(terminator.getPath());
+          curBoard = newBoard;
+        }
       }
 
       return totalPath.toString();
