@@ -31,7 +31,7 @@ public class CostFunctions {
       if (board.state == Board.GameState.Win)
         return Double.NEGATIVE_INFINITY;
 
-      double cost = -1 * board.robby.score;
+      double cost = 1;
 
       // Don't backtrack
       cost += boardState.visits[robotPos.r][robotPos.c];
@@ -46,10 +46,13 @@ public class CostFunctions {
 
       // Get a razor
       if (board.beards.size() > 0) {
-        cost -= 5.0*board.beards.size()/(board.robby.razorCount+1);
+        cost -= (5.0*board.beards.size())/(board.robby.razorCount+1);
       }
 
       if (prevBoard != null) {
+        // score difference
+        cost -= 50*(board.robby.lambdaCount - prevBoard.robby.lambdaCount);
+
         // Pushing rock
         if (prevBoard.get(robotPos) == Board.CellTypes.Rock) {
           cost += 5;
@@ -62,6 +65,9 @@ public class CostFunctions {
 
         // Shaving all of the beard
         if (prevBoard.beards.size() > 0 && board.beards.size() == 0)
+          cost -= 100;
+
+        if (prevBoard.beards.size() > board.beards.size())
           cost -= 10;
 
         // Jumped through a trampoline
@@ -69,7 +75,6 @@ public class CostFunctions {
             || Math.abs(prevBoard.robby.position.c-robotPos.c) > 1)
           cost += 10;
       }
-
 
       return cost;
     }

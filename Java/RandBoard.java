@@ -4,7 +4,7 @@ import java.util.*;
 public class RandBoard{
 
   static char[] chars = {'*', '.', '#', '\\', ' ', 'W', '!', '@'};
-  static int[] weights = {20, 60, 20, 20, 20, 3, 3, 5};
+  static int[] weights = {20, 60, 20, 20, 20, 3, 3, 0};
   static double[] mulfactor = {0.2, 0.2, 3.0, 0, 0, 0, 0, 0};
 
   public static String getNewMap(final int width, final int height) {

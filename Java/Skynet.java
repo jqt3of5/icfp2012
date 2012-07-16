@@ -1,11 +1,9 @@
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public abstract class Skynet {
   protected Board curBoard;
+
+  static final Board.CellTypes[] lambdaTarget = new Board.CellTypes[]{Board.CellTypes.Lambda};
 
   public Skynet(final String mapStr) {
     curBoard = new Board(mapStr);
@@ -22,6 +20,14 @@ public abstract class Skynet {
    * returned is sorted by distance.
    */
   public Queue<Point> findClosestLambdas() {
+    return findClosest(lambdaTarget);
+  }
+
+  public Queue<Point> findClosest(Board.CellTypes[] targetTypes) {
+    return findClosest(targetTypes, 0);
+  }
+
+  public Queue<Point> findClosest(Board.CellTypes[] targetTypes, int limit) {
     final Queue<Point> retQueue = new LinkedList<Point>();
 
     final Queue<BfsNode> bfsQ = new LinkedList<BfsNode>();
@@ -35,8 +41,10 @@ public abstract class Skynet {
       visited.add(curPoint);
 
       // add lambda points to queue
-      if (curBoard.map[curPoint.r][curPoint.c] == Board.CellTypes.Lambda) {
-        retQueue.add(curPoint);
+      for (Board.CellTypes cell : targetTypes) {
+        if (curBoard.map[curPoint.r][curPoint.c] == cell) {
+          retQueue.add(curPoint);
+        }
       }
 
       // add children
@@ -54,6 +62,9 @@ public abstract class Skynet {
             bfsQ.add(new BfsNode(childPoint, curNode.dist+1));
         }
       }
+
+      if (limit != 0 && retQueue.size() >= limit)
+        break;
     }
 
     return retQueue;

@@ -63,6 +63,8 @@ public class AStar {
       timer.schedule(new Timeout(this), timeout);
     }
 
+    int visits[][] = new int[board.height][board.width];
+
     candidates.clear();
     candidates.add(board.getBoardState());
     final Point origin = board.getRobotPosition();
@@ -75,13 +77,19 @@ public class AStar {
           timer.cancel();
         return false;
       }
+
+      // try{
+      //   Thread.sleep(100);
+      // } catch (Exception e) {
+      // }
+
       // A* main
       final BoardState curState = candidates.poll();
       final Board curBoard = curState.board;
 
-      // System.err.println(curState.move);
-      // System.err.println(curBoard);
-      // system.err.println(curBoard.getAvailableMoves());
+      System.err.println(curState.move);
+      System.err.println(curBoard);
+      System.err.println(curBoard.getAvailableMoves());
 
       if (curBoard.state != Board.GameState.Lose &&
           curState.pathLength < maxPathLength) {
@@ -89,19 +97,26 @@ public class AStar {
         for (final Robot.Move candMove : curBoard.getAvailableMoves()) {
           final BoardState newState = curState.board.getBoardState();
           final Board newBoard = newState.board;
+          newBoard.tick(candMove);
           final Point newPosition = newBoard.getRobotPosition();
           newState.parentState = curState;
-          newState.copyVisits(curState);
           newState.move = candMove;
           newState.pathLength = curState.pathLength + 1;
-          newBoard.tick(candMove);
-          newState.visits[newBoard.getRobotPosition().r][newBoard.getRobotPosition().c]++;
+          visits[newBoard.getRobotPosition().r][newBoard.getRobotPosition().c]++;
+          newState.visits = visits;
           newState.score =
             g.compute(newState, origin, newPosition) +
             h.compute(newState, newPosition, destination);
           candidates.add(newState);
 
-          // System.err.println(candMove + ": " + newState.score);
+          // for (int i=0; i < newBoard.height; i++) {
+          //   for (int j=0; j < newBoard.width; j++) {
+          //     System.err.print(newState.visits[i][j]);
+          //   }
+          //   System.err.println();
+          // }
+
+          System.err.println(candMove + ": " + newState.score);
         }
       }
       // System.err.println();

@@ -35,7 +35,7 @@ public class Board implements Cloneable {
   public HashMap<Point, String> targetLabel;
   public ArrayList<Point> tempBeards;
   public ArrayList<Point> beards;
-  public ArrayList<Point> razors;
+  public LinkedList<Point> razors;
   public int width;
   public int height;
   public int ticks;
@@ -60,7 +60,7 @@ public class Board implements Cloneable {
     //    trampolines = new ArrayList<Point>();
     trampToTargets = new HashMap<Point, Point>();
     beards = new ArrayList<Point>();
-    razors = new ArrayList<Point>();
+    razors = new LinkedList<Point>();
     tempBeards = new ArrayList<Point>();
     trampLabel = new HashMap<Point, String>();
     targetLabel = new HashMap<Point, String>();
@@ -236,7 +236,7 @@ public class Board implements Cloneable {
 
     tempBeards = new ArrayList<Point>(oldBoard.tempBeards);
     beards = new ArrayList<Point>(oldBoard.beards);
-    razors = new ArrayList<Point>(oldBoard.razors);
+    razors = new LinkedList<Point>(oldBoard.razors);
     ticks = oldBoard.ticks;
 
     state = oldBoard.state;
@@ -325,6 +325,8 @@ public class Board implements Cloneable {
     }
 
     if (map[yp][xp] == CellTypes.Razor) {
+      System.err.println("Gaining a razor!");
+      razors.removeFirstOccurrence(new Point(yp,xp));
       robby.razorCount++;
     }
     // if we get to the exit and it is open, we win
@@ -584,40 +586,40 @@ public class Board implements Cloneable {
       final int c = robby.getPosition().c + dc[i];
       if (0 <= r && r < height && 0 <= c && c < width
           && map[r][c] != CellTypes.Wall
-	  && map[r][c] != CellTypes.Beard
-	  && map[r][c] != CellTypes.Closed) {
+          && map[r][c] != CellTypes.Beard
+          && map[r][c] != CellTypes.Closed) {
 
         // Can't push rocks up or down
         if ((robotMove[i] == Robot.Move.Down ||
-	     robotMove[i] == Robot.Move.Up)
+             robotMove[i] == Robot.Move.Up)
             && map[r][c] == CellTypes.Rock) {
           continue;
         }
 
-	// Can't push rocks to nonempty cells
-	if (robotMove[i] == Robot.Move.Left
+        // Can't push rocks to nonempty cells
+        if (robotMove[i] == Robot.Move.Left
             && map[r][c] == CellTypes.Rock
-	    && getCell(r, c-1) != CellTypes.Empty) {
+            && getCell(r, c-1) != CellTypes.Empty) {
           continue;
         }
-	if (robotMove[i] == Robot.Move.Right
+        if (robotMove[i] == Robot.Move.Right
             && map[r][c] == CellTypes.Rock
-	    && getCell(r, c+1) != CellTypes.Empty) {
+            && getCell(r, c+1) != CellTypes.Empty) {
           continue;
-	}
+        }
 
-	// Death conditions
-	if (cellWillBeEmpty(r+1, c) &&
-	    ( isRock(getCell(r+2, c)) ||
-	      (isRock(getCell(r+2, c-1)) &&
-	       (getCell(r+1, c-1) == CellTypes.Lambda || isRock(getCell(r+1, c-1)) )) ||
-	      (isRock(getCell(r+2, c+1)) &&
-	       (isRock(getCell(r+1, c+1)) && getCell(r+1, c+2) != CellTypes.Empty))
-	    )) {
-	  continue;
-	}
+        // Death conditions
+        if (cellWillBeEmpty(r+1, c) &&
+            ( isRock(getCell(r+2, c)) ||
+              (isRock(getCell(r+2, c-1)) &&
+               (getCell(r+1, c-1) == CellTypes.Lambda || isRock(getCell(r+1, c-1)) )) ||
+              (isRock(getCell(r+2, c+1)) &&
+               (isRock(getCell(r+1, c+1)) && getCell(r+1, c+2) != CellTypes.Empty))
+              )) {
+          continue;
+        }
 
-	retList.add(robotMove[i]);
+        retList.add(robotMove[i]);
       }
     }
 
@@ -625,9 +627,9 @@ public class Board implements Cloneable {
       retList.add(Robot.Move.Shave);
 
     // for (Robot.Move b : retList) {
-    // System.out.print(b + " ");
+    //   System.err.print(b + " ");
     // }
-    // System.out.println();
+    // System.err.println();
 
     return retList;
   }

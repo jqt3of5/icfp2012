@@ -9,7 +9,7 @@ public class Main {
   public static void main(final String[] args) throws IOException {
 
     if (args.length == 0) {
-      System.err.println("Usage: java Main <greedy | greedier> [<file>]");
+      System.err.println("Usage: java Main <greedy | greedier | hungry> [<file>]");
     }
 
     // Add hook for
@@ -33,8 +33,8 @@ public class Main {
       map += scan.nextLine() + System.getProperty("line.separator");
     }
 
-    Board b = new Board(map);
-    System.out.println(b);
+    // Board b = new Board(map);
+    // System.out.println(b);
     Skynet superSky = null;
     if (args[0].equalsIgnoreCase("greedy")) {
       superSky = new Skynet.GreedySkynet(map);
