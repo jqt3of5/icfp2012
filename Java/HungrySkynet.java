@@ -1,21 +1,30 @@
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class HungrySkynet extends Skynet {
 
-  public interface Strategy {
-    public int value();
-    public Path getPath();
-    public int evaluate(BoardState currentBoard);
+  abstract class Strategy implements Comparable<Strategy> {
+    Board board;
+
+    public abstract double getValue();
+    public abstract Path getPath();
+    public abstract double evaluate(Board currentBoard);
+
+    public Board getBoard() { return board; }
+
+    public int compareTo(Strategy arg1) {
+      return (this.getValue() - arg1.getValue() == 0 ? 0 : (int)(this.getValue()
+                                                           - arg1.getValue()));
+    }
+
   }
 
-  public class Shave implements Strategy
+  public class Shave extends Strategy
   {
-    int value = -1;
+    double value = -1;
     Path stratPath = new Path();
-    BoardState state;
+    Board board;
     @Override
-    public int value() {
+    public double getValue() {
       return value;
     }
 
@@ -25,42 +34,42 @@ public class HungrySkynet extends Skynet {
     }
 
     @Override
-    public int evaluate(BoardState currentBoard) {
-      state = currentBoard;
+    public double evaluate(Board currentBoard) {
+      board = currentBoard;
       
-      state.board.tick(Robot.Move.Shave);
+      board.tick(Robot.Move.Shave);
       return 0;
     }
-    
   }
-  PriorityQueue<Strategy> strategies;
+  List<Strategy> strategies;
 
   public HungrySkynet(String mapStr) {
     super(mapStr);
-    strategies = new PriorityQueue<Strategy>(11, new Comparator<Strategy>() {
-
-      @Override
-      public int compare(Strategy arg0, Strategy arg1) {
-        return (arg0.value() - arg1.value() == 0 ? 0 : arg0.value()
-            - arg1.value());
-      }
-    });
+    strategies = new ArrayList<Strategy>();
   }
 
   @Override
   public String plan() {
+    final LinkedList<Path> totalPath = new LinkedList<Path>();
     
+    Strategy bestStrategy = null;
+    BoardState curState = null;
     while(true)
     {
-      
-      Strategy bestStrategy = strategies.poll();
-      
-      
-      
+      curBoard = bestStrategy.getBoard();
+      totalPath.add(bestStrategy.getPath());
+
+      double bestValue = Double.NEGATIVE_INFINITY;
+      for (Strategy s : strategies) {
+        double value = s.evaluate(curBoard);
+        if (value > bestValue) {
+          bestStrategy = s;
+          bestValue = value;
+        }
+      }
       
       if (true) break; // termination condition?
     }
     return null;
   }
-
 }

@@ -81,7 +81,7 @@ public class AStar {
 
       // System.err.println(curState.move);
       // System.err.println(curBoard);
-      // System.err.println(curBoard.getAvailableMoves());
+      // system.err.println(curBoard.getAvailableMoves());
 
       if (curBoard.state != Board.GameState.Lose &&
           curState.pathLength < maxPathLength) {

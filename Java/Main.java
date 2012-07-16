@@ -16,11 +16,11 @@ public class Main {
     Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
-	  gotSIGINT = true;
+          gotSIGINT = true;
           System.out.println("Shutdown hook ran!");
-	  try {
-	    Thread.sleep(1000);
-	  } catch(InterruptedException e) { System.err.println("interrupted"); }
+          try {
+            Thread.sleep(10000);
+          } catch(InterruptedException e) { System.err.println("interrupted"); }
         }
       });
 
@@ -46,7 +46,7 @@ public class Main {
     }
     System.out.println(superSky.plan());
     System.out.println("Score: " + superSky.score());
-    //    System.out.println(superSky.getBoard());
+    System.out.println(superSky.getBoard());
 
     /*while (true) {
       try {

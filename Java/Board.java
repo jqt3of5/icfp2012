@@ -23,7 +23,6 @@ public class Board implements Cloneable {
   public int waterRate;
   public int robotWaterLimit;
   public int growthRate;
-  public int razorCount;
   public int higherOrderCount;
   public ArrayList<Point> lambdaPos;
   public Point liftLocation;
@@ -89,7 +88,7 @@ public class Board implements Cloneable {
     waterLevel = 0;
     waterRate = 0;
     growthRate = 25;
-    razorCount = 0;
+    int razorCount = 0;
     higherOrderCount = 0;
     final HashMap<String, String> labelTolabel = new HashMap<String, String>();
     final HashMap<Point, String> trampToLabel = new HashMap<Point, String>();
@@ -137,7 +136,7 @@ public class Board implements Cloneable {
           break;
         case 'R':
           map[r][c] = CellTypes.Robot;
-          robby = new Robot(new Point(r, c));
+          robby = new Robot(new Point(r, c), razorCount);
           break;
         case '.':
           map[r][c] = CellTypes.Earth;
@@ -215,7 +214,6 @@ public class Board implements Cloneable {
     waterRate = oldBoard.waterRate;
     robotWaterLimit = oldBoard.robotWaterLimit;
     growthRate = oldBoard.growthRate;
-    razorCount = oldBoard.razorCount;
     lambdaPos = new ArrayList<Point>(oldBoard.lambdaPos);
     liftLocation = oldBoard.liftLocation;
     higherOrderCount = oldBoard.higherOrderCount;
@@ -309,7 +307,7 @@ public class Board implements Cloneable {
     case Abort:
       return GameState.Abort;
     case Shave:
-      if (razorCount < 1)
+      if (robby.razorCount < 1)
         return GameState.Continue;
       for (int i = y - 1; i < 3; ++i)
         for (int j = x - 1; j < 3; ++j) {
@@ -321,13 +319,13 @@ public class Board implements Cloneable {
             beards.remove(new Point(i, j));
           }
         }
-      razorCount--;
+      robby.razorCount--;
       return GameState.Continue;
 
     }
 
     if (map[yp][xp] == CellTypes.Razor) {
-      razorCount += 1;
+      robby.razorCount++;
     }
     // if we get to the exit and it is open, we win
     if (map[yp][xp] == CellTypes.Open) {
@@ -573,11 +571,10 @@ public class Board implements Cloneable {
 
   public List<Robot.Move> getAvailableMoves() {
     final List<Robot.Move> retList = new ArrayList<Robot.Move>();
-    final int[] dr = { -1, 0, 0, 1, 0 };
-    final int[] dc = { 0, -1, 1, 0, 0 };
+    final int[] dr = { -1, 0, 0, 1 };
+    final int[] dc = { 0, -1, 1, 0 };
     final Robot.Move[] robotMove = { Robot.Move.Down, Robot.Move.Left,
-                                     Robot.Move.Right, Robot.Move.Up,
-				     Robot.Move.Shave };
+                                     Robot.Move.Right, Robot.Move.Up};
 
     // TODO(jack): need to handle trampoline and possibly death
     // conditions here.
@@ -609,22 +606,12 @@ public class Board implements Cloneable {
           continue;
 	}
 
-	// No need to add shave if no Beard nearby
-	if (robotMove[i] == Robot.Move.Shave &&
-	    ! (getCell(r-1,c-1) == CellTypes.Beard ||
-	       getCell(r-1,c) == CellTypes.Beard ||
-	       getCell(r-1,c+1) == CellTypes.Beard ||
-	       getCell(r,c-1) == CellTypes.Beard ||
-	       getCell(r,c+1) == CellTypes.Beard ||
-	       getCell(r+1,c-1) == CellTypes.Beard ||
-	       getCell(r+1,c) == CellTypes.Beard ||
-	       getCell(r+1,c+1) == CellTypes.Beard)) {
-	  continue;
-	}
-
 	retList.add(robotMove[i]);
       }
     }
+
+    if (robby.razorCount > 0 && adjacentBeard(robby.getPosition().r, robby.getPosition().c))
+      retList.add(Robot.Move.Shave);
 
     // for (Robot.Move b : retList) {
     // System.out.print(b + " ");
@@ -637,6 +624,35 @@ public class Board implements Cloneable {
   public CellTypes getCell(int r, int c) {
     if (0 <= r && r < height && 0 <= c && c < width) return map[r][c];
     else return CellTypes.Wall;
+  }
+
+  private boolean adjacentBeard(int r, int c) {
+    if (r-1 >= 0) {
+      if (c-1 >= 0 && map[r-1][c-1] == CellTypes.Beard)
+        return true;
+      if (map[r-1][c-1] == CellTypes.Beard)
+        return true;
+      if (c+1 < width && map[r-1][c+1] == CellTypes.Beard)
+        return true;
+    }
+
+    if (c-1 >= 0 && map[r][c-1] == CellTypes.Beard)
+      return true;
+    if (map[r][c-1] == CellTypes.Beard)
+      return true;
+    if (c+1 < width && map[r][c+1] == CellTypes.Beard)
+      return true;
+
+    if (r+1 < height) {
+      if (c-1 >= 0 && map[r+1][c-1] == CellTypes.Beard)
+        return true;
+      if (map[r+1][c-1] == CellTypes.Beard)
+        return true;
+      if (c+1 < width && map[r+1][c+1] == CellTypes.Beard)
+        return true;
+    }
+
+    return false;
   }
 
   public CellTypes get(Point p) {
