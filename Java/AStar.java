@@ -75,24 +75,26 @@ public class AStar {
 
       // System.err.println(curState.move);
       // System.err.println(curBoard);
-      // System.err.println(curBoard.state);
       // System.err.println(curBoard.getAvailableMoves());
 
-      for (Robot.Move candMove : curBoard.getAvailableMoves()) {
-        BoardState newState = curState.board.getBoardState();
-        Board newBoard = newState.board;
-        Point newPosition = newBoard.getRobotPosition();
-        newState.parentState = curState;
-        newState.copyVisits(curState);
-        newState.move = candMove;
-        newBoard.tick(candMove);
-        newState.visits[newBoard.getRobotPosition().r][newBoard.getRobotPosition().c]++;
-        newState.score =
-          g.compute(newState, origin, newPosition) +
-          h.compute(newState, newPosition, destination);
-        candidates.add(newState);
+      if (curBoard.state != Board.GameState.Lose) {
+        
+        for (Robot.Move candMove : curBoard.getAvailableMoves()) {
+          BoardState newState = curState.board.getBoardState();
+          Board newBoard = newState.board;
+          Point newPosition = newBoard.getRobotPosition();
+          newState.parentState = curState;
+          newState.copyVisits(curState);
+          newState.move = candMove;
+          newBoard.tick(candMove);
+          newState.visits[newBoard.getRobotPosition().r][newBoard.getRobotPosition().c]++;
+          newState.score =
+            g.compute(newState, origin, newPosition) +
+            h.compute(newState, newPosition, destination);
+          candidates.add(newState);
 
-        // System.err.println(candMove + ": " + newState.score);
+          // System.err.println(candMove + ": " + newState.score);
+        }
       }
       // System.err.println();
 
