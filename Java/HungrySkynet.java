@@ -52,7 +52,7 @@ public class HungrySkynet extends Skynet {
 
     public boolean exec() {
       Random rand = new Random();
-      System.err.println(board.lambdaPos.size());
+      // System.err.println(board.lambdaPos.size());
       Point lambdaPt = board.lambdaPos.get(rand.nextInt(board.lambdaPos.size()));
       TerminationConditions.PointTermination terminator
         = new TerminationConditions.PointTermination(lambdaPt);
@@ -182,7 +182,7 @@ public class HungrySkynet extends Skynet {
 
       boolean finished = bestStrategy.exec();
       // System.err.println(finished);
-      System.err.println(bestStrategy);
+      // System.err.println(bestStrategy);
 
       if (Main.gotSIGINT) {
         break;
@@ -190,7 +190,7 @@ public class HungrySkynet extends Skynet {
 
       curBoard = bestStrategy.getBoard();
 
-      System.err.println(curBoard);
+      // System.err.println(curBoard);
 
       history.add(new History(bestStrategy.getPath(), new Board(curBoard), bestIndex));
       if (curBoard.robby.getScore() > bestScore) {
@@ -206,7 +206,7 @@ public class HungrySkynet extends Skynet {
         break;
 
       if (curBoard.lambdaPos.size() == 0 && curBoard.higherOrderCount == 0) {
-        System.err.println("Finishing");
+        // System.err.println("Finishing");
         finish();
       }
 
@@ -218,7 +218,7 @@ public class HungrySkynet extends Skynet {
       }
 
       if (stuck()) {
-        System.err.println("Hey, I'm stuck!");
+        // System.err.println("Hey, I'm stuck!");
         if (!backtrack())
           break;
       }
@@ -226,6 +226,10 @@ public class HungrySkynet extends Skynet {
 
     if (bestPath != null) {
       curBoard = bestBoard;
+      if (curBoard.state == Board.GameState.Lose) {
+        bestPath.pop();
+      }
+      // System.err.println(curBoard.state);
       return bestPath.toString();
     } else {
       return "A";
@@ -238,13 +242,13 @@ public class HungrySkynet extends Skynet {
     if (cur != null) {
       cur.triedChildren.add(last.strategyIndex);
       curBoard = cur.board;
-      System.err.println(cur.triedChildren.size());
+      // System.err.println(cur.triedChildren.size());
       if (cur.triedChildren.size() == strategies.size()) {
         return backtrack();
       }
       return true;
     }
-    System.err.println("no history");
+    // System.err.println("no history");
     return false;
   }
 

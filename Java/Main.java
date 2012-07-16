@@ -17,10 +17,12 @@ public class Main {
         @Override
         public void run() {
           gotSIGINT = true;
-          System.err.println("Shutdown hook ran!");
+          // System.err.println("Shutdown hook ran!");
           try {
             Thread.sleep(6000);
-          } catch(InterruptedException e) { System.err.println("interrupted"); }
+          } catch(InterruptedException e) {
+            //System.err.println("interrupted");
+          }
         }
       });
 
@@ -47,8 +49,8 @@ public class Main {
       System.exit(0);
     }
     System.out.println(superSky.plan());
-    System.out.println("Score: " + superSky.score());
-    System.out.println(superSky.getBoard());
+    // System.out.println("Score: " + superSky.score());
+    // System.out.println(superSky.getBoard());
 
     /*while (true) {
       try {

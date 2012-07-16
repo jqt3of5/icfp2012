@@ -206,7 +206,7 @@ public class Board implements Cloneable {
       trampToTargets.put(p, target);
     }
 
-    System.out.println("Creating a board from string");
+    // System.out.println("Creating a board from string");
   }
 
   public Board(final Board oldBoard) {

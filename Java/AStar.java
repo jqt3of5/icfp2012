@@ -69,7 +69,7 @@ public class AStar {
     candidates.add(board.getBoardState());
     final Point origin = board.getRobotPosition();
 
-    final int maxPathLength = 2*(board.height+board.width);
+    final int maxPathLength = board.height * board.width;
 
     while (true) {
       if (Main.gotSIGINT || halt) {

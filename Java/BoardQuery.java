@@ -37,6 +37,20 @@ class BoardQuery {
         return true;
       }
 
+      boolean allBlocked = true;
+      for (int i=r; i >= 0; i--) {
+        if (b.map[i][1] != Board.CellTypes.Wall
+            && b.map[i][1] != Board.CellTypes.Rock
+            && b.map[i][1] != Board.CellTypes.HigherOrder
+            && b.map[i][1] != Board.CellTypes.Beard
+          ) {
+          allBlocked = false;
+          break;
+        }
+      }
+      if (allBlocked)
+        return true;
+
     } else if (c == b.width-1) {
       // right
 
@@ -44,6 +58,19 @@ class BoardQuery {
         return true;
       }
 
+      boolean allBlocked = true;
+      for (int i=r; i >= 0; i--) {
+        if (b.map[i][c-1] != Board.CellTypes.Wall
+            && b.map[i][c-1] != Board.CellTypes.Rock
+            && b.map[i][c-1] != Board.CellTypes.HigherOrder
+            && b.map[i][c-1] != Board.CellTypes.Beard
+          ) {
+          allBlocked = false;
+          break;
+        }
+      }
+      if (allBlocked)
+        return true;
     }
 
     return false;

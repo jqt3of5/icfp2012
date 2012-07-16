@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd Java
+cd bin
 java Main hungry

@@ -103,7 +103,7 @@ public abstract class Skynet {
         if (Main.gotSIGINT)
           return totalPath.toString();
 
-        System.err.println("Pursuing lambda " + curBoard.lambdaPos.size());
+        // System.err.println("Pursuing lambda " + curBoard.lambdaPos.size());
 
         double bestScore = curBoard.robby.getScore();
         Board bestBoard = curBoard;
@@ -167,7 +167,7 @@ public abstract class Skynet {
         if (Main.gotSIGINT)
           return totalPath.toString();
 
-        System.out.println("Pursuing lambda " + curBoard.lambdaPos.size());
+        // System.out.println("Pursuing lambda " + curBoard.lambdaPos.size());
 
         int bestScore = curBoard.robby.getScore();
         Robot.Move bestMove = null;
@@ -220,7 +220,7 @@ public abstract class Skynet {
         if (Main.gotSIGINT)
           return totalPath.toString();
 
-        System.err.println("Greedier Pursuing lambda " + curBoard.lambdaPos.size());
+        // System.err.println("Greedier Pursuing lambda " + curBoard.lambdaPos.size());
 
         double bestScore = curBoard.robby.getScore();
         Board bestBoard = curBoard;

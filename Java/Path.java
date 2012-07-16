@@ -58,4 +58,9 @@ public class Path {
   public Robot.Move getFirstMove() {
     return moves.get(0);
   }
+
+  public void pop() {
+    moves.remove(moves.size()-1);
+    positions.remove(positions.size()-1);
+  }
 }
