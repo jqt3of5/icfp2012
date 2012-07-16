@@ -23,13 +23,12 @@ public class HungrySkynet extends Skynet {
 
   public class Shave extends Strategy
   {
-    double value = -1;
     Path stratPath = new Path();
-    Board board;
 
     @Override
     public void init(Board currentBoard) {
       board = currentBoard;
+      path = new Path();
       value = 0;
     }
     
@@ -41,16 +40,56 @@ public class HungrySkynet extends Skynet {
   public class Greediest extends Strategy {
     static final int NUM_LAMBDAS_PER_ITERATION = 3;
 
-    Board board;
-    double value;
-
     public void init(Board init) {
       board = init;
+      path = new Path();
       value = 1.0;
     }
 
     public void exec() {
+      System.err.println("Starting Greediest");
 
+      double bestScore = board.robby.getScore();
+      Board bestBoard = board;
+      Path bestPath = null;
+
+      final Queue<Point> nearestPoints = findClosestLambdas();
+      int numIterations = NUM_LAMBDAS_PER_ITERATION;
+      if (nearestPoints.size() < numIterations)
+        numIterations = nearestPoints.size();
+
+      for (int i = 0; i < numIterations ||
+             (bestPath == null && i < nearestPoints.size()); i++) {
+        final Point lambdaPt = nearestPoints.remove();
+        // System.err.println("Finding: " + lambdaPt);
+
+        final Board newBoard = new Board(board);
+        TerminationConditions.PointTermination terminator
+          = new TerminationConditions.PointTermination(lambdaPt);
+        AStar pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
+                                     new CostFunctions.ManhattanCost(),
+                                     terminator);
+        pathfinder.setTimeout(3000);
+        final boolean finished = pathfinder.findPath(newBoard, lambdaPt);
+
+        // save bestPath
+        if (finished &&
+            terminator.getBoard().robby.getScore() > bestScore) {
+          bestBoard = terminator.getBoard();
+          bestScore = terminator.getBoard().robby.getScore();
+          bestPath = terminator.getPath();
+        }
+
+        // System.err.println("Best path: " + bestPath);
+        if (Main.gotSIGINT) {
+          if (bestPath != null) path.addAll(bestPath);
+          return;
+        }
+      }
+      board = bestBoard;
+
+      if (bestPath == null) return;
+      path.addAll(bestPath);
     }
   }
 
@@ -61,6 +100,7 @@ public class HungrySkynet extends Skynet {
     super(mapStr);
     strategies = new ArrayList<Strategy>();
     strategies.add(new Shave());
+    strategies.add(new Greediest());
   }
 
   @Override
@@ -70,23 +110,30 @@ public class HungrySkynet extends Skynet {
     History curHistory = history.peekLast();
     while(true)
     {
+      System.err.println(curBoard);
+
       double bestValue = Double.NEGATIVE_INFINITY;
       int i;
       for (i = 0; i < strategies.size(); i++) {
-        if (curHistory.triedChildren.indexOf(i) != -1) {
+        if (curHistory != null
+            && curHistory.triedChildren.indexOf(i) != -1) {
           continue;
         }
         Strategy s = strategies.get(i);
         s.init(curBoard);
+        // System.err.println(s + " " + s.getValue());
         if (s.getValue() > bestValue) {
           bestStrategy = s;
           bestValue = s.getValue();
         }
       }
 
-      if (i == strategies.size()) {
+      if (bestValue == Double.NEGATIVE_INFINITY) {
         backtrack();
       }
+
+      bestStrategy.exec();
+      // System.err.println(bestStrategy);
 
       curBoard = bestStrategy.getBoard();
       history.add(new History(bestStrategy.getPath(), curBoard, i));
