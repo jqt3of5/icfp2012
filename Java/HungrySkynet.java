@@ -4,12 +4,15 @@ public class HungrySkynet extends Skynet {
 
   abstract class Strategy implements Comparable<Strategy> {
     Board board;
+    Path path;
+    double value;
 
-    public abstract double getValue();
-    public abstract Path getPath();
-    public abstract double evaluate(Board currentBoard);
+    public abstract void init(Board currentBoard);
+    public abstract void exec();
 
     public Board getBoard() { return board; }
+    public Path getPath() {return path; }
+    public double getValue() { return value; }
 
     public int compareTo(Strategy arg1) {
       return (this.getValue() - arg1.getValue() == 0 ? 0 : (int)(this.getValue()
@@ -23,22 +26,31 @@ public class HungrySkynet extends Skynet {
     double value = -1;
     Path stratPath = new Path();
     Board board;
-    @Override
-    public double getValue() {
-      return value;
-    }
 
     @Override
-    public Path getPath() {
-      return stratPath;
-    }
-
-    @Override
-    public double evaluate(Board currentBoard) {
+    public void init(Board currentBoard) {
       board = currentBoard;
-      
+      value = 0;
+    }
+    
+    public void exec() {
       board.tick(Robot.Move.Shave);
-      return 0;
+    }
+  }
+
+  public class Greediest extends Strategy {
+    static final int NUM_LAMBDAS_PER_ITERATION = 3;
+
+    Board board;
+    double value;
+
+    public void init(Board init) {
+      board = init;
+      value = 1.0;
+    }
+
+    public void exec() {
+
     }
   }
 
@@ -48,6 +60,7 @@ public class HungrySkynet extends Skynet {
   public HungrySkynet(String mapStr) {
     super(mapStr);
     strategies = new ArrayList<Strategy>();
+    strategies.add(new Shave());
   }
 
   @Override
@@ -64,10 +77,10 @@ public class HungrySkynet extends Skynet {
           continue;
         }
         Strategy s = strategies.get(i);
-        double value = s.evaluate(curBoard);
-        if (value > bestValue) {
+        s.init(curBoard);
+        if (s.getValue() > bestValue) {
           bestStrategy = s;
-          bestValue = value;
+          bestValue = s.getValue();
         }
       }
 
