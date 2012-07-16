@@ -103,9 +103,6 @@ public abstract class Skynet {
           pathfinder.setTimeout(1000);
           final boolean finished = pathfinder.findPath(newBoard, lambdaPt);
 
-          if (Main.gotSIGINT)
-            return totalPath.toString();
-
           // save bestPath
           if (finished &&
               terminator.getBoard().robby.getScore() > bestScore) {
@@ -113,6 +110,11 @@ public abstract class Skynet {
             bestScore = terminator.getBoard().robby.getScore();
             bestPath = terminator.getPath();
           }
+
+          if (Main.gotSIGINT) {
+	    if (bestPath != null) totalPath.addAll(bestPath);
+            return totalPath.toString();
+	  }
         }
         curBoard = bestBoard;
 
@@ -222,7 +224,7 @@ public abstract class Skynet {
           pathfinder = new AStar(new CostFunctions.BoardSensingCost(),
                                  new CostFunctions.ManhattanCost(),
                                  terminator);
-          pathfinder.setTimeout(1000);
+          pathfinder.setTimeout(3000);
           final boolean finished = pathfinder.findPath(newBoard, lambdaPt);
 
           // save bestPath
@@ -234,8 +236,10 @@ public abstract class Skynet {
           }
 
           System.err.println("Best path: " + bestPath);
-          if (Main.gotSIGINT)
+          if (Main.gotSIGINT) {
+	    if (bestPath != null) totalPath.addAll(bestPath);
             return totalPath.toString();
+	  }
         }
         curBoard = bestBoard;
 
