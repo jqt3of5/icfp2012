@@ -39,12 +39,12 @@ public class Test<E extends Skynet> {
   
   public void runTests(Class SkynetClass) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     for (int i=0; i < maps.size(); i++) {
+      Timer timer = new Timer();
       String map = maps.get(i);
       String mapName = mapNames.get(i);
 
-      Timer timer = new Timer();
       //long delay = 150*1000;
-      long delay = 10*1000;
+      long delay = 30*1000;
 
       Main.gotSIGINT = false;
 
@@ -56,11 +56,13 @@ public class Test<E extends Skynet> {
 
       timer.schedule(new Reminder(), delay);
       
-      
-      planner.plan();
+      String plan = planner.plan();
+
+      timer.cancel();
 
       int score = planner.score();
       System.out.println("Score: " + score);
+      System.out.println("Path: " + plan);
       
       scores.add(score);
     }
@@ -86,7 +88,7 @@ public class Test<E extends Skynet> {
     
     t.readMaps();
 
-    t.runTests(Skynet.GreedySkynet.class);
+    t.runTests(Skynet.GreedierSkynet.class);
   }
   
 }
